@@ -1,0 +1,14 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.form-select.placeholder-active {
+  color: #6c757d;
+}
+
+.form-select.placeholder-active option {
+  color: #212529;
+}
