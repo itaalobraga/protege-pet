@@ -5,16 +5,6 @@ import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../../../services/ApiService";
 
-const CATEGORIAS = [
-  "Ração",
-  "Brinquedo",
-  "Higiene",
-  "Acessório",
-  "Remédios",
-  "Petisco",
-  "Outros",
-];
-
 function Formulario() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -27,6 +17,9 @@ function Formulario() {
     categoria: "",
     descricao: "",
   });
+
+  const [categorias, setCategorias] = useState([]);
+
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVariant, setToastVariant] = useState("success");
@@ -47,6 +40,19 @@ function Formulario() {
       });
     }
   }, [id, isEdit]);
+
+  useEffect(() => {
+    async function carregarCategorias() {
+      try {
+        const resposta = await ApiService.get("/categorias");
+        setCategorias(resposta || []);
+      } catch (error) {
+        console.error("Erro ao carregar categorias:", error);
+      }
+    }
+
+    carregarCategorias();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -145,7 +151,9 @@ function Formulario() {
               </Col>
               <Col md={4}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold">Código (SKU) *</Form.Label>
+                  <Form.Label className="fw-semibold">
+                    Código (SKU) *
+                  </Form.Label>
                   <Form.Control
                     type="text"
                     name="sku"
@@ -190,9 +198,9 @@ function Formulario() {
                     className={!formData.categoria ? "placeholder-active" : ""}
                   >
                     <option value="">Selecione uma categoria</option>
-                    {CATEGORIAS.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
+                    {categorias.map((categoria) => (
+                      <option key={categoria.id} value={categoria.nome}>
+                        {categoria.nome}
                       </option>
                     ))}
                   </Form.Select>
@@ -233,8 +241,16 @@ function Formulario() {
           autohide
           className="border-0 shadow"
         >
-          <Toast.Body className={`d-flex align-items-center gap-2 text-${toastVariant}`}>
-            <i className={`bi bi-${toastVariant === "success" ? "check-circle-fill" : "exclamation-circle-fill"}`}></i>
+          <Toast.Body
+            className={`d-flex align-items-center gap-2 text-${toastVariant}`}
+          >
+            <i
+              className={`bi bi-${
+                toastVariant === "success"
+                  ? "check-circle-fill"
+                  : "exclamation-circle-fill"
+              }`}
+            ></i>
             {toastMessage}
           </Toast.Body>
         </Toast>

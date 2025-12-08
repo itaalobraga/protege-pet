@@ -144,3 +144,29 @@ INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv, disponibilidad
 ('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@protegepet.org', 'CRMV-SP 34567', 'Sábados e Domingos'),
 ('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678', 'Segunda a Sexta - Tarde'),
 ('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789', 'Noturno');
+
+
+CREATE TABLE IF NOT EXISTS categorias_produtos (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  descricao VARCHAR(255) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_categoria_produto_nome ON categorias_produtos(nome);
+
+INSERT INTO categorias_produtos (nome, descricao)
+SELECT 'Acessório', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Acessório');
+INSERT INTO categorias_produtos (nome, descricao)
+SELECT 'Brinquedo', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Brinquedo');
+INSERT INTO categorias_produtos (nome, descricao)
+SELECT 'Higiene', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Higiene');
+INSERT INTO categorias_produtos (nome, descricao)
+SELECT 'Ração', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Ração');
+INSERT INTO categorias_produtos (nome, descricao)
+SELECT 'Remédios', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Remédios');
+INSERT INTO categorias_produtos (nome, descricao)
+SELECT 'Petisco', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Petisco');
+INSERT INTO categorias_produtos (nome, descricao)
+SELECT 'Outros', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Outros');
