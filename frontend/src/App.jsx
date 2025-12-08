@@ -10,6 +10,8 @@ import CadastroDeProdutos from "./pages/CadastroDeProdutos/CadastroDeProdutos.js
 import ListaDeProdutos from "./pages/ListaDeProdutos/ListaDeProdutos.jsx";
 import CadastroDeVeterinarios from "./pages/CadastroDeVeterinarios/CadastroDeVeterinarios.jsx";
 import ListaDeVeterinarios from "./pages/ListaDeVeterinarios/ListaDeVeterinarios.jsx";
+import ListaDeCategorias from "./pages/ListaDeCategorias/ListaDeCategorias";
+import CadastroDeCategorias from "./pages/CadastroDeCategorias/CadastroDeCategorias";
 import "./App.css";
 
 function App() {
@@ -37,6 +39,11 @@ function App() {
         <Route path="/veterinarios" element={<ListaDeVeterinarios />} />
         <Route path="/veterinarios/cadastro" element={<CadastroDeVeterinarios />} />
         <Route path="/veterinarios/cadastro/editar/:id" element={<CadastroDeVeterinarios />} />
+
+        <Route path="/categorias" element={<ListaDeCategorias />} />
+        <Route path="/categorias/nova" element={<CadastroDeCategorias />} />
+
+
       </Routes>
     </BrowserRouter>
   );
