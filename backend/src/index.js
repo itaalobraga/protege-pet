@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import pool from "./config/database.js";
 import VoluntarioRoutes from "./routes/VoluntarioRoutes.js";
 import UsuarioRoutes from "./routes/UsuarioRoutes.js";
 import AnimalRoutes from "./routes/AnimalRoutes.js";
@@ -16,6 +17,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.get("/health", async (req, res) => {
+  try {
+    const connection = await pool.getConnection();
+    await connection.ping();
+    connection.release();
+
+    res.status(200).json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      database: "connected",
+      uptime: process.uptime(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: "unhealthy",
+      timestamp: new Date().toISOString(),
+      database: "disconnected",
+      error: error.message,
+    });
+  }
+});
 
 app.use("/api", VoluntarioRoutes);
 app.use("/api", UsuarioRoutes);
