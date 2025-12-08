@@ -24,27 +24,46 @@ INSERT INTO voluntarios (vlt_nome, vlt_cpf, vlt_telefone, vlt_tel_Residencial, v
 ('João Pedro Almeida', '456.789.012-33', '(18) 96543-2109', '(18) 3224-7890', 'joao.almeida@email.com', 'Segunda a Sexta - Noite'),
 ('Mariana Lima Pereira', '567.890.123-44', '(18) 95432-1098', '(18) 3225-8901', 'mariana.lima@email.com', 'Finais de Semana - Integral');
 
+CREATE TABLE IF NOT EXISTS funcoes (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL UNIQUE,
+  permissoes JSON NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_funcao_nome ON funcoes(nome);
+
+INSERT INTO funcoes (nome, permissoes) VALUES
+('Administrador', '["Gerenciar usuários", "Gerenciar produtos", "Gerenciar voluntários", "Gerenciar veterinários", "Gerenciar animais"]'),
+('Gerente de Estoque', '["Gerenciar produtos"]'),
+('Coordenador de Voluntários', '["Gerenciar voluntários", "Gerenciar animais"]'),
+('Veterinário Responsável', '["Gerenciar veterinários", "Gerenciar animais"]'),
+('Atendente', '["Gerenciar animais", "Gerenciar voluntários"]');
+
 CREATE TABLE IF NOT EXISTS usuarios (
   id VARCHAR(36) PRIMARY KEY,
   nome VARCHAR(255) NOT NULL,
-  funcao VARCHAR(100) NOT NULL,
+  funcao_id INT NOT NULL,
   telefone VARCHAR(20) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   disponibilidade VARCHAR(100) NOT NULL,
   senha VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (funcao_id) REFERENCES funcoes(id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_usuario_email ON usuarios(email);
 CREATE INDEX idx_usuario_nome ON usuarios(nome);
+CREATE INDEX idx_usuario_funcao ON usuarios(funcao_id);
 
-INSERT INTO usuarios (id, nome, funcao, telefone, email, disponibilidade, senha) VALUES
-('550e8400-e29b-41d4-a716-446655440001', 'Ana Silva', 'Administração', '(11) 98765-4321', 'ana.silva@protegepet.org', 'Segunda a Sexta', '123456'),
-('550e8400-e29b-41d4-a716-446655440002', 'Carlos Santos', 'Veterinário', '(11) 97654-3210', 'carlos.santos@protegepet.org', 'Plantão', '123456'),
-('550e8400-e29b-41d4-a716-446655440003', 'Fernanda Costa', 'Voluntariado', '(11) 96543-2109', 'fernanda.costa@protegepet.org', 'Final de Semana', '123456'),
-('550e8400-e29b-41d4-a716-446655440004', 'João Oliveira', 'Financeiro', '(11) 95432-1098', 'joao.oliveira@protegepet.org', 'Segunda a Sexta', '123456'),
-('550e8400-e29b-41d4-a716-446655440005', 'Mariana Lima', 'Comunicação', '(11) 94321-0987', 'mariana.lima@protegepet.org', 'Dias Alternados', '123456');
+INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha) VALUES
+('550e8400-e29b-41d4-a716-446655440001', 'Ana Silva', 1, '(11) 98765-4321', 'ana.silva@protegepet.org', 'Segunda a Sexta - Manhã', '123456'),
+('550e8400-e29b-41d4-a716-446655440002', 'Carlos Santos', 4, '(11) 97654-3210', 'carlos.santos@protegepet.org', 'Plantão', '123456'),
+('550e8400-e29b-41d4-a716-446655440003', 'Fernanda Costa', 3, '(11) 96543-2109', 'fernanda.costa@protegepet.org', 'Sábados e Domingos', '123456'),
+('550e8400-e29b-41d4-a716-446655440004', 'João Oliveira', 2, '(11) 95432-1098', 'joao.oliveira@protegepet.org', 'Segunda a Sexta - Tarde', '123456'),
+('550e8400-e29b-41d4-a716-446655440005', 'Mariana Lima', 5, '(11) 94321-0987', 'mariana.lima@protegepet.org', 'Noturno', '123456');
 
 CREATE TABLE IF NOT EXISTS animais (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

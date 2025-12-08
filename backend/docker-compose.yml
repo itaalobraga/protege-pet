@@ -7,10 +7,33 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
     ports:
       - "${DB_PORT}:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - protege-pet-mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - protege-pet-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: protege-pet-phpmyadmin
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    ports:
+      - '8080:80'
+    networks:
+      - protege-pet-network
 
 volumes:
-  mysql_data:
+  protege-pet-mysql-data:
+    driver: local
+
+networks:
+  protege-pet-network:
+    driver: bridge

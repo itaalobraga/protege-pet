@@ -38,9 +38,9 @@ class UsuarioController {
 
   static async criar(req, res) {
     try {
-      const { nome, funcao, telefone, email, disponibilidade, senha } = req.body;
+      const { nome, funcao_id, telefone, email, disponibilidade, senha } = req.body;
 
-      if (!nome || !funcao || !telefone || !email || !disponibilidade || !senha) {
+      if (!nome || !funcao_id || !telefone || !email || !disponibilidade || !senha) {
         return res.status(400).json({
           error: "Todos os campos são obrigatórios",
         });
@@ -61,7 +61,7 @@ class UsuarioController {
       const usuario = await UsuarioModel.criar({
         id,
         nome,
-        funcao,
+        funcao_id,
         telefone,
         email,
         disponibilidade,
@@ -78,9 +78,9 @@ class UsuarioController {
   static async atualizar(req, res) {
     try {
       const { id } = req.params;
-      const { nome, funcao, telefone, email, disponibilidade, senha } = req.body;
+      const { nome, funcao_id, telefone, email, disponibilidade, senha } = req.body;
 
-      if (!nome || !funcao || !telefone || !email || !disponibilidade || !senha) {
+      if (!nome || !funcao_id || !telefone || !email || !disponibilidade || !senha) {
         return res.status(400).json({
           error: "Todos os campos são obrigatórios",
         });
@@ -98,7 +98,7 @@ class UsuarioController {
 
       const usuario = await UsuarioModel.atualizar(id, {
         nome,
-        funcao,
+        funcao_id,
         telefone,
         email,
         disponibilidade,

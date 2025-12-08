@@ -6,19 +6,12 @@ import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../../../services/ApiService";
 
-const FUNCOES = [
-  "Administração",
-  "Veterinário",
-  "Voluntariado",
-  "Financeiro",
-  "Comunicação",
-];
-
 const DISPONIBILIDADES = [
-  "Segunda a Sexta",
-  "Final de Semana",
+  "Segunda a Sexta - Manhã",
+  "Segunda a Sexta - Tarde",
   "Plantão",
-  "Dias Alternados",
+  "Sábados e Domingos",
+  "Noturno",
 ];
 
 function Formulario() {
@@ -28,24 +21,29 @@ function Formulario() {
 
   const [formData, setFormData] = useState({
     nome: "",
-    funcao: "",
+    funcao_id: "",
     telefone: "",
     email: "",
     disponibilidade: "",
     senha: "",
   });
+  const [funcoes, setFuncoes] = useState([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVariant, setToastVariant] = useState("success");
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    ApiService.get("/funcoes").then((response) => {
+      setFuncoes(response || []);
+    });
+
     if (isEdit) {
       ApiService.get(`/usuarios/${id}`).then((response) => {
         if (response) {
           setFormData({
             nome: response.nome || "",
-            funcao: response.funcao || "",
+            funcao_id: response.funcao_id || "",
             telefone: response.telefone || "",
             email: response.email || "",
             disponibilidade: response.disponibilidade || "",
@@ -68,8 +66,8 @@ function Formulario() {
       novosErros.nome = "Nome deve ter pelo menos 3 caracteres";
     }
 
-    if (!formData.funcao) {
-      novosErros.funcao = "Selecione uma função";
+    if (!formData.funcao_id) {
+      novosErros.funcao_id = "Selecione uma função";
     }
 
     if (!formData.telefone || formData.telefone.replace(/\D/g, "").length < 11) {
@@ -103,7 +101,7 @@ function Formulario() {
     if (validarFormulario()) {
       const payload = {
         nome: formData.nome,
-        funcao: formData.funcao,
+        funcao_id: parseInt(formData.funcao_id),
         telefone: formData.telefone,
         email: formData.email,
         disponibilidade: formData.disponibilidade,
@@ -165,21 +163,21 @@ function Formulario() {
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-semibold">Função *</Form.Label>
                   <Form.Select
-                    name="funcao"
-                    value={formData.funcao}
+                    name="funcao_id"
+                    value={formData.funcao_id}
                     onChange={handleChange}
-                    isInvalid={!!errors.funcao}
-                    className={!formData.funcao ? "placeholder-active" : ""}
+                    isInvalid={!!errors.funcao_id}
+                    className={!formData.funcao_id ? "placeholder-active" : ""}
                   >
                     <option value="">Selecione uma função</option>
-                    {FUNCOES.map((funcao) => (
-                      <option key={funcao} value={funcao}>
-                        {funcao}
+                    {funcoes.map((funcao) => (
+                      <option key={funcao.id} value={funcao.id}>
+                        {funcao.nome}
                       </option>
                     ))}
                   </Form.Select>
                   <Form.Control.Feedback type="invalid">
-                    {errors.funcao}
+                    {errors.funcao_id}
                   </Form.Control.Feedback>
                 </Form.Group>
               </Col>
