@@ -27,7 +27,7 @@ class Animal {
     } = animal;
 
     const [result] = await pool.query(
-      `INSERT INTO animais (nome, especie, raca, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status) 
+      `INSERT INTO animais (nome, especie, raca, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [nome, especie, raca, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status || "Apto"]
     );
@@ -69,9 +69,9 @@ class Animal {
   static async filtrar(termo) {
     const termoBusca = `%${termo}%`;
     const [rows] = await pool.query(
-      `SELECT * FROM animais 
-       WHERE nome LIKE ? 
-       OR especie LIKE ? 
+      `SELECT * FROM animais
+       WHERE nome LIKE ?
+       OR especie LIKE ?
        OR raca LIKE ?
        OR status LIKE ?
        ORDER BY nome`,
@@ -82,4 +82,3 @@ class Animal {
 }
 
 export default Animal;
-

@@ -8,6 +8,7 @@ import AnimalRoutes from "./routes/AnimalRoutes.js";
 import ProdutoRoutes from "./routes/ProdutoRoutes.js";
 import VeterinarioRoutes from "./routes/VeterinarioRoutes.js";
 import FuncaoRoutes from "./routes/FuncaoRoutes.js";
+import RacaRoutes from "./routes/RacaRoutes.js";
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ app.use("/api", AnimalRoutes);
 app.use("/api", ProdutoRoutes);
 app.use("/api", VeterinarioRoutes);
 app.use("/api", FuncaoRoutes);
+app.use("/api", RacaRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "API ProtegePet está rodando" });

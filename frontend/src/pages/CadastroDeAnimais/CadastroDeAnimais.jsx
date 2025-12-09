@@ -16,4 +16,3 @@ function CadastroDeAnimais() {
 }
 
 export default CadastroDeAnimais;
-
