@@ -28,6 +28,7 @@ function ListaDeFuncoes() {
       setFuncoes(response || []);
     } catch (error) {
       console.error("Erro ao carregar funções:", error);
+      exibirToast("Erro ao carregar funções.", "danger");
     } finally {
       setLoading(false);
     }

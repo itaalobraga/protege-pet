@@ -25,7 +25,6 @@ function ListaDeCategorias() {
         ? `/categorias?busca=${encodeURIComponent(termo)}`
         : "/categorias";
       const response = await ApiService.get(endpoint);
-      // ApiService já retorna response.data, igual na ListaDeFuncoes
       setCategorias(response || []);
     } catch (error) {
       console.error("Erro ao carregar categorias:", error);
@@ -77,7 +76,7 @@ function ListaDeCategorias() {
       <main>
         <Container className="py-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h5 className="mb-0 fw-semibold">Categorias de produtos</h5>
+            <h5 className="mb-0 fw-semibold">Categorias</h5>
             <div className="d-flex align-items-center gap-3">
               <input
                 type="text"

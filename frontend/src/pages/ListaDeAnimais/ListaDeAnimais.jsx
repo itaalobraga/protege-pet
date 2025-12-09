@@ -15,6 +15,14 @@ function ListaDeAnimais() {
   const [showToast, setShowToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [idParaExcluir, setIdParaExcluir] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState("success");
+
+  const exibirToast = (mensagem, variante = "success") => {
+    setToastMessage(mensagem);
+    setToastVariant(variante);
+    setShowToast(true);
+  };
 
   const carregarAnimais = useCallback(async (termo = "") => {
     setLoading(true);
@@ -26,6 +34,7 @@ function ListaDeAnimais() {
       setAnimais(response || []);
     } catch (error) {
       console.error("Erro ao carregar animais:", error);
+      exibirToast("Erro ao carregar animais.", "danger");
     } finally {
       setLoading(false);
     }
@@ -42,10 +51,11 @@ function ListaDeAnimais() {
   const handleExcluirChange = async (id) => {
     try {
       await ApiService.delete(`/animais/${id}`);
-      setShowToast(true);
+      exibirToast("Animal excluído com sucesso!", "success");
       carregarAnimais(search);
     } catch (error) {
       console.error("Erro ao excluir:", error);
+      exibirToast(error.message || "Erro ao excluir animal", "danger");
     }
   };
 
@@ -171,13 +181,21 @@ function ListaDeAnimais() {
         <Toast
           show={showToast}
           onClose={() => setShowToast(false)}
-          delay={3000}
+          delay={4000}
           autohide
           className="border-0 shadow"
         >
-          <Toast.Body className="d-flex align-items-center gap-2 text-danger">
-            <i className="bi bi-check-circle-fill"></i>
-            Animal excluído com sucesso!
+          <Toast.Body
+            className={`d-flex align-items-center gap-2 text-${toastVariant}`}
+          >
+            <i
+              className={`bi bi-${
+                toastVariant === "success"
+                  ? "check-circle-fill"
+                  : "exclamation-circle-fill"
+              }`}
+            ></i>
+            {toastMessage}
           </Toast.Body>
         </Toast>
       </ToastContainer>
@@ -207,4 +225,3 @@ function ListaDeAnimais() {
 }
 
 export default ListaDeAnimais;
-
