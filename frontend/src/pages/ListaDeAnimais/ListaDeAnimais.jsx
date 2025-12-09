@@ -207,4 +207,3 @@ function ListaDeAnimais() {
 }
 
 export default ListaDeAnimais;
-

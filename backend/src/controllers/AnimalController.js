@@ -139,4 +139,3 @@ class AnimalController {
 }
 
 export default AnimalController;
-
