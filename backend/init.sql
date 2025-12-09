@@ -156,17 +156,11 @@ CREATE TABLE IF NOT EXISTS categorias_produtos (
 
 CREATE INDEX idx_categoria_produto_nome ON categorias_produtos(nome);
 
-INSERT INTO categorias_produtos (nome, descricao)
-SELECT 'Acessório', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Acessório');
-INSERT INTO categorias_produtos (nome, descricao)
-SELECT 'Brinquedo', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Brinquedo');
-INSERT INTO categorias_produtos (nome, descricao)
-SELECT 'Higiene', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Higiene');
-INSERT INTO categorias_produtos (nome, descricao)
-SELECT 'Ração', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Ração');
-INSERT INTO categorias_produtos (nome, descricao)
-SELECT 'Remédios', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Remédios');
-INSERT INTO categorias_produtos (nome, descricao)
-SELECT 'Petisco', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Petisco');
-INSERT INTO categorias_produtos (nome, descricao)
-SELECT 'Outros', NULL FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM categorias_produtos WHERE nome = 'Outros');
+INSERT INTO categorias_produtos (nome, descricao) VALUES
+('Acessório', 'Coleiras, guias, camas, casinhas e outros acessórios para pets'),
+('Brinquedo', 'Brinquedos e mordedores para cães e gatos'),
+('Higiene', 'Produtos de higiene, limpeza e cuidados pessoais para animais'),
+('Ração', 'Rações secas e úmidas para cães e gatos'),
+('Remédios', 'Medicamentos, vermífugos e produtos veterinários'),
+('Petisco', 'Petiscos, snacks e recompensas para pets'),
+('Outros', 'Outros produtos diversos para animais de estimação');
