@@ -13,6 +13,7 @@ function Formulario() {
 
   const navigate = useNavigate();
   const { id } = useParams();
+  
   useEffect(() => {
     if (id) {
       const carregarDados = async () => {
@@ -57,7 +58,7 @@ function Formulario() {
         exibirToast("Raça cadastrada com sucesso!", "success");
       }
       setTimeout(() => {
-        navigate("/lista-racas");
+        navigate("/racas");
       }, 1500);
 
     } catch (error) {
@@ -110,7 +111,7 @@ function Formulario() {
           <Button
             variant="outline-secondary"
             type="button"
-            onClick={() => navigate("/lista-racas")}
+            onClick={() => navigate("/racas")}
             disabled={loading}
           >
             Cancelar
