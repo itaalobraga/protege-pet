@@ -1,13 +1,14 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import pool from "./config/database.js";
 import VoluntarioRoutes from "./routes/VoluntarioRoutes.js";
 import UsuarioRoutes from "./routes/UsuarioRoutes.js";
 import AnimalRoutes from "./routes/AnimalRoutes.js";
 import ProdutoRoutes from "./routes/ProdutoRoutes.js";
 import VeterinarioRoutes from "./routes/VeterinarioRoutes.js";
 import FuncaoRoutes from "./routes/FuncaoRoutes.js";
+import CategoriaRoutes from "./routes/CategoriaRoutes.js";
+import pool from "./config/database.js";
 import RacaRoutes from "./routes/RacaRoutes.js";
 
 dotenv.config();
@@ -47,6 +48,7 @@ app.use("/api", AnimalRoutes);
 app.use("/api", ProdutoRoutes);
 app.use("/api", VeterinarioRoutes);
 app.use("/api", FuncaoRoutes);
+app.use("/api", CategoriaRoutes);
 app.use("/api", RacaRoutes);
 
 app.get("/", (req, res) => {

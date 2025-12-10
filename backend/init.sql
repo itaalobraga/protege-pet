@@ -145,6 +145,25 @@ INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv, disponibilidad
 ('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678', 'Segunda a Sexta - Tarde'),
 ('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789', 'Noturno');
 
+CREATE TABLE IF NOT EXISTS categorias_produtos (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  descricao VARCHAR(255) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_categoria_produto_nome ON categorias_produtos(nome);
+
+INSERT INTO categorias_produtos (nome, descricao) VALUES
+('Acessório', 'Coleiras, guias, camas, casinhas e outros acessórios para pets'),
+('Brinquedo', 'Brinquedos e mordedores para cães e gatos'),
+('Higiene', 'Produtos de higiene, limpeza e cuidados pessoais para animais'),
+('Ração', 'Rações secas e úmidas para cães e gatos'),
+('Remédios', 'Medicamentos, vermífugos e produtos veterinários'),
+('Petisco', 'Petiscos, snacks e recompensas para pets'),
+('Outros', 'Outros produtos diversos para animais de estimação');
+
 CREATE TABLE IF NOT EXISTS racas (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,

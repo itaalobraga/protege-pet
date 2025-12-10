@@ -12,6 +12,8 @@ import CadastroDeVeterinarios from "./pages/CadastroDeVeterinarios/CadastroDeVet
 import ListaDeVeterinarios from "./pages/ListaDeVeterinarios/ListaDeVeterinarios.jsx";
 import CadastroDeFuncoes from "./pages/CadastroDeFuncoes/CadastroDeFuncoes.jsx";
 import ListaDeFuncoes from "./pages/ListaDeFuncoes/ListaDeFuncoes.jsx";
+import ListaDeCategorias from "./pages/ListaDeCategorias/ListaDeCategorias";
+import CadastroDeCategorias from "./pages/CadastroDeCategorias/CadastroDeCategorias";
 import ListaDeRacas from "./pages/ListaDeRacas/ListaDeRacas.jsx";
 import CadastroDeRacas from "./pages/CadastroDeRacas/CadastroDeRacas.jsx";
 import "./App.css";
@@ -45,6 +47,10 @@ function App() {
         <Route path="/funcoes" element={<ListaDeFuncoes />} />
         <Route path="/funcoes/cadastro" element={<CadastroDeFuncoes />} />
         <Route path="/funcoes/cadastro/editar/:id" element={<CadastroDeFuncoes />} />
+
+        <Route path="/categorias" element={<ListaDeCategorias />} />
+        <Route path="/categorias/cadastro" element={<CadastroDeCategorias />} />
+        <Route path="/categorias/cadastro/editar/:id" element={<CadastroDeCategorias />} />
 
         <Route path="/racas" element={<ListaDeRacas />} />
         <Route path="/racas/cadastro" element={<CadastroDeRacas />} />

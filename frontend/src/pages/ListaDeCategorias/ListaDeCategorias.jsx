@@ -8,33 +8,27 @@ import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../services/ApiService";
 
-function ListaDeAnimais() {
-  const [animais, setAnimais] = useState([]);
+function ListaDeCategorias() {
+  const [categorias, setCategorias] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [idParaExcluir, setIdParaExcluir] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVariant, setToastVariant] = useState("success");
+  const [showModal, setShowModal] = useState(false);
+  const [idParaExcluir, setIdParaExcluir] = useState(null);
 
-  const exibirToast = (mensagem, variante = "success") => {
-    setToastMessage(mensagem);
-    setToastVariant(variante);
-    setShowToast(true);
-  };
-
-  const carregarAnimais = useCallback(async (termo = "") => {
+  const carregarCategorias = useCallback(async (termo = "") => {
     setLoading(true);
     try {
       const endpoint = termo
-        ? `/animais?busca=${encodeURIComponent(termo)}`
-        : "/animais";
+        ? `/categorias?busca=${encodeURIComponent(termo)}`
+        : "/categorias";
       const response = await ApiService.get(endpoint);
-      setAnimais(response || []);
+      setCategorias(response || []);
     } catch (error) {
-      console.error("Erro ao carregar animais:", error);
-      exibirToast("Erro ao carregar animais.", "danger");
+      console.error("Erro ao carregar categorias:", error);
+      exibirToast("Erro ao carregar categorias.", "danger");
     } finally {
       setLoading(false);
     }
@@ -42,20 +36,26 @@ function ListaDeAnimais() {
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      carregarAnimais(search);
+      carregarCategorias(search);
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [search, carregarAnimais]);
+  }, [search, carregarCategorias]);
+
+  const exibirToast = (mensagem, variante = "success") => {
+    setToastMessage(mensagem);
+    setToastVariant(variante);
+    setShowToast(true);
+  };
 
   const handleExcluirChange = async (id) => {
     try {
-      await ApiService.delete(`/animais/${id}`);
-      exibirToast("Animal excluído com sucesso!", "success");
-      carregarAnimais(search);
+      await ApiService.delete(`/categorias/${id}`);
+      exibirToast("Categoria excluída com sucesso!", "success");
+      carregarCategorias(search);
     } catch (error) {
-      console.error("Erro ao excluir:", error);
-      exibirToast(error.message || "Erro ao excluir animal", "danger");
+      console.error("Erro ao excluir categoria:", error);
+      exibirToast(error.message || "Erro ao excluir categoria", "danger");
     }
   };
 
@@ -69,17 +69,6 @@ function ListaDeAnimais() {
     setShowModal(false);
   };
 
-  const getStatusBadge = (status) => {
-    const statusLower = (status || "").toLowerCase();
-    if (statusLower.includes("tratamento")) {
-      return <span className="badge bg-warning text-dark">{status}</span>;
-    }
-    if (statusLower.includes("apto")) {
-      return <span className="badge bg-success">{status}</span>;
-    }
-    return <span className="badge bg-secondary">{status || "Apto"}</span>;
-  };
-
   return (
     <>
       <Header />
@@ -87,7 +76,7 @@ function ListaDeAnimais() {
       <main>
         <Container className="py-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h5 className="mb-0 fw-semibold">Animais</h5>
+            <h5 className="mb-0 fw-semibold">Categorias</h5>
             <div className="d-flex align-items-center gap-3">
               <input
                 type="text"
@@ -96,15 +85,15 @@ function ListaDeAnimais() {
                 style={{ width: "200px" }}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                aria-label="Buscar animal"
+                aria-label="Buscar categoria"
               />
               <Link
-                to="/animais/cadastro"
+                to="/categorias/cadastro"
                 className="btn btn-success d-flex align-items-center gap-2"
                 tabIndex={0}
-                aria-label="Cadastrar novo animal"
+                aria-label="Cadastrar nova categoria"
               >
-                <i className="bi bi-plus-lg"></i> Novo
+                <i className="bi bi-plus-lg"></i> Nova
               </Link>
             </div>
           </div>
@@ -122,37 +111,31 @@ function ListaDeAnimais() {
                   <thead className="table-light">
                     <tr>
                       <th className="fw-semibold">Nome</th>
-                      <th className="fw-semibold">Espécie</th>
-                      <th className="fw-semibold">Raça</th>
-                      <th className="fw-semibold">Sexo</th>
-                      <th className="fw-semibold">Porte</th>
-                      <th className="fw-semibold">Status</th>
+                      <th className="fw-semibold">Descrição</th>
                       <th className="fw-semibold">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {animais.length === 0 ? (
+                    {categorias.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="py-5 text-secondary">
+                        <td colSpan={3} className="py-5 text-secondary">
                           <i className="bi bi-inbox fs-1 d-block mb-2"></i>
                           {search
                             ? "Nenhum resultado encontrado"
-                            : "Nenhum animal cadastrado"}
+                            : "Nenhuma categoria cadastrada"}
                         </td>
                       </tr>
                     ) : (
-                      animais.map((animal) => (
-                        <tr key={animal.id}>
-                          <td className="align-middle">{animal.nome}</td>
-                          <td className="align-middle">{animal.especie}</td>
-                          <td className="align-middle">{animal.raca || "-"}</td>
-                          <td className="align-middle">{animal.sexo}</td>
-                          <td className="align-middle">{animal.porte || "-"}</td>
-                          <td className="align-middle">{getStatusBadge(animal.status)}</td>
+                      categorias.map((categoria) => (
+                        <tr key={categoria.id}>
+                          <td className="align-middle">{categoria.nome}</td>
+                          <td className="align-middle">
+                            {categoria.descricao || "-"}
+                          </td>
                           <td className="align-middle">
                             <div className="d-flex gap-2 justify-content-center">
                               <Link
-                                to={`/animais/cadastro/editar/${animal.id}`}
+                                to={`/categorias/cadastro/editar/${categoria.id}`}
                                 className="btn btn-outline-primary btn-sm"
                               >
                                 Editar
@@ -160,7 +143,7 @@ function ListaDeAnimais() {
                               <Button
                                 variant="outline-danger"
                                 size="sm"
-                                onClick={() => abrirModal(animal.id)}
+                                onClick={() => abrirModal(categoria.id)}
                               >
                                 Excluir
                               </Button>
@@ -205,7 +188,7 @@ function ListaDeAnimais() {
           <i className="bi bi-exclamation-triangle text-warning fs-1 mb-3 d-block"></i>
           <h5 className="fw-semibold mb-2">Confirmar Exclusão</h5>
           <p className="text-secondary mb-4">
-            Deseja realmente excluir este animal?
+            Deseja realmente excluir esta categoria?
           </p>
           <div className="d-flex justify-content-center gap-2">
             <Button
@@ -224,4 +207,4 @@ function ListaDeAnimais() {
   );
 }
 
-export default ListaDeAnimais;
+export default ListaDeCategorias;
