@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Button, Container, Card, Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
-import Header from "../../components/Header/Header.jsx"; 
+import Header from "../../components/Header/Header.jsx";
 import Table from "react-bootstrap/Table";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
@@ -21,13 +21,13 @@ function ListaDeRacas() {
   const carregarRacas = useCallback(async (termo = "") => {
     setLoading(true);
     try {
-      const endpoint = "/racas"; 
+      const endpoint = "/racas";
       const response = await ApiService.get(endpoint);
       let dados = response || [];
       if (termo) {
         dados = dados.filter(r => r.nome.toLowerCase().includes(termo.toLowerCase()));
       }
-      
+
       setRacas(dados);
     } catch (error) {
       console.error("Erro ao carregar raças:", error);
@@ -88,7 +88,7 @@ function ListaDeRacas() {
       <main>
         <Container className="py-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h5 className="mb-0 fw-semibold">Gerenciar Raças</h5>
+            <h5 className="mb-0 fw-semibold">Raças</h5>
             <div className="d-flex align-items-center gap-3">
               <input
                 type="text"
@@ -100,7 +100,7 @@ function ListaDeRacas() {
                 aria-label="Buscar raça"
               />
               <Link
-                to="/racas/cadastro" 
+                to="/racas/cadastro"
                 className="btn btn-success d-flex align-items-center gap-2"
                 tabIndex={0}
                 aria-label="Cadastrar nova raça"
