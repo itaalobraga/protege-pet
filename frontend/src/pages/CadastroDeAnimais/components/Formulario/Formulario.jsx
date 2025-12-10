@@ -28,41 +28,64 @@ function Formulario() {
     peso: "",
     status: "Apto",
   });
+
+  const [listaRacas, setListaRacas] = useState([]);
+
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVariant, setToastVariant] = useState("success");
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    ApiService.get("/racas")
+      .then((response) => {
+        setListaRacas(response || []);
+      })
+      .catch((error) => console.error("Erro ao carregar raças:", error));
+  }, []);
+
+  useEffect(() => {
     if (isEdit) {
       ApiService.get(`/animais/${id}`).then((response) => {
-        if (response) {
+        const dados = Array.isArray(response) ? response[0] : response;
+        if (dados) {
           setFormData({
-            nome: response.nome || "",
-            especie: response.especie || "",
-            raca: response.raca || "",
-            pelagem: response.pelagem || "",
-            sexo: response.sexo || "",
-            data_nascimento: response.data_nascimento
-              ? response.data_nascimento.split("T")[0]
+            nome: dados.nome || "",
+            especie: dados.especie || "",
+            raca: dados.raca || "",
+            pelagem: dados.pelagem || "",
+            sexo: dados.sexo || "",
+            data_nascimento: dados.data_nascimento
+              ? dados.data_nascimento.split("T")[0]
               : "",
-            data_ocorrencia: response.data_ocorrencia
-              ? response.data_ocorrencia.split("T")[0]
+            data_ocorrencia: dados.data_ocorrencia
+              ? dados.data_ocorrencia.split("T")[0]
               : "",
-            local_resgate: response.local_resgate || "",
-            porte: response.porte || "",
-            peso: response.peso || "",
-            status: response.status || "Apto",
+            local_resgate: dados.local_resgate || "",
+            porte: dados.porte || "",
+            peso: dados.peso || "",
+            status: dados.status || "Apto",
           });
         }
       });
     }
   }, [id, isEdit]);
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+
+    if (name === "especie") {
+      setFormData({ ...formData, [name]: value, raca: "" });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
+
+  const racasFiltradas = listaRacas.filter(r =>
+    r.especie?.toUpperCase() === formData.especie?.toUpperCase()
+  );
 
   const validarFormulario = () => {
     const novosErros = {};
@@ -70,13 +93,14 @@ function Formulario() {
     if (!formData.nome || formData.nome.length < 2) {
       novosErros.nome = "Nome deve ter pelo menos 2 caracteres";
     }
-
     if (!formData.especie) {
       novosErros.especie = "Selecione uma espécie";
     }
-
     if (!formData.sexo) {
       novosErros.sexo = "Selecione o sexo";
+    }
+    if (!formData.raca) {
+       novosErros.raca = "Selecione uma raça";
     }
 
     setErrors(novosErros);
@@ -186,7 +210,7 @@ function Formulario() {
                   >
                     <option value="">Selecione</option>
                     {ESPECIES.map((esp) => (
-                      <option key={esp} value={esp}>
+                      <option key={esp} value={esp.toUpperCase()}>
                         {esp}
                       </option>
                     ))}
@@ -199,13 +223,34 @@ function Formulario() {
               <Col md={4}>
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-semibold">Raça</Form.Label>
-                  <Form.Control
-                    type="text"
+                  <Form.Select
                     name="raca"
                     value={formData.raca}
                     onChange={handleChange}
-                    placeholder="Raça do animal"
-                  />
+                    isInvalid={!!errors.raca}
+                    disabled={!formData.especie}
+                  >
+                    <option value="">
+                      {!formData.especie
+                        ? "Selecione a espécie primeiro"
+                        : racasFiltradas.length === 0
+                          ? "Nenhuma raça encontrada"
+                          : "Selecione a raça"}
+                    </option>
+                    {racasFiltradas.map((r) => (
+                      <option key={r.id} value={r.nome}>
+                        {r.nome}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  {formData.especie && racasFiltradas.length === 0 && (
+                    <Form.Text className="text-muted">
+                       Não encontrou? <Link to="/racas/cadastro">Cadastre aqui</Link>.
+                    </Form.Text>
+                  )}
+                   <Form.Control.Feedback type="invalid">
+                    {errors.raca}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
