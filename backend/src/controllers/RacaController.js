@@ -1,6 +1,19 @@
 import RacaModel from '../models/RacaModel.js';
 
 const RacaController = {
+  buscarPorId: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const raca = await RacaModel.getById(id);
+      if (!raca) {
+        return res.status(404).json({ error: 'Raça não encontrada' });
+      }
+      res.json(raca);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   listar: async (req, res) => {
     try {
       const racas = await RacaModel.getAll();

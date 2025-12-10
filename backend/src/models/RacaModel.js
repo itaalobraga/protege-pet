@@ -6,6 +6,11 @@ const RacaModel = {
     return rows;
   },
 
+  getById: async (id) => {
+    const [rows] = await pool.query('SELECT * FROM racas WHERE id = ?', [id]);
+    return rows[0];
+  },
+
   create: async (nome, especie) => {
     const [result] = await pool.query('INSERT INTO racas (nome, especie) VALUES (?, ?)', [nome, especie]);
     return result;
