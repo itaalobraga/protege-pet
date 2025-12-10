@@ -2,12 +2,24 @@ import pool from "../config/database.js";
 
 class Animal {
   static async listarTodos() {
-    const [rows] = await pool.query("SELECT * FROM animais ORDER BY nome");
+    const query = `
+      SELECT a.*, r.nome as nome_raca 
+      FROM animais a 
+      LEFT JOIN racas r ON a.raca_id = r.id 
+      ORDER BY a.nome
+    `;
+    const [rows] = await pool.query(query);
     return rows;
   }
 
   static async buscarPorId(id) {
-    const [rows] = await pool.query("SELECT * FROM animais WHERE id = ?", [id]);
+    const query = `
+      SELECT a.*, r.nome as nome_raca 
+      FROM animais a 
+      LEFT JOIN racas r ON a.raca_id = r.id 
+      WHERE a.id = ?
+    `;
+    const [rows] = await pool.query(query, [id]);
     return rows[0];
   }
 
@@ -15,7 +27,7 @@ class Animal {
     const {
       nome,
       especie,
-      raca,
+      raca_id, 
       pelagem,
       sexo,
       data_nascimento,
@@ -27,19 +39,20 @@ class Animal {
     } = animal;
 
     const [result] = await pool.query(
-      `INSERT INTO animais (nome, especie, raca, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status)
+      `INSERT INTO animais (nome, especie, raca_id, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [nome, especie, raca, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status || "Apto"]
+      [nome, especie, raca_id, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status || "Apto"]
     );
 
     return { id: result.insertId, ...animal };
   }
 
+
   static async atualizar(id, animal) {
     const {
       nome,
       especie,
-      raca,
+      raca_id, 
       pelagem,
       sexo,
       data_nascimento,
@@ -51,8 +64,8 @@ class Animal {
     } = animal;
 
     const [result] = await pool.query(
-      `UPDATE animais SET nome = ?, especie = ?, raca = ?, pelagem = ?, sexo = ?, data_nascimento = ?, data_ocorrencia = ?, local_resgate = ?, porte = ?, peso = ?, status = ? WHERE id = ?`,
-      [nome, especie, raca, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status, id]
+      `UPDATE animais SET nome = ?, especie = ?, raca_id = ?, pelagem = ?, sexo = ?, data_nascimento = ?, data_ocorrencia = ?, local_resgate = ?, porte = ?, peso = ?, status = ? WHERE id = ?`,
+      [nome, especie, raca_id, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status, id]
     );
 
     if (result.affectedRows === 0) {
@@ -68,15 +81,17 @@ class Animal {
 
   static async filtrar(termo) {
     const termoBusca = `%${termo}%`;
-    const [rows] = await pool.query(
-      `SELECT * FROM animais
-       WHERE nome LIKE ?
-       OR especie LIKE ?
-       OR raca LIKE ?
-       OR status LIKE ?
-       ORDER BY nome`,
-      [termoBusca, termoBusca, termoBusca, termoBusca]
-    );
+    const query = `
+      SELECT a.*, r.nome as nome_raca 
+      FROM animais a 
+      LEFT JOIN racas r ON a.raca_id = r.id 
+      WHERE a.nome LIKE ? 
+      OR a.especie LIKE ? 
+      OR r.nome LIKE ?  
+      OR a.status LIKE ?
+      ORDER BY a.nome
+    `;
+    const [rows] = await pool.query(query, [termoBusca, termoBusca, termoBusca, termoBusca]);
     return rows;
   }
 }

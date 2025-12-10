@@ -65,11 +65,30 @@ INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, sen
 ('550e8400-e29b-41d4-a716-446655440004', 'João Oliveira', 2, '(11) 95432-1098', 'joao.oliveira@protegepet.org', 'Segunda a Sexta - Tarde', '123456'),
 ('550e8400-e29b-41d4-a716-446655440005', 'Mariana Lima', 5, '(11) 94321-0987', 'mariana.lima@protegepet.org', 'Noturno', '123456');
 
+DROP TABLE IF EXISTS animais;
+DROP TABLE IF EXISTS racas;
+
+CREATE TABLE IF NOT EXISTS racas (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  especie ENUM('CANINA', 'FELINA', 'AVE', 'OUTRO') NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+INSERT INTO racas (nome, especie) VALUES
+('Labrador', 'CANINA'),      
+('Persa', 'FELINA'),         
+('Pastor Alemão', 'CANINA'), 
+('Siamês', 'FELINA'),        
+('Vira-lata', 'CANINA');     
+
+
 CREATE TABLE IF NOT EXISTS animais (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(200) NOT NULL,
   especie VARCHAR(50) NOT NULL,
-  raca VARCHAR(100),
+  raca_id INT, 
   pelagem VARCHAR(100),
   sexo VARCHAR(20) NOT NULL,
   data_nascimento DATE,
@@ -79,18 +98,21 @@ CREATE TABLE IF NOT EXISTS animais (
   peso VARCHAR(20),
   status VARCHAR(50) DEFAULT 'Apto',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (raca_id) REFERENCES racas(id) ON DELETE SET NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_animal_nome ON animais(nome);
 CREATE INDEX idx_animal_especie ON animais(especie);
 
-INSERT INTO animais (nome, especie, raca, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status) VALUES
-('Rex', 'Canina', 'Labrador', 'Dourada', 'Macho', '2022-03-15', '2024-01-10', 'Av. Brasil, 1500 - Centro', 'Grande', '28kg', 'Apto'),
-('Mimi', 'Felina', 'Siamês', 'Bege com pontas escuras', 'Fêmea', '2023-06-20', '2024-02-05', 'Rua das Flores, 230', 'Pequeno', '4kg', 'Apto'),
-('Thor', 'Canina', 'Pastor Alemão', 'Preta e marrom', 'Macho', '2021-11-08', '2024-01-25', 'Praça Central', 'Grande', '35kg', 'Em tratamento'),
-('Luna', 'Felina', 'Persa', 'Branca', 'Fêmea', '2022-09-12', '2024-03-01', 'Condomínio Solar, Bloco B', 'Médio', '5kg', 'Apto'),
-('Bob', 'Canina', 'Vira-lata', 'Caramelo', 'Macho', '2023-01-01', '2024-02-20', 'Terminal Rodoviário', 'Médio', '15kg', 'Apto');
+
+INSERT INTO animais (nome, especie, raca_id, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status) VALUES
+('Rex', 'Canina', 1, 'Dourada', 'Macho', '2022-03-15', '2024-01-10', 'Av. Brasil, 1500 - Centro', 'Grande', '28kg', 'Apto'), 
+('Mimi', 'Felina', 4, 'Bege com pontas escuras', 'Fêmea', '2023-06-20', '2024-02-05', 'Rua das Flores, 230', 'Pequeno', '4kg', 'Apto'), 
+('Thor', 'Canina', 3, 'Preta e marrom', 'Macho', '2021-11-08', '2024-01-25', 'Praça Central', 'Grande', '35kg', 'Em tratamento'), 
+('Luna', 'Felina', 2, 'Branca', 'Fêmea', '2022-09-12', '2024-03-01', 'Condomínio Solar, Bloco B', 'Médio', '5kg', 'Apto'), 
+('Bob', 'Canina', 5, 'Caramelo', 'Macho', '2023-01-01', '2024-02-20', 'Terminal Rodoviário', 'Médio', '15kg', 'Apto'); 
+
 
 
 CREATE TABLE IF NOT EXISTS categorias_produtos (
@@ -111,7 +133,6 @@ INSERT INTO categorias_produtos (nome, descricao) VALUES
 ('Remédios', 'Medicamentos, vermífugos e produtos veterinários'),
 ('Petisco', 'Petiscos, snacks e recompensas para pets'),
 ('Outros', 'Outros produtos diversos para animais de estimação');
-
 
 CREATE TABLE IF NOT EXISTS produtos (
   id VARCHAR(100) PRIMARY KEY,

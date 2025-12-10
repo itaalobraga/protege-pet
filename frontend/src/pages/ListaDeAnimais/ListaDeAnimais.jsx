@@ -145,7 +145,7 @@ function ListaDeAnimais() {
                         <tr key={animal.id}>
                           <td className="align-middle">{animal.nome}</td>
                           <td className="align-middle">{animal.especie}</td>
-                          <td className="align-middle">{animal.raca || "-"}</td>
+                          <td className="align-middle">{animal.nome_raca || animal.raca || "-"}</td>
                           <td className="align-middle">{animal.sexo}</td>
                           <td className="align-middle">{animal.porte || "-"}</td>
                           <td className="align-middle">{getStatusBadge(animal.status)}</td>
