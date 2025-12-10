@@ -92,35 +92,58 @@ INSERT INTO animais (nome, especie, raca, pelagem, sexo, data_nascimento, data_o
 ('Luna', 'Felina', 'Persa', 'Branca', 'Fêmea', '2022-09-12', '2024-03-01', 'Condomínio Solar, Bloco B', 'Médio', '5kg', 'Apto'),
 ('Bob', 'Canina', 'Vira-lata', 'Caramelo', 'Macho', '2023-01-01', '2024-02-20', 'Terminal Rodoviário', 'Médio', '15kg', 'Apto');
 
+
+CREATE TABLE IF NOT EXISTS categorias_produtos (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  descricao VARCHAR(255) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_categoria_produto_nome ON categorias_produtos(nome);
+
+INSERT INTO categorias_produtos (nome, descricao) VALUES
+('Acessório', 'Coleiras, guias, camas, casinhas e outros acessórios para pets'),
+('Brinquedo', 'Brinquedos e mordedores para cães e gatos'),
+('Higiene', 'Produtos de higiene, limpeza e cuidados pessoais para animais'),
+('Ração', 'Rações secas e úmidas para cães e gatos'),
+('Remédios', 'Medicamentos, vermífugos e produtos veterinários'),
+('Petisco', 'Petiscos, snacks e recompensas para pets'),
+('Outros', 'Outros produtos diversos para animais de estimação');
+
+
 CREATE TABLE IF NOT EXISTS produtos (
   id VARCHAR(100) PRIMARY KEY,
   nome VARCHAR(255) NOT NULL,
   sku VARCHAR(80) NOT NULL UNIQUE,
   quantidade INT DEFAULT 0,
-  categoria VARCHAR(80),
+  categoria_id INT NOT NULL,
   descricao TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_produto_categoria
+  FOREIGN KEY (categoria_id) REFERENCES categorias_produtos(id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_produto_nome ON produtos(nome);
 CREATE INDEX idx_produto_sku ON produtos(sku);
-CREATE INDEX idx_produto_categoria ON produtos(categoria);
+CREATE INDEX idx_produto_categoria_id ON produtos(categoria_id);
 
-INSERT INTO produtos (id, nome, sku, quantidade, categoria, descricao) VALUES
-('p1', 'Ração Premium Gatos 1KG', '1507089', 10, 'Ração', 'Ração seca para gatos adultos'),
-('p2', 'Mordedor para Cães - Pequeno', '1907052', 0, 'Brinquedo', 'Mordedor resistente para cães pequenos'),
-('p3', 'Areia Sanitária Pipcat 4KG', '5587456', 3, 'Higiene', 'Areia sanitária para gatos'),
-('p4', 'Ração Golden Gatos Castrados 3KG', '8701254', 12, 'Ração', 'Ração premium para gatos castrados'),
-('p5', 'Ração Golden Cães Filhotes 1KG', '4509978', 20, 'Ração', 'Para filhotes de raças pequenas'),
-('p6', 'Parede de Arranhador para Gatos', '3301874', 7, 'Brinquedo', 'Arranhador compacto para gatos'),
-('p7', 'Shampoo Neutro para Cães 500ml', '9985320', 8, 'Higiene', 'Shampoo neutro para todos os tipos de pelagem'),
-('p8', 'Cama Pet Super Macia M', '7765011', 4, 'Acessório', 'Cama macia tamanho médio'),
-('p9', 'Guia Retrátil 3m Azul', '2234987', 9, 'Acessório', 'Guia retrátil para cães até 10kg'),
-('p10', 'Coleira Antipulgas Gatos', '8801655', 6, 'Higiene', 'Coleira antipulgas com duração de 2 meses'),
-('m1', 'Vermífugo Drontal Gatos 2 comprimidos', '9901001', 15, 'Remédios', 'Antiparasitário oral para gatos'),
-('m2', 'Antibiótico Enrofloxacina 50mg 10cp', '9901002', 12, 'Remédios', 'Antibiótico de amplo espectro'),
-('m3', 'Anti-inflamatório Carprofeno 25mg 20cp', '9901003', 20, 'Remédios', 'Anti-inflamatório para cães');
+INSERT INTO produtos (id, nome, sku, quantidade, categoria_id, descricao) VALUES
+('p1', 'Ração Premium Gatos 1KG', '1507089', 10, 4, 'Ração seca para gatos adultos'),
+('p2', 'Mordedor para Cães - Pequeno', '1907052', 0, 2, 'Mordedor resistente para cães pequenos'),
+('p3', 'Areia Sanitária Pipcat 4KG', '5587456', 3, 3, 'Areia sanitária para gatos'),
+('p4', 'Ração Golden Gatos Castrados 3KG', '8701254', 12, 4, 'Ração premium para gatos castrados'),
+('p5', 'Ração Golden Cães Filhotes 1KG', '4509978', 20, 4, 'Para filhotes de raças pequenas'),
+('p6', 'Parede de Arranhador para Gatos', '3301874', 7, 2, 'Arranhador compacto para gatos'),
+('p7', 'Shampoo Neutro para Cães 500ml', '9985320', 8, 3, 'Shampoo neutro para todos os tipos de pelagem'),
+('p8', 'Cama Pet Super Macia M', '7765011', 4, 1, 'Cama macia tamanho médio'),
+('p9', 'Guia Retrátil 3m Azul', '2234987', 9, 1, 'Guia retrátil para cães até 10kg'),
+('p10', 'Coleira Antipulgas Gatos', '8801655', 6, 3, 'Coleira antipulgas com duração de 2 meses'),
+('m1', 'Vermífugo Drontal Gatos 2 comprimidos', '9901001', 15, 5, 'Antiparasitário oral para gatos'),
+('m2', 'Antibiótico Enrofloxacina 50mg 10cp', '9901002', 12, 5, 'Antibiótico de amplo espectro'),
+('m3', 'Anti-inflamatório Carprofeno 25mg 20cp', '9901003', 20, 5, 'Anti-inflamatório para cães');
 
 CREATE TABLE IF NOT EXISTS veterinarios (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -144,43 +167,3 @@ INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv, disponibilidad
 ('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@protegepet.org', 'CRMV-SP 34567', 'Sábados e Domingos'),
 ('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678', 'Segunda a Sexta - Tarde'),
 ('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789', 'Noturno');
-
-CREATE TABLE IF NOT EXISTS categorias_produtos (
-  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  nome VARCHAR(100) NOT NULL,
-  descricao VARCHAR(255) DEFAULT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE INDEX idx_categoria_produto_nome ON categorias_produtos(nome);
-
-INSERT INTO categorias_produtos (nome, descricao) VALUES
-('Acessório', 'Coleiras, guias, camas, casinhas e outros acessórios para pets'),
-('Brinquedo', 'Brinquedos e mordedores para cães e gatos'),
-('Higiene', 'Produtos de higiene, limpeza e cuidados pessoais para animais'),
-('Ração', 'Rações secas e úmidas para cães e gatos'),
-('Remédios', 'Medicamentos, vermífugos e produtos veterinários'),
-('Petisco', 'Petiscos, snacks e recompensas para pets'),
-('Outros', 'Outros produtos diversos para animais de estimação');
-
-CREATE TABLE IF NOT EXISTS racas (
-  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  nome VARCHAR(100) NOT NULL,
-  especie ENUM('CANINA', 'FELINA', 'AVE', 'OUTRO') NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE INDEX idx_raca_nome ON racas(nome);
-CREATE INDEX idx_raca_especie ON racas(especie);
-
-INSERT INTO racas (nome, especie) VALUES
-('Labrador', 'CANINA'),
-('Persa', 'FELINA'),
-('Pastor Alemão', 'CANINA'),
-('Siamês', 'FELINA'),
-('Vira-lata', 'CANINA'),
-('Golden Retriever', 'CANINA'),
-('Maine Coon', 'FELINA'),
-('Calopsita', 'AVE');
