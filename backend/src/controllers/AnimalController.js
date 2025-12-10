@@ -40,7 +40,7 @@ class AnimalController {
       const {
         nome,
         especie,
-        raca,
+        raca_id, 
         pelagem,
         sexo,
         data_nascimento,
@@ -60,7 +60,7 @@ class AnimalController {
       const animal = await AnimalModel.criar({
         nome,
         especie,
-        raca,
+        raca_id, 
         pelagem,
         sexo,
         data_nascimento,
@@ -84,7 +84,7 @@ class AnimalController {
       const {
         nome,
         especie,
-        raca,
+        raca_id, 
         pelagem,
         sexo,
         data_nascimento,
@@ -103,7 +103,7 @@ class AnimalController {
       const animal = await AnimalModel.atualizar(id, {
         nome,
         especie,
-        raca,
+        raca_id, 
         pelagem,
         sexo,
         data_nascimento,

@@ -12,15 +12,16 @@ function Formulario() {
   const [toastVariant, setToastVariant] = useState("success");
 
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); 
+
   useEffect(() => {
     if (id) {
       const carregarDados = async () => {
         setLoading(true);
         try {
-          const response = await ApiService.get(`/racas/${id}`);
+          const response = await ApiService.get(`/racas/${id}`); 
           const dados = Array.isArray(response) ? response[0] : response;
-
+          
           if (dados) {
             setNome(dados.nome);
             setEspecie(dados.especie);
@@ -57,12 +58,12 @@ function Formulario() {
         exibirToast("Raça cadastrada com sucesso!", "success");
       }
       setTimeout(() => {
-        navigate("/lista-racas");
+        navigate("/racas"); 
       }, 1500);
 
     } catch (error) {
       exibirToast(error.response?.data?.error || "Erro ao salvar raça", "danger");
-      setLoading(false);
+      setLoading(false); 
     }
   };
 
@@ -106,11 +107,10 @@ function Formulario() {
               "Salvar"
             )}
           </Button>
-
-          <Button
-            variant="outline-secondary"
-            type="button"
-            onClick={() => navigate("/lista-racas")}
+          <Button 
+            variant="outline-secondary" 
+            type="button" 
+            onClick={() => navigate("/racas")} 
             disabled={loading}
           >
             Cancelar

@@ -1,6 +1,9 @@
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 
+DROP TABLE IF EXISTS animais;
+DROP TABLE IF EXISTS racas;
+
 CREATE TABLE IF NOT EXISTS voluntarios (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   vlt_nome VARCHAR(200) NOT NULL,
@@ -24,6 +27,7 @@ INSERT INTO voluntarios (vlt_nome, vlt_cpf, vlt_telefone, vlt_tel_Residencial, v
 ('João Pedro Almeida', '456.789.012-33', '(18) 96543-2109', '(18) 3224-7890', 'joao.almeida@email.com', 'Segunda a Sexta - Noite'),
 ('Mariana Lima Pereira', '567.890.123-44', '(18) 95432-1098', '(18) 3225-8901', 'mariana.lima@email.com', 'Finais de Semana - Integral');
 
+
 CREATE TABLE IF NOT EXISTS funcoes (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(100) NOT NULL UNIQUE,
@@ -40,6 +44,7 @@ INSERT INTO funcoes (nome, permissoes) VALUES
 ('Coordenador de Voluntários', '["Gerenciar voluntários", "Gerenciar animais"]'),
 ('Veterinário Responsável', '["Gerenciar veterinários", "Gerenciar animais"]'),
 ('Atendente', '["Gerenciar animais", "Gerenciar voluntários"]');
+
 
 CREATE TABLE IF NOT EXISTS usuarios (
   id VARCHAR(36) PRIMARY KEY,
@@ -65,85 +70,37 @@ INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, sen
 ('550e8400-e29b-41d4-a716-446655440004', 'João Oliveira', 2, '(11) 95432-1098', 'joao.oliveira@protegepet.org', 'Segunda a Sexta - Tarde', '123456'),
 ('550e8400-e29b-41d4-a716-446655440005', 'Mariana Lima', 5, '(11) 94321-0987', 'mariana.lima@protegepet.org', 'Noturno', '123456');
 
-CREATE TABLE IF NOT EXISTS animais (
-  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  nome VARCHAR(200) NOT NULL,
-  especie VARCHAR(50) NOT NULL,
-  raca VARCHAR(100),
-  pelagem VARCHAR(100),
-  sexo VARCHAR(20) NOT NULL,
-  data_nascimento DATE,
-  data_ocorrencia DATE,
-  local_resgate VARCHAR(255),
-  porte VARCHAR(20),
-  peso VARCHAR(20),
-  status VARCHAR(50) DEFAULT 'Apto',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE INDEX idx_animal_nome ON animais(nome);
-CREATE INDEX idx_animal_especie ON animais(especie);
-
-INSERT INTO animais (nome, especie, raca, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status) VALUES
-('Rex', 'Canina', 'Labrador', 'Dourada', 'Macho', '2022-03-15', '2024-01-10', 'Av. Brasil, 1500 - Centro', 'Grande', '28kg', 'Apto'),
-('Mimi', 'Felina', 'Siamês', 'Bege com pontas escuras', 'Fêmea', '2023-06-20', '2024-02-05', 'Rua das Flores, 230', 'Pequeno', '4kg', 'Apto'),
-('Thor', 'Canina', 'Pastor Alemão', 'Preta e marrom', 'Macho', '2021-11-08', '2024-01-25', 'Praça Central', 'Grande', '35kg', 'Em tratamento'),
-('Luna', 'Felina', 'Persa', 'Branca', 'Fêmea', '2022-09-12', '2024-03-01', 'Condomínio Solar, Bloco B', 'Médio', '5kg', 'Apto'),
-('Bob', 'Canina', 'Vira-lata', 'Caramelo', 'Macho', '2023-01-01', '2024-02-20', 'Terminal Rodoviário', 'Médio', '15kg', 'Apto');
-
-
-CREATE TABLE IF NOT EXISTS categorias_produtos (
-  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  nome VARCHAR(100) NOT NULL,
-  descricao VARCHAR(255) DEFAULT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-CREATE INDEX idx_categoria_produto_nome ON categorias_produtos(nome);
-
-INSERT INTO categorias_produtos (nome, descricao) VALUES
-('Acessório', 'Coleiras, guias, camas, casinhas e outros acessórios para pets'),
-('Brinquedo', 'Brinquedos e mordedores para cães e gatos'),
-('Higiene', 'Produtos de higiene, limpeza e cuidados pessoais para animais'),
-('Ração', 'Rações secas e úmidas para cães e gatos'),
-('Remédios', 'Medicamentos, vermífugos e produtos veterinários'),
-('Petisco', 'Petiscos, snacks e recompensas para pets'),
-('Outros', 'Outros produtos diversos para animais de estimação');
-
 
 CREATE TABLE IF NOT EXISTS produtos (
   id VARCHAR(100) PRIMARY KEY,
   nome VARCHAR(255) NOT NULL,
   sku VARCHAR(80) NOT NULL UNIQUE,
   quantidade INT DEFAULT 0,
-  categoria_id INT NOT NULL,
+  categoria VARCHAR(80),
   descricao TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_produto_categoria
-  FOREIGN KEY (categoria_id) REFERENCES categorias_produtos(id) ON DELETE RESTRICT ON UPDATE CASCADE
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_produto_nome ON produtos(nome);
 CREATE INDEX idx_produto_sku ON produtos(sku);
-CREATE INDEX idx_produto_categoria_id ON produtos(categoria_id);
+CREATE INDEX idx_produto_categoria ON produtos(categoria);
 
-INSERT INTO produtos (id, nome, sku, quantidade, categoria_id, descricao) VALUES
-('p1', 'Ração Premium Gatos 1KG', '1507089', 10, 4, 'Ração seca para gatos adultos'),
-('p2', 'Mordedor para Cães - Pequeno', '1907052', 0, 2, 'Mordedor resistente para cães pequenos'),
-('p3', 'Areia Sanitária Pipcat 4KG', '5587456', 3, 3, 'Areia sanitária para gatos'),
-('p4', 'Ração Golden Gatos Castrados 3KG', '8701254', 12, 4, 'Ração premium para gatos castrados'),
-('p5', 'Ração Golden Cães Filhotes 1KG', '4509978', 20, 4, 'Para filhotes de raças pequenas'),
-('p6', 'Parede de Arranhador para Gatos', '3301874', 7, 2, 'Arranhador compacto para gatos'),
-('p7', 'Shampoo Neutro para Cães 500ml', '9985320', 8, 3, 'Shampoo neutro para todos os tipos de pelagem'),
-('p8', 'Cama Pet Super Macia M', '7765011', 4, 1, 'Cama macia tamanho médio'),
-('p9', 'Guia Retrátil 3m Azul', '2234987', 9, 1, 'Guia retrátil para cães até 10kg'),
-('p10', 'Coleira Antipulgas Gatos', '8801655', 6, 3, 'Coleira antipulgas com duração de 2 meses'),
-('m1', 'Vermífugo Drontal Gatos 2 comprimidos', '9901001', 15, 5, 'Antiparasitário oral para gatos'),
-('m2', 'Antibiótico Enrofloxacina 50mg 10cp', '9901002', 12, 5, 'Antibiótico de amplo espectro'),
-('m3', 'Anti-inflamatório Carprofeno 25mg 20cp', '9901003', 20, 5, 'Anti-inflamatório para cães');
+INSERT INTO produtos (id, nome, sku, quantidade, categoria, descricao) VALUES
+('p1', 'Ração Premium Gatos 1KG', '1507089', 10, 'Ração', 'Ração seca para gatos adultos'),
+('p2', 'Mordedor para Cães - Pequeno', '1907052', 0, 'Brinquedo', 'Mordedor resistente para cães pequenos'),
+('p3', 'Areia Sanitária Pipcat 4KG', '5587456', 3, 'Higiene', 'Areia sanitária para gatos'),
+('p4', 'Ração Golden Gatos Castrados 3KG', '8701254', 12, 'Ração', 'Ração premium para gatos castrados'),
+('p5', 'Ração Golden Cães Filhotes 1KG', '4509978', 20, 'Ração', 'Para filhotes de raças pequenas'),
+('p6', 'Parede de Arranhador para Gatos', '3301874', 7, 'Brinquedo', 'Arranhador compacto para gatos'),
+('p7', 'Shampoo Neutro para Cães 500ml', '9985320', 8, 'Higiene', 'Shampoo neutro para todos os tipos de pelagem'),
+('p8', 'Cama Pet Super Macia M', '7765011', 4, 'Acessório', 'Cama macia tamanho médio'),
+('p9', 'Guia Retrátil 3m Azul', '2234987', 9, 'Acessório', 'Guia retrátil para cães até 10kg'),
+('p10', 'Coleira Antipulgas Gatos', '8801655', 6, 'Higiene', 'Coleira antipulgas com duração de 2 meses'),
+('m1', 'Vermífugo Drontal Gatos 2 comprimidos', '9901001', 15, 'Remédios', 'Antiparasitário oral para gatos'),
+('m2', 'Antibiótico Enrofloxacina 50mg 10cp', '9901002', 12, 'Remédios', 'Antibiótico de amplo espectro'),
+('m3', 'Anti-inflamatório Carprofeno 25mg 20cp', '9901003', 20, 'Remédios', 'Anti-inflamatório para cães');
+
 
 CREATE TABLE IF NOT EXISTS veterinarios (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -167,3 +124,54 @@ INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv, disponibilidad
 ('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@protegepet.org', 'CRMV-SP 34567', 'Sábados e Domingos'),
 ('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678', 'Segunda a Sexta - Tarde'),
 ('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789', 'Noturno');
+
+
+CREATE TABLE IF NOT EXISTS racas (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  especie ENUM('CANINA', 'FELINA', 'AVE', 'OUTRO') NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_raca_nome ON racas(nome);
+CREATE INDEX idx_raca_especie ON racas(especie);
+
+INSERT INTO racas (nome, especie) VALUES
+('Labrador', 'CANINA'),        
+('Persa', 'FELINA'),             
+('Pastor Alemão', 'CANINA'),     
+('Siamês', 'FELINA'),            
+('Vira-lata', 'CANINA'),         
+('Golden Retriever', 'CANINA'),  
+('Maine Coon', 'FELINA'),        
+('Calopsita', 'AVE');           
+
+
+CREATE TABLE IF NOT EXISTS animais (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(200) NOT NULL,
+  especie VARCHAR(50) NOT NULL,
+  raca_id INT, 
+  pelagem VARCHAR(100),
+  sexo VARCHAR(20) NOT NULL,
+  data_nascimento DATE,
+  data_ocorrencia DATE,
+  local_resgate VARCHAR(255),
+  porte VARCHAR(20),
+  peso VARCHAR(20),
+  status VARCHAR(50) DEFAULT 'Apto',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (raca_id) REFERENCES racas(id) ON DELETE SET NULL
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_animal_nome ON animais(nome);
+CREATE INDEX idx_animal_especie ON animais(especie);
+
+INSERT INTO animais (nome, especie, raca_id, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status) VALUES
+('Rex', 'Canina', 1, 'Dourada', 'Macho', '2022-03-15', '2024-01-10', 'Av. Brasil, 1500 - Centro', 'Grande', '28kg', 'Apto'), -- 1 = Labrador
+('Mimi', 'Felina', 4, 'Bege com pontas escuras', 'Fêmea', '2023-06-20', '2024-02-05', 'Rua das Flores, 230', 'Pequeno', '4kg', 'Apto'), -- 4 = Siamês
+('Thor', 'Canina', 3, 'Preta e marrom', 'Macho', '2021-11-08', '2024-01-25', 'Praça Central', 'Grande', '35kg', 'Em tratamento'), -- 3 = Pastor Alemão
+('Luna', 'Felina', 2, 'Branca', 'Fêmea', '2022-09-12', '2024-03-01', 'Condomínio Solar, Bloco B', 'Médio', '5kg', 'Apto'), -- 2 = Persa
+('Bob', 'Canina', 5, 'Caramelo', 'Macho', '2023-01-01', '2024-02-20', 'Terminal Rodoviário', 'Médio', '15kg', 'Apto'); -- 5 = Vira-lata
