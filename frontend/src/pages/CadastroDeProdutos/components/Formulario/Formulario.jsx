@@ -32,7 +32,10 @@ function Formulario() {
           setFormData({
             nome: response.nome || "",
             sku: response.sku || "",
-            quantidade: response.quantidade ?? "",
+            quantidade:
+              response.quantidade !== undefined && response.quantidade !== null
+                ? String(response.quantidade)
+                : "",
             categoria: response.categoria || "",
             descricao: response.descricao || "",
           });
@@ -88,6 +91,7 @@ function Formulario() {
     setShowToast(true);
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validarFormulario()) {
@@ -109,11 +113,37 @@ function Formulario() {
         }
         setTimeout(() => navigate("/produtos"), 1500);
       } catch (error) {
-        exibirToast(error.message || "Erro ao salvar produto", "danger");
+        console.error("Erro ao salvar produto:", error);
+
+        
+        const rawError =
+          error?.response?.data?.error ??
+          error?.response?.data?.message ??
+          error?.error ??
+          error?.message ??
+          "";
+
+        const texto = String(rawError).toLowerCase();
+        let mensagem = "Erro ao salvar produto";
+
+        if (texto.includes("nome") && texto.includes("produto")) {
+          mensagem = "Já existe um produto com este nome!";
+        } else if (
+          texto.includes("código") ||
+          texto.includes("codigo") ||
+          texto.includes("sku")
+        ) {
+          mensagem = "Já existe um produto com este código (SKU)!";
+        } else if (rawError) {
+          
+          mensagem = String(rawError);
+        }
+
+        exibirToast(mensagem, "danger");
       }
     }
   };
-
+  
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-4">

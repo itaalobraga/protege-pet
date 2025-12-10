@@ -55,7 +55,9 @@ function ListaDeCategorias() {
       carregarCategorias(search);
     } catch (error) {
       console.error("Erro ao excluir categoria:", error);
-      exibirToast(error.message || "Erro ao excluir categoria", "danger");
+      const mensagem =
+        error?.response?.data?.error || "Erro ao excluir categoria";
+      exibirToast(mensagem, "danger");
     }
   };
 
@@ -65,7 +67,9 @@ function ListaDeCategorias() {
   };
 
   const confirmarExclusao = () => {
-    handleExcluirChange(idParaExcluir);
+    if (idParaExcluir) {
+      handleExcluirChange(idParaExcluir);
+    }
     setShowModal(false);
   };
 

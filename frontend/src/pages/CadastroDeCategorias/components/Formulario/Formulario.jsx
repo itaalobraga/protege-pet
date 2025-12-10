@@ -60,8 +60,10 @@ function Formulario() {
       }
 
       setTimeout(() => navigate("/categorias"), 1000);
-    } catch {
-      exibirToast("Erro ao salvar categoria.", "danger");
+    } catch (error) {
+      const mensagem =
+        error?.response?.data?.error || "Essa categoria já existe";
+      exibirToast(mensagem, "danger");
     } finally {
       setLoading(false);
     }
@@ -75,9 +77,7 @@ function Formulario() {
             {editar ? "Editar categoria" : "Nova categoria"}
           </h5>
           <p className="text-secondary mb-0">
-            {editar
-              ? ""
-              : ""}
+            {editar ? "" : ""}
           </p>
         </div>
 

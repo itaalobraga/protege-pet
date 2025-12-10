@@ -8,10 +8,30 @@ class Categoria {
     return rows;
   }
 
+  static async filtrar(termo) {
+    const like = `%${termo}%`;
+    const [rows] = await pool.query(
+      `SELECT id, nome, descricao
+       FROM categorias_produtos
+       WHERE nome LIKE ? OR descricao LIKE ?
+       ORDER BY nome`,
+      [like, like]
+    );
+    return rows;
+  }
+
   static async buscarPorId(id) {
     const [rows] = await pool.query(
       "SELECT id, nome, descricao FROM categorias_produtos WHERE id = ?",
       [id]
+    );
+    return rows[0];
+  }
+
+  static async buscarPorNome(nome) {
+    const [rows] = await pool.query(
+      "SELECT id, nome, descricao FROM categorias_produtos WHERE nome = ?",
+      [nome]
     );
     return rows[0];
   }
@@ -30,6 +50,14 @@ class Categoria {
       [nome, descricao, id]
     );
     return this.buscarPorId(id);
+  }
+
+  static async contarProdutos(categoriaId) {
+    const [rows] = await pool.query(
+      "SELECT COUNT(*) AS total FROM produtos WHERE categoria_id = ?",
+      [categoriaId]
+    );
+    return rows[0].total;
   }
 
   static async deletar(id) {
