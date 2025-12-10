@@ -18,7 +18,7 @@ function Formulario() {
   const [formData, setFormData] = useState({
     nome: "",
     especie: "",
-    raca: "",
+    raca_id: "", 
     pelagem: "",
     sexo: "",
     data_nascimento: "",
@@ -52,7 +52,7 @@ function Formulario() {
           setFormData({
             nome: dados.nome || "",
             especie: dados.especie || "",
-            raca: dados.raca || "",
+            raca_id: dados.raca_id || "", 
             pelagem: dados.pelagem || "",
             sexo: dados.sexo || "",
             data_nascimento: dados.data_nascimento
@@ -71,20 +71,19 @@ function Formulario() {
     }
   }, [id, isEdit]);
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-
     if (name === "especie") {
-      setFormData({ ...formData, [name]: value, raca: "" });
+  
+      setFormData({ ...formData, [name]: value, raca_id: "" });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  const racasFiltradas = listaRacas.filter(r =>
-    r.especie?.toUpperCase() === formData.especie?.toUpperCase()
+  const racasFiltradas = listaRacas.filter(
+    (r) => r.especie?.toUpperCase() === formData.especie?.toUpperCase()
   );
 
   const validarFormulario = () => {
@@ -98,9 +97,6 @@ function Formulario() {
     }
     if (!formData.sexo) {
       novosErros.sexo = "Selecione o sexo";
-    }
-    if (!formData.raca) {
-       novosErros.raca = "Selecione uma raça";
     }
 
     setErrors(novosErros);
@@ -151,11 +147,15 @@ function Formulario() {
       <Card className="border-0 shadow-sm">
         <Card.Body className="p-4">
           <Form onSubmit={handleSubmit}>
-            <h6 className="fw-semibold text-secondary mb-3">Dados da Ocorrência</h6>
+            <h6 className="fw-semibold text-secondary mb-3">
+              Dados da Ocorrência
+            </h6>
             <Row>
               <Col md={4}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold">Data da Ocorrência</Form.Label>
+                  <Form.Label className="fw-semibold">
+                    Data da Ocorrência
+                  </Form.Label>
                   <Form.Control
                     type="date"
                     name="data_ocorrencia"
@@ -166,7 +166,9 @@ function Formulario() {
               </Col>
               <Col md={8}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold">Local do Resgate</Form.Label>
+                  <Form.Label className="fw-semibold">
+                    Local do Resgate
+                  </Form.Label>
                   <Form.Control
                     type="text"
                     name="local_resgate"
@@ -224,8 +226,8 @@ function Formulario() {
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-semibold">Raça</Form.Label>
                   <Form.Select
-                    name="raca"
-                    value={formData.raca}
+                    name="raca_id" 
+                    value={formData.raca_id} 
                     onChange={handleChange}
                     isInvalid={!!errors.raca}
                     disabled={!formData.especie}
@@ -234,21 +236,21 @@ function Formulario() {
                       {!formData.especie
                         ? "Selecione a espécie primeiro"
                         : racasFiltradas.length === 0
-                          ? "Nenhuma raça encontrada"
-                          : "Selecione a raça"}
+                        ? "Nenhuma raça encontrada"
+                        : "Selecione a raça"}
                     </option>
                     {racasFiltradas.map((r) => (
-                      <option key={r.id} value={r.nome}>
+                      <option key={r.id} value={r.id}> 
                         {r.nome}
                       </option>
                     ))}
                   </Form.Select>
                   {formData.especie && racasFiltradas.length === 0 && (
                     <Form.Text className="text-muted">
-                       Não encontrou? <Link to="/racas/cadastro">Cadastre aqui</Link>.
+                      Não encontrou? <Link to="/racas/cadastro">Cadastre aqui</Link>.
                     </Form.Text>
                   )}
-                   <Form.Control.Feedback type="invalid">
+                  <Form.Control.Feedback type="invalid">
                     {errors.raca}
                   </Form.Control.Feedback>
                 </Form.Group>
@@ -292,7 +294,9 @@ function Formulario() {
               </Col>
               <Col md={4}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold">Data de Nascimento</Form.Label>
+                  <Form.Label className="fw-semibold">
+                    Data de Nascimento
+                  </Form.Label>
                   <Form.Control
                     type="date"
                     name="data_nascimento"
@@ -370,8 +374,16 @@ function Formulario() {
           autohide
           className="border-0 shadow"
         >
-          <Toast.Body className={`d-flex align-items-center gap-2 text-${toastVariant}`}>
-            <i className={`bi bi-${toastVariant === "success" ? "check-circle-fill" : "exclamation-circle-fill"}`}></i>
+          <Toast.Body
+            className={`d-flex align-items-center gap-2 text-${toastVariant}`}
+          >
+            <i
+              className={`bi bi-${
+                toastVariant === "success"
+                  ? "check-circle-fill"
+                  : "exclamation-circle-fill"
+              }`}
+            ></i>
             {toastMessage}
           </Toast.Body>
         </Toast>
