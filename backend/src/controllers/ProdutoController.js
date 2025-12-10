@@ -1,5 +1,4 @@
 import ProdutoModel from "../models/ProdutoModel.js";
-import Categoria from "../models/CategoriaModel.js";
 
 class ProdutoController {
   static async listar(req, res) {
@@ -40,52 +39,26 @@ class ProdutoController {
     try {
       const { nome, sku, quantidade, categoria, descricao } = req.body;
 
-      if (!nome || !sku || !categoria) {
+      if (!nome || !sku) {
         return res.status(400).json({
-          error: "Nome, código e categoria são obrigatórios",
+          error: "Nome e código são obrigatórios",
         });
       }
 
-      const nomeTrim = nome.trim();
-      const categoriaTrim = categoria.trim();
-
-  
-      const produtoMesmoNome = await ProdutoModel.buscarPorNome(nomeTrim);
-      if (produtoMesmoNome) {
-        return res
-          .status(400)
-          .json({ error: "Já existe um produto com esse nome" });
-      }
-
-   
       const skuExistente = await ProdutoModel.buscarPorSku(sku);
       if (skuExistente) {
-        return res
-          .status(400)
-          .json({ error: "Já existe um produto com esse código" });
-      }
-
-      const categoriaExistente = await Categoria.buscarPorNome(categoriaTrim);
-      if (!categoriaExistente) {
-        return res
-          .status(400)
-          .json({ error: "Categoria informada não existe" });
+        return res.status(400).json({ error: "Já existe um produto com esse código" });
       }
 
       const produto = await ProdutoModel.criar({
-        nome: nomeTrim,
+        nome,
         sku,
         quantidade,
-        categoria_id: categoriaExistente.id,
+        categoria,
         descricao,
       });
 
-      const produtoComCategoria = {
-        ...produto,
-        categoria: categoriaTrim,
-      };
-
-      res.status(201).json(produtoComCategoria);
+      res.status(201).json(produto);
     } catch (error) {
       console.error("Erro ao criar produto:", error);
       res.status(500).json({ error: "Erro ao criar produto" });
@@ -102,71 +75,22 @@ class ProdutoController {
         return res.status(404).json({ error: "Produto não encontrado" });
       }
 
-      let nomeFinal = produtoExistente.nome;
-      let skuFinal = produtoExistente.sku;
-      let quantidadeFinal = produtoExistente.quantidade;
-      let categoriaIdFinal = produtoExistente.categoria_id;
-      let descricaoFinal = produtoExistente.descricao;
-      let categoriaNomeFinal = produtoExistente.categoria;
-
-     
-      if (nome && nome.trim()) {
-        const nomeTrim = nome.trim();
-        const produtoMesmoNome = await ProdutoModel.buscarPorNome(nomeTrim);
-
-        if (produtoMesmoNome && produtoMesmoNome.id !== id) {
-          return res
-            .status(400)
-            .json({ error: "Já existe outro produto com esse nome" });
-        }
-
-        nomeFinal = nomeTrim;
-      }
-
       if (sku) {
         const skuExistente = await ProdutoModel.buscarPorSku(sku);
         if (skuExistente && skuExistente.id !== id) {
-          return res
-            .status(400)
-            .json({ error: "Já existe outro produto com esse código" });
+          return res.status(400).json({ error: "Já existe outro produto com esse código" });
         }
-        skuFinal = sku;
       }
 
-      if (quantidade !== undefined) {
-        quantidadeFinal = quantidade;
-      }
-
-      if (categoria && categoria.trim()) {
-        const categoriaTrim = categoria.trim();
-        const categoriaExistente = await Categoria.buscarPorNome(categoriaTrim);
-
-        if (!categoriaExistente) {
-          return res
-            .status(400)
-            .json({ error: "Categoria informada não existe" });
-        }
-
-        categoriaIdFinal = categoriaExistente.id;
-        categoriaNomeFinal = categoriaTrim;
-      }
-
-      if (descricao !== undefined) {
-        descricaoFinal = descricao;
-      }
-
-      const produtoAtualizado = await ProdutoModel.atualizar(id, {
-        nome: nomeFinal,
-        sku: skuFinal,
-        quantidade: quantidadeFinal,
-        categoria_id: categoriaIdFinal,
-        descricao: descricaoFinal,
+      const produto = await ProdutoModel.atualizar(id, {
+        nome,
+        sku,
+        quantidade,
+        categoria,
+        descricao,
       });
 
-      res.json({
-        ...produtoAtualizado,
-        categoria: categoriaNomeFinal,
-      });
+      res.json(produto);
     } catch (error) {
       console.error("Erro ao atualizar produto:", error);
       res.status(500).json({ error: "Erro ao atualizar produto" });
@@ -191,3 +115,4 @@ class ProdutoController {
 }
 
 export default ProdutoController;
+

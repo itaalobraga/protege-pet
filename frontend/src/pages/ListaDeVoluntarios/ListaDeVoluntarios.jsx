@@ -15,14 +15,6 @@ function ListaDeVoluntarios() {
   const [showToast, setShowToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [idParaExcluir, setIdParaExcluir] = useState(null);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastVariant, setToastVariant] = useState("success");
-
-  const exibirToast = (mensagem, variante = "success") => {
-    setToastMessage(mensagem);
-    setToastVariant(variante);
-    setShowToast(true);
-  };
 
   const carregarVoluntarios = useCallback(async (termo = "") => {
     setLoading(true);
@@ -34,7 +26,6 @@ function ListaDeVoluntarios() {
       setVoluntarios(response || []);
     } catch (error) {
       console.error("Erro ao carregar voluntários:", error);
-      exibirToast("Erro ao carregar voluntários.", "danger");
     } finally {
       setLoading(false);
     }
@@ -51,10 +42,10 @@ function ListaDeVoluntarios() {
   const handleExcluirChange = async (id) => {
     try {
       await ApiService.delete(`/voluntarios/${id}`);
-      exibirToast("Voluntário excluído com sucesso!", "success");
+      setShowToast(true);
       carregarVoluntarios(search);
     } catch (error) {
-      exibirToast(error.message || "Erro ao excluir voluntário", "danger");
+      console.error("Erro ao excluir:", error);
     }
   };
 
@@ -169,13 +160,13 @@ function ListaDeVoluntarios() {
         <Toast
           show={showToast}
           onClose={() => setShowToast(false)}
-          delay={4000}
+          delay={3000}
           autohide
           className="border-0 shadow"
         >
-          <Toast.Body className={`d-flex align-items-center gap-2 text-${toastVariant}`}>
-            <i className={`bi bi-${toastVariant === "success" ? "check-circle-fill" : "exclamation-circle-fill"}`}></i>
-            {toastMessage}
+          <Toast.Body className="d-flex align-items-center gap-2 text-danger">
+            <i className="bi bi-check-circle-fill"></i>
+            Voluntário excluído com sucesso!
           </Toast.Body>
         </Toast>
       </ToastContainer>

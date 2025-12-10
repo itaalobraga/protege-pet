@@ -15,14 +15,6 @@ function ListaDeProdutos() {
   const [showToast, setShowToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [idParaExcluir, setIdParaExcluir] = useState(null);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastVariant, setToastVariant] = useState("success");
-
-  const exibirToast = (mensagem, variante = "success") => {
-    setToastMessage(mensagem);
-    setToastVariant(variante);
-    setShowToast(true);
-  };
 
   const carregarProdutos = useCallback(async (termo = "") => {
     setLoading(true);
@@ -34,7 +26,6 @@ function ListaDeProdutos() {
       setProdutos(response || []);
     } catch (error) {
       console.error("Erro ao carregar produtos:", error);
-      exibirToast("Erro ao carregar produtos.", "danger");
     } finally {
       setLoading(false);
     }
@@ -51,11 +42,10 @@ function ListaDeProdutos() {
   const handleExcluirChange = async (id) => {
     try {
       await ApiService.delete(`/produtos/${id}`);
-      exibirToast("Produto excluído com sucesso!", "success");
+      setShowToast(true);
       carregarProdutos(search);
     } catch (error) {
       console.error("Erro ao excluir:", error);
-      exibirToast(error.message || "Erro ao excluir produto", "danger");
     }
   };
 
@@ -188,21 +178,13 @@ function ListaDeProdutos() {
         <Toast
           show={showToast}
           onClose={() => setShowToast(false)}
-          delay={4000}
+          delay={3000}
           autohide
           className="border-0 shadow"
         >
-          <Toast.Body
-            className={`d-flex align-items-center gap-2 text-${toastVariant}`}
-          >
-            <i
-              className={`bi bi-${
-                toastVariant === "success"
-                  ? "check-circle-fill"
-                  : "exclamation-circle-fill"
-              }`}
-            ></i>
-            {toastMessage}
+          <Toast.Body className="d-flex align-items-center gap-2 text-danger">
+            <i className="bi bi-check-circle-fill"></i>
+            Produto excluído com sucesso!
           </Toast.Body>
         </Toast>
       </ToastContainer>
@@ -232,3 +214,4 @@ function ListaDeProdutos() {
 }
 
 export default ListaDeProdutos;
+

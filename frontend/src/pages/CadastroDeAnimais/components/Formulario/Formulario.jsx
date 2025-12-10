@@ -18,7 +18,7 @@ function Formulario() {
   const [formData, setFormData] = useState({
     nome: "",
     especie: "",
-    raca: "",
+    raca_id: "", 
     pelagem: "",
     sexo: "",
     data_nascimento: "",
@@ -51,8 +51,8 @@ function Formulario() {
         if (dados) {
           setFormData({
             nome: dados.nome || "",
-            especie: dados.especie || "",
-            raca: dados.raca || "",
+            especie: dados.especie || "", 
+            raca_id: dados.raca_id || "", 
             pelagem: dados.pelagem || "",
             sexo: dados.sexo || "",
             data_nascimento: dados.data_nascimento
@@ -71,19 +71,17 @@ function Formulario() {
     }
   }, [id, isEdit]);
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-
+    
     if (name === "especie") {
-      setFormData({ ...formData, [name]: value, raca: "" });
+      setFormData({ ...formData, [name]: value, raca_id: "" });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  const racasFiltradas = listaRacas.filter(r =>
+  const racasFiltradas = listaRacas.filter(r => 
     r.especie?.toUpperCase() === formData.especie?.toUpperCase()
   );
 
@@ -99,10 +97,6 @@ function Formulario() {
     if (!formData.sexo) {
       novosErros.sexo = "Selecione o sexo";
     }
-    if (!formData.raca) {
-       novosErros.raca = "Selecione uma raça";
-    }
-
     setErrors(novosErros);
     return Object.keys(novosErros).length === 0;
   };
@@ -220,25 +214,26 @@ function Formulario() {
                   </Form.Control.Feedback>
                 </Form.Group>
               </Col>
+            
               <Col md={4}>
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-semibold">Raça</Form.Label>
                   <Form.Select
-                    name="raca"
-                    value={formData.raca}
+                    name="raca_id" 
+                    value={formData.raca_id}
                     onChange={handleChange}
-                    isInvalid={!!errors.raca}
-                    disabled={!formData.especie}
+                    isInvalid={!!errors.raca_id}
+                    disabled={!formData.especie} 
                   >
                     <option value="">
-                      {!formData.especie
-                        ? "Selecione a espécie primeiro"
-                        : racasFiltradas.length === 0
-                          ? "Nenhuma raça encontrada"
+                      {!formData.especie 
+                        ? "Selecione a espécie primeiro" 
+                        : racasFiltradas.length === 0 
+                          ? "Nenhuma raça encontrada" 
                           : "Selecione a raça"}
                     </option>
                     {racasFiltradas.map((r) => (
-                      <option key={r.id} value={r.nome}>
+                      <option key={r.id} value={r.id}>
                         {r.nome}
                       </option>
                     ))}
@@ -249,7 +244,7 @@ function Formulario() {
                     </Form.Text>
                   )}
                    <Form.Control.Feedback type="invalid">
-                    {errors.raca}
+                    {errors.raca_id}
                   </Form.Control.Feedback>
                 </Form.Group>
               </Col>

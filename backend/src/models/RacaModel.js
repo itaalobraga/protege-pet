@@ -8,7 +8,7 @@ const RacaModel = {
 
   getById: async (id) => {
     const [rows] = await pool.query('SELECT * FROM racas WHERE id = ?', [id]);
-    return rows[0];
+    return rows[0]; 
   },
 
   create: async (nome, especie) => {

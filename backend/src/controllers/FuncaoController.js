@@ -155,4 +155,3 @@ class FuncaoController {
 }
 
 export default FuncaoController;
-  
