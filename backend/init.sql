@@ -1,11 +1,6 @@
 SET NAMES utf8mb4;
 SET CHARACTER SET utf8mb4;
 
-DROP TABLE IF EXISTS animais;
-DROP TABLE IF EXISTS racas; 
-
-
-
 CREATE TABLE IF NOT EXISTS voluntarios (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   vlt_nome VARCHAR(200) NOT NULL,
@@ -19,11 +14,15 @@ CREATE TABLE IF NOT EXISTS voluntarios (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_vlt_email ON voluntarios(vlt_email);
+CREATE INDEX idx_vlt_nome ON voluntarios(vlt_nome);
+CREATE INDEX idx_vlt_cpf ON voluntarios(vlt_cpf);
 
 INSERT INTO voluntarios (vlt_nome, vlt_cpf, vlt_telefone, vlt_tel_Residencial, vlt_email, vlt_disponibilidade) VALUES
 ('Ana Carolina Silva', '123.456.789-00', '(18) 99876-5432', '(18) 3221-4567', 'ana.silva@email.com', 'Segunda a Sexta - Manhã'),
-('Carlos Eduardo Santos', '234.567.890-11', '(18) 98765-4321', '(18) 3222-5678', 'carlos.santos@email.com', 'Sábados e Domingos');
-
+('Carlos Eduardo Santos', '234.567.890-11', '(18) 98765-4321', '(18) 3222-5678', 'carlos.santos@email.com', 'Sábados e Domingos'),
+('Fernanda Oliveira Costa', '345.678.901-22', '(18) 97654-3210', '(18) 3223-6789', 'fernanda.costa@email.com', 'Terça e Quinta - Tarde'),
+('João Pedro Almeida', '456.789.012-33', '(18) 96543-2109', '(18) 3224-7890', 'joao.almeida@email.com', 'Segunda a Sexta - Noite'),
+('Mariana Lima Pereira', '567.890.123-44', '(18) 95432-1098', '(18) 3225-8901', 'mariana.lima@email.com', 'Finais de Semana - Integral');
 
 CREATE TABLE IF NOT EXISTS funcoes (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -33,10 +32,14 @@ CREATE TABLE IF NOT EXISTS funcoes (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+CREATE INDEX idx_funcao_nome ON funcoes(nome);
+
 INSERT INTO funcoes (nome, permissoes) VALUES
 ('Administrador', '["Gerenciar usuários", "Gerenciar produtos", "Gerenciar voluntários", "Gerenciar veterinários", "Gerenciar animais"]'),
+('Gerente de Estoque', '["Gerenciar produtos"]'),
+('Coordenador de Voluntários', '["Gerenciar voluntários", "Gerenciar animais"]'),
+('Veterinário Responsável', '["Gerenciar veterinários", "Gerenciar animais"]'),
 ('Atendente', '["Gerenciar animais", "Gerenciar voluntários"]');
-
 
 CREATE TABLE IF NOT EXISTS usuarios (
   id VARCHAR(36) PRIMARY KEY,
@@ -51,8 +54,19 @@ CREATE TABLE IF NOT EXISTS usuarios (
   FOREIGN KEY (funcao_id) REFERENCES funcoes(id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+CREATE INDEX idx_usuario_email ON usuarios(email);
+CREATE INDEX idx_usuario_nome ON usuarios(nome);
+CREATE INDEX idx_usuario_funcao ON usuarios(funcao_id);
+
 INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha) VALUES
-('550e8400-e29b-41d4-a716-446655440001', 'Ana Silva', 1, '(11) 98765-4321', 'ana.silva@protegepet.org', 'Segunda a Sexta - Manhã', '123456');
+('550e8400-e29b-41d4-a716-446655440001', 'Ana Silva', 1, '(11) 98765-4321', 'ana.silva@protegepet.org', 'Segunda a Sexta - Manhã', '123456'),
+('550e8400-e29b-41d4-a716-446655440002', 'Carlos Santos', 4, '(11) 97654-3210', 'carlos.santos@protegepet.org', 'Plantão', '123456'),
+('550e8400-e29b-41d4-a716-446655440003', 'Fernanda Costa', 3, '(11) 96543-2109', 'fernanda.costa@protegepet.org', 'Sábados e Domingos', '123456'),
+('550e8400-e29b-41d4-a716-446655440004', 'João Oliveira', 2, '(11) 95432-1098', 'joao.oliveira@protegepet.org', 'Segunda a Sexta - Tarde', '123456'),
+('550e8400-e29b-41d4-a716-446655440005', 'Mariana Lima', 5, '(11) 94321-0987', 'mariana.lima@protegepet.org', 'Noturno', '123456');
+
+DROP TABLE IF EXISTS animais;
+DROP TABLE IF EXISTS racas;
 
 CREATE TABLE IF NOT EXISTS racas (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -63,11 +77,12 @@ CREATE TABLE IF NOT EXISTS racas (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 INSERT INTO racas (nome, especie) VALUES
-('Labrador', 'CANINA'), 
-('Persa', 'FELINA'), 
+('Labrador', 'CANINA'),      
+('Persa', 'FELINA'),         
 ('Pastor Alemão', 'CANINA'), 
-('Siamês', 'FELINA'), 
-('Vira-lata', 'CANINA'); 
+('Siamês', 'FELINA'),        
+('Vira-lata', 'CANINA');     
+
 
 CREATE TABLE IF NOT EXISTS animais (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -87,9 +102,18 @@ CREATE TABLE IF NOT EXISTS animais (
   FOREIGN KEY (raca_id) REFERENCES racas(id) ON DELETE SET NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+CREATE INDEX idx_animal_nome ON animais(nome);
+CREATE INDEX idx_animal_especie ON animais(especie);
+
+
 INSERT INTO animais (nome, especie, raca_id, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status) VALUES
-('Rex', 'Canina', 1, 'Dourada', 'Macho', '2022-03-15', '2024-01-10', 'Av. Brasil, 1500 - Centro', 'Grande', '28kg', 'Apto'),
-('Mimi', 'Felina', 4, 'Bege com pontas escuras', 'Fêmea', '2023-06-20', '2024-02-05', 'Rua das Flores, 230', 'Pequeno', '4kg', 'Apto');
+('Rex', 'Canina', 1, 'Dourada', 'Macho', '2022-03-15', '2024-01-10', 'Av. Brasil, 1500 - Centro', 'Grande', '28kg', 'Apto'), 
+('Mimi', 'Felina', 4, 'Bege com pontas escuras', 'Fêmea', '2023-06-20', '2024-02-05', 'Rua das Flores, 230', 'Pequeno', '4kg', 'Apto'), 
+('Thor', 'Canina', 3, 'Preta e marrom', 'Macho', '2021-11-08', '2024-01-25', 'Praça Central', 'Grande', '35kg', 'Em tratamento'), 
+('Luna', 'Felina', 2, 'Branca', 'Fêmea', '2022-09-12', '2024-03-01', 'Condomínio Solar, Bloco B', 'Médio', '5kg', 'Apto'), 
+('Bob', 'Canina', 5, 'Caramelo', 'Macho', '2023-01-01', '2024-02-20', 'Terminal Rodoviário', 'Médio', '15kg', 'Apto'); 
+
+
 
 CREATE TABLE IF NOT EXISTS categorias_produtos (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -99,9 +123,16 @@ CREATE TABLE IF NOT EXISTS categorias_produtos (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+CREATE INDEX idx_categoria_produto_nome ON categorias_produtos(nome);
+
 INSERT INTO categorias_produtos (nome, descricao) VALUES
-('Acessório', 'Coleiras, guias, camas...'),
-('Ração', 'Rações secas e úmidas...');
+('Acessório', 'Coleiras, guias, camas, casinhas e outros acessórios para pets'),
+('Brinquedo', 'Brinquedos e mordedores para cães e gatos'),
+('Higiene', 'Produtos de higiene, limpeza e cuidados pessoais para animais'),
+('Ração', 'Rações secas e úmidas para cães e gatos'),
+('Remédios', 'Medicamentos, vermífugos e produtos veterinários'),
+('Petisco', 'Petiscos, snacks e recompensas para pets'),
+('Outros', 'Outros produtos diversos para animais de estimação');
 
 CREATE TABLE IF NOT EXISTS produtos (
   id VARCHAR(100) PRIMARY KEY,
@@ -116,9 +147,24 @@ CREATE TABLE IF NOT EXISTS produtos (
   FOREIGN KEY (categoria_id) REFERENCES categorias_produtos(id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-INSERT INTO produtos (id, nome, sku, quantidade, categoria_id, descricao) VALUES
-('p1', 'Ração Premium Gatos 1KG', '1507089', 10, 2, 'Ração seca para gatos adultos');
+CREATE INDEX idx_produto_nome ON produtos(nome);
+CREATE INDEX idx_produto_sku ON produtos(sku);
+CREATE INDEX idx_produto_categoria_id ON produtos(categoria_id);
 
+INSERT INTO produtos (id, nome, sku, quantidade, categoria_id, descricao) VALUES
+('p1', 'Ração Premium Gatos 1KG', '1507089', 10, 4, 'Ração seca para gatos adultos'),
+('p2', 'Mordedor para Cães - Pequeno', '1907052', 0, 2, 'Mordedor resistente para cães pequenos'),
+('p3', 'Areia Sanitária Pipcat 4KG', '5587456', 3, 3, 'Areia sanitária para gatos'),
+('p4', 'Ração Golden Gatos Castrados 3KG', '8701254', 12, 4, 'Ração premium para gatos castrados'),
+('p5', 'Ração Golden Cães Filhotes 1KG', '4509978', 20, 4, 'Para filhotes de raças pequenas'),
+('p6', 'Parede de Arranhador para Gatos', '3301874', 7, 2, 'Arranhador compacto para gatos'),
+('p7', 'Shampoo Neutro para Cães 500ml', '9985320', 8, 3, 'Shampoo neutro para todos os tipos de pelagem'),
+('p8', 'Cama Pet Super Macia M', '7765011', 4, 1, 'Cama macia tamanho médio'),
+('p9', 'Guia Retrátil 3m Azul', '2234987', 9, 1, 'Guia retrátil para cães até 10kg'),
+('p10', 'Coleira Antipulgas Gatos', '8801655', 6, 3, 'Coleira antipulgas com duração de 2 meses'),
+('m1', 'Vermífugo Drontal Gatos 2 comprimidos', '9901001', 15, 5, 'Antiparasitário oral para gatos'),
+('m2', 'Antibiótico Enrofloxacina 50mg 10cp', '9901002', 12, 5, 'Antibiótico de amplo espectro'),
+('m3', 'Anti-inflamatório Carprofeno 25mg 20cp', '9901003', 20, 5, 'Anti-inflamatório para cães');
 
 CREATE TABLE IF NOT EXISTS veterinarios (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -131,3 +177,14 @@ CREATE TABLE IF NOT EXISTS veterinarios (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_veterinario_nome ON veterinarios(nome);
+CREATE INDEX idx_veterinario_email ON veterinarios(email);
+CREATE INDEX idx_veterinario_crmv ON veterinarios(crmv);
+
+INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv, disponibilidade) VALUES
+('Ricardo', 'Mendes', '(11) 99876-5432', 'ricardo.mendes@protegepet.org', 'CRMV-SP 12345', 'Segunda a Sexta - Manhã'),
+('Juliana', 'Santos', '(11) 98765-4321', 'juliana.santos@protegepet.org', 'CRMV-SP 23456', 'Plantão'),
+('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@protegepet.org', 'CRMV-SP 34567', 'Sábados e Domingos'),
+('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678', 'Segunda a Sexta - Tarde'),
+('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789', 'Noturno');
