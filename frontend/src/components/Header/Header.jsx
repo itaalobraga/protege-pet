@@ -10,13 +10,16 @@ function Header() {
 
   const [usuariosOpen, setUsuariosOpen] = useState(false);
   const [produtosOpen, setProdutosOpen] = useState(false);
+  const [animaisOpen, setAnimaisOpen] = useState(false);
 
   const dropdownRefUsuarios = useRef(null);
   const dropdownRefProdutos = useRef(null);
+  const dropdownRefAnimais = useRef(null);
 
   const isActive = (modulo) => path.startsWith(`/${modulo}`);
   const isUsuariosActive = isActive("usuarios") || isActive("funcoes");
   const isProdutosActive = isActive("produtos") || isActive("categorias");
+  const isAnimaisActive = isActive("animais") || isActive("racas");
 
   const getLinkClass = (modulo) => {
     const base = "text-decoration-none fw-semibold small menu-link";
@@ -25,10 +28,9 @@ function Header() {
       : `${base} text-secondary`;
   };
 
-  const getDropdownToggleClass = (isModuloAtivo) => {
-    const base =
-      "text-decoration-none fw-semibold small menu-link dropdown-toggle-custom";
-    return isModuloAtivo
+  const getDropdownToggleClass = (isActiveParent) => {
+    const base = "text-decoration-none fw-semibold small menu-link dropdown-toggle-custom";
+    return isActiveParent
       ? `${base} menu-link-ativo`
       : `${base} text-secondary`;
   };
@@ -48,6 +50,13 @@ function Header() {
       ) {
         setProdutosOpen(false);
       }
+
+      if (
+        dropdownRefAnimais.current &&
+        !dropdownRefAnimais.current.contains(event.target)
+      ) {
+        setAnimaisOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -57,6 +66,7 @@ function Header() {
   useEffect(() => {
     setUsuariosOpen(false);
     setProdutosOpen(false);
+    setAnimaisOpen(false);
   }, [path]);
 
   return (
@@ -109,9 +119,34 @@ function Header() {
             VETERINÁRIOS
           </Link>
 
-          <Link to="/animais" className={getLinkClass("animais")}>
-            ANIMAIS
-          </Link>
+          <div className="dropdown-container" ref={dropdownRefAnimais}>
+            <button
+              className={getDropdownToggleClass(isAnimaisActive)}
+              onClick={() => setAnimaisOpen(!animaisOpen)}
+              aria-expanded={animaisOpen}
+              aria-haspopup="true"
+            >
+              ANIMAIS <i className={`bi bi-chevron-${animaisOpen ? "up" : "down"} ms-1`}></i>
+            </button>
+            {animaisOpen && (
+              <div className="dropdown-menu-custom">
+                <Link
+                  to="/animais"
+                  className={`dropdown-item-custom ${isActive("animais") ? "active" : ""}`}
+                >
+                  <i className="bi bi-heart me-2"></i>
+                  Gerenciar Animais
+                </Link>
+                <Link
+                  to="/racas"
+                  className={`dropdown-item-custom ${isActive("racas") ? "active" : ""}`}
+                >
+                  <i className="bi bi-tags me-2"></i>
+                  Gerenciar Raças
+                </Link>
+              </div>
+            )}
+          </div>
 
           <div className="dropdown-container" ref={dropdownRefProdutos}>
             <button

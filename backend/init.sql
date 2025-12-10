@@ -145,7 +145,6 @@ INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv, disponibilidad
 ('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678', 'Segunda a Sexta - Tarde'),
 ('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789', 'Noturno');
 
-
 CREATE TABLE IF NOT EXISTS categorias_produtos (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
@@ -164,3 +163,24 @@ INSERT INTO categorias_produtos (nome, descricao) VALUES
 ('Remédios', 'Medicamentos, vermífugos e produtos veterinários'),
 ('Petisco', 'Petiscos, snacks e recompensas para pets'),
 ('Outros', 'Outros produtos diversos para animais de estimação');
+
+CREATE TABLE IF NOT EXISTS racas (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  especie ENUM('CANINA', 'FELINA', 'AVE', 'OUTRO') NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_raca_nome ON racas(nome);
+CREATE INDEX idx_raca_especie ON racas(especie);
+
+INSERT INTO racas (nome, especie) VALUES
+('Labrador', 'CANINA'),
+('Persa', 'FELINA'),
+('Pastor Alemão', 'CANINA'),
+('Siamês', 'FELINA'),
+('Vira-lata', 'CANINA'),
+('Golden Retriever', 'CANINA'),
+('Maine Coon', 'FELINA'),
+('Calopsita', 'AVE');
