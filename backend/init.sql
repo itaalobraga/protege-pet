@@ -188,3 +188,23 @@ INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv, disponibilidad
 ('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@protegepet.org', 'CRMV-SP 34567', 'Sábados e Domingos'),
 ('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678', 'Segunda a Sexta - Tarde'),
 ('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789', 'Noturno');
+
+CREATE TABLE IF NOT EXISTS movimentacoes_estoque (
+  id VARCHAR(36) PRIMARY KEY,
+  produto_id VARCHAR(100) NOT NULL,
+  tipo ENUM('ENTRADA', 'SAIDA') NOT NULL,
+  quantidade INT NOT NULL,
+  motivo VARCHAR(100) NOT NULL,
+  observacao TEXT,
+  responsavel VARCHAR(150),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_movimentacao_produto
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_movimentacao_produto_id ON movimentacoes_estoque(produto_id);
+CREATE INDEX idx_movimentacao_tipo ON movimentacoes_estoque(tipo);
+CREATE INDEX idx_movimentacao_motivo ON movimentacoes_estoque(motivo);
+CREATE INDEX idx_movimentacao_created_at ON movimentacoes_estoque(created_at);

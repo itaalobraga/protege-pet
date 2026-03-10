@@ -16,6 +16,9 @@ import ListaDeCategorias from "./pages/ListaDeCategorias/ListaDeCategorias";
 import CadastroDeCategorias from "./pages/CadastroDeCategorias/CadastroDeCategorias";
 import ListaDeRacas from "./pages/ListaDeRacas/ListaDeRacas.jsx";
 import CadastroDeRacas from "./pages/CadastroDeRacas/CadastroDeRacas.jsx";
+import CadastroDeMovimentacoes from "./pages/CadastroDeMovimentacoes/CadastroDeMovimentacoes.jsx";
+import CadastroDeSaidaEstoque from "./pages/CadastroDeSaidaEstoque/CadastroDeSaidaEstoque.jsx";
+import ListaDeMovimentacoes from "./pages/ListaDeMovimentacoes/ListaDeMovimentacoes.jsx";
 import "./App.css";
 
 function App() {
@@ -55,6 +58,11 @@ function App() {
         <Route path="/racas" element={<ListaDeRacas />} />
         <Route path="/racas/cadastro" element={<CadastroDeRacas />} />
         <Route path="/racas/cadastro/editar/:id" element={<CadastroDeRacas />} />
+
+        <Route path="/movimentacoes" element={<ListaDeMovimentacoes />} />
+        <Route path="/movimentacoes/nova" element={<CadastroDeMovimentacoes />} />
+        <Route path="/estoque/saida" element={<CadastroDeSaidaEstoque />} />
+
       </Routes>
     </BrowserRouter>
   );
