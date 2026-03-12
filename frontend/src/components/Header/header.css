@@ -37,7 +37,7 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 200px;
+  min-width: 240px;
   z-index: 1000;
   overflow: hidden;
 }
@@ -50,6 +50,7 @@
   text-decoration: none;
   font-size: 0.875rem;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .dropdown-item-custom:hover {
