@@ -169,7 +169,7 @@ function CadastroDeMovimentacoes() {
                           to="/produtos/cadastro"
                           className="btn btn-success btn-sm d-flex align-items-center gap-2"
                         >
-                          <i className="bi bi-plus-lg"></i> + Novo Produto
+                          <i className="bi bi-plus-lg"></i> Novo Produto
                         </Link>
                       </div>
                       <Form.Select

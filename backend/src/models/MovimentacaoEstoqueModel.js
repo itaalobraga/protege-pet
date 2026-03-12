@@ -42,6 +42,29 @@ class MovimentacaoEstoqueModel {
     return rows;
   }
 
+  static async buscarPorId(id) {
+    const [rows] = await pool.query(
+      `
+      SELECT
+        m.id,
+        m.produto_id,
+        p.nome AS produto_nome,
+        p.sku AS produto_sku,
+        m.tipo,
+        m.quantidade,
+        m.motivo,
+        m.observacao,
+        m.responsavel,
+        m.created_at
+      FROM movimentacoes_estoque m
+      JOIN produtos p ON p.id = m.produto_id
+      WHERE m.id = ?
+      `,
+      [id]
+    );
+    return rows[0] || null;
+  }
+
   static async criarMovimentacao(dados) {
     const connection = await pool.getConnection();
 

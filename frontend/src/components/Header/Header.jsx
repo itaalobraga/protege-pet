@@ -21,8 +21,7 @@ function Header() {
   const isProdutosActive =
     path === "/produtos" ||
     path === "/categorias" ||
-    path === "/movimentacoes" ||
-    path === "/movimentacoes/nova";
+    path.startsWith("/movimentacoes");
   const isAnimaisActive = isActive("animais") || isActive("racas");
 
   const getLinkClass = (modulo) => {

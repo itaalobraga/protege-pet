@@ -18,6 +18,7 @@ import ListaDeRacas from "./pages/ListaDeRacas/ListaDeRacas.jsx";
 import CadastroDeRacas from "./pages/CadastroDeRacas/CadastroDeRacas.jsx";
 import CadastroDeMovimentacoes from "./pages/CadastroDeMovimentacoes/CadastroDeMovimentacoes.jsx";
 import ListaDeMovimentacoes from "./pages/ListaDeMovimentacoes/ListaDeMovimentacoes.jsx";
+import DetalhesMovimentacao from "./pages/DetalhesMovimentacao/DetalhesMovimentacao.jsx";
 import "./App.css";
 
 function App() {
@@ -60,6 +61,7 @@ function App() {
 
         <Route path="/movimentacoes" element={<ListaDeMovimentacoes />} />
         <Route path="/movimentacoes/nova" element={<CadastroDeMovimentacoes />} />
+        <Route path="/movimentacoes/:id" element={<DetalhesMovimentacao />} />
 
       </Routes>
     </BrowserRouter>

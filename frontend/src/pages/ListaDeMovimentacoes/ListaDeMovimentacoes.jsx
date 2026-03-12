@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Card, Container, Form, Table } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import Header from "src/components/Header/Header.jsx";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
@@ -49,7 +50,6 @@ function ListaDeMovimentacoes() {
 
   const formatarData = (data) => {
     if (!data) return "-";
-
     return new Date(data).toLocaleString("pt-BR", {
       dateStyle: "short",
       timeStyle: "short",
@@ -63,7 +63,6 @@ function ListaDeMovimentacoes() {
 
   const formatarMotivo = (motivo) => {
     if (!motivo) return "-";
-
     const mapaMotivos = {
       DOACAO: "Doação",
       COMPRA: "Compra",
@@ -72,21 +71,10 @@ function ListaDeMovimentacoes() {
       DESCARTE: "Descarte",
       AJUSTE: "Ajuste",
     };
-
-    if (mapaMotivos[motivo]) {
-      return mapaMotivos[motivo];
-    }
-
-    return motivo
-      .toLowerCase()
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (letra) => letra.toUpperCase());
+    return mapaMotivos[motivo] || motivo.toLowerCase().replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
-  const movimentacoesFiltradas = movimentacoes.filter((movimentacao) => {
-    if (!tipoFiltro) return true;
-    return movimentacao.tipo === tipoFiltro;
-  });
+  const movimentacoesFiltradas = movimentacoes.filter((m) => !tipoFiltro || m.tipo === tipoFiltro);
 
   return (
     <>
@@ -95,13 +83,13 @@ function ListaDeMovimentacoes() {
       <main>
         <Container className="py-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h5 className="mb-0 fw-semibold">Histórico de Movimentações de Estoque</h5>
+            <h5 className="mb-0 fw-semibold">Histórico de Movimentações</h5>
             <div className="d-flex align-items-center gap-3">
               <input
                 type="text"
-                placeholder="Buscar por produto, SKU, tipo ou motivo"
+                placeholder="Buscar..."
                 className="form-control"
-                style={{ width: "280px" }}
+                style={{ width: "200px" }}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 aria-label="Buscar movimentação"
@@ -115,6 +103,13 @@ function ListaDeMovimentacoes() {
                 <option value="ENTRADA">Entradas</option>
                 <option value="SAIDA">Saídas</option>
               </Form.Select>
+              <Link
+                to="/movimentacoes/nova"
+                className="btn btn-success d-flex align-items-center gap-2"
+                tabIndex={0}
+              >
+                <i className="bi bi-plus-lg"></i> Nova
+              </Link>
             </div>
           </div>
 
@@ -132,18 +127,16 @@ function ListaDeMovimentacoes() {
                     <tr>
                       <th className="fw-semibold">Data</th>
                       <th className="fw-semibold text-start">Produto</th>
-                      <th className="fw-semibold">SKU</th>
                       <th className="fw-semibold">Tipo</th>
                       <th className="fw-semibold">Quantidade</th>
                       <th className="fw-semibold">Motivo</th>
-                      <th className="fw-semibold">Responsável</th>
-                      <th className="fw-semibold text-start">Observação</th>
+                      <th className="fw-semibold">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {movimentacoesFiltradas.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="py-5 text-secondary">
+                        <td colSpan={6} className="py-5 text-secondary">
                           <i className="bi bi-inbox fs-1 d-block mb-2"></i>
                           {search || tipoFiltro
                             ? "Nenhuma movimentação encontrada"
@@ -155,12 +148,20 @@ function ListaDeMovimentacoes() {
                         <tr key={movimentacao.id}>
                           <td className="align-middle">{formatarData(movimentacao.created_at)}</td>
                           <td className="align-middle text-start">{movimentacao.produto_nome}</td>
-                          <td className="align-middle">{movimentacao.produto_sku}</td>
                           <td className="align-middle">{formatarTipo(movimentacao.tipo)}</td>
                           <td className="align-middle">{movimentacao.quantidade}</td>
                           <td className="align-middle">{formatarMotivo(movimentacao.motivo)}</td>
-                          <td className="align-middle">{movimentacao.responsavel || "-"}</td>
-                          <td className="align-middle text-start">{movimentacao.observacao || "-"}</td>
+                          <td className="align-middle">
+                            <div className="d-flex gap-2 justify-content-center">
+                              <Link
+                                to={`/movimentacoes/${movimentacao.id}`}
+                                className="btn btn-outline-primary btn-sm"
+                                aria-label="Ver detalhes"
+                              >
+                                <i className="bi bi-eye"></i>
+                              </Link>
+                            </div>
+                          </td>
                         </tr>
                       ))
                     )}

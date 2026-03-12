@@ -13,6 +13,20 @@ class MovimentacaoEstoqueController {
     }
   }
 
+  static async buscarPorId(req, res) {
+    try {
+      const { id } = req.params;
+      const movimentacao = await MovimentacaoEstoqueModel.buscarPorId(id);
+      if (!movimentacao) {
+        return res.status(404).json({ error: "Movimentação não encontrada" });
+      }
+      res.json(movimentacao);
+    } catch (error) {
+      console.error("Erro ao buscar movimentação:", error);
+      res.status(500).json({ error: "Erro ao buscar movimentação" });
+    }
+  }
+
   static async criar(req, res) {
     try {
       const {
