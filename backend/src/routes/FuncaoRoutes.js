@@ -1,7 +1,9 @@
 import express from "express";
 import FuncaoController from "../controllers/FuncaoController.js";
+import { authJwt } from "../middlewares/authJwt.js";
 
 const router = express.Router();
+router.use(authJwt);
 
 router.get("/funcoes", FuncaoController.listar);
 router.get("/funcoes/permissoes", FuncaoController.listarPermissoes);

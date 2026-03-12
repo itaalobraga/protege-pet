@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import VoluntarioRoutes from "./routes/VoluntarioRoutes.js";
 import UsuarioRoutes from "./routes/UsuarioRoutes.js";
@@ -11,13 +12,21 @@ import CategoriaRoutes from "./routes/CategoriaRoutes.js";
 import pool from "./config/database.js";
 import RacaRoutes from "./routes/RacaRoutes.js";
 import MovimentacaoEstoqueRoutes from "./routes/MovimentacaoEstoqueRoutes.js";
+import AuthRoutes from "./routes/AuthRoutes.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT;
+const CORS_ORIGIN = process.env.CORS_ORIGIN;
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: CORS_ORIGIN,
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -43,6 +52,7 @@ app.get("/health", async (req, res) => {
   }
 });
 
+app.use("/api", AuthRoutes);
 app.use("/api", VoluntarioRoutes);
 app.use("/api", UsuarioRoutes);
 app.use("/api", AnimalRoutes);

@@ -3,23 +3,43 @@ import pool from "../config/database.js";
 class Usuario {
   static async listarTodos() {
     const [rows] = await pool.query(
-      `SELECT u.*, f.nome as funcao_nome, f.permissoes as funcao_permissoes
+      `SELECT u.*, f.nome as funcao_nome,
+         (SELECT GROUP_CONCAT(p.nome ORDER BY p.nome)
+          FROM funcoes_permissoes fp
+          INNER JOIN permissoes p ON fp.permissao_id = p.id
+          WHERE fp.funcao_id = f.id) as funcao_permissoes
        FROM usuarios u
        INNER JOIN funcoes f ON u.funcao_id = f.id
        ORDER BY u.nome`
     );
-    return rows;
+    return rows.map((r) => ({
+      ...r,
+      funcao_permissoes: r.funcao_permissoes
+        ? r.funcao_permissoes.split(",").map((p) => p.trim()).filter(Boolean)
+        : [],
+    }));
   }
 
   static async buscarPorId(id) {
     const [rows] = await pool.query(
-      `SELECT u.*, f.nome as funcao_nome, f.permissoes as funcao_permissoes
+      `SELECT u.*, f.nome as funcao_nome,
+         (SELECT GROUP_CONCAT(p.nome ORDER BY p.nome)
+          FROM funcoes_permissoes fp
+          INNER JOIN permissoes p ON fp.permissao_id = p.id
+          WHERE fp.funcao_id = f.id) as funcao_permissoes
        FROM usuarios u
        INNER JOIN funcoes f ON u.funcao_id = f.id
        WHERE u.id = ?`,
       [id]
     );
-    return rows[0];
+    if (!rows[0]) return null;
+    const r = rows[0];
+    return {
+      ...r,
+      funcao_permissoes: r.funcao_permissoes
+        ? r.funcao_permissoes.split(",").map((p) => p.trim()).filter(Boolean)
+        : [],
+    };
   }
 
   static async criar(usuario) {
@@ -52,7 +72,11 @@ class Usuario {
   static async filtrar(termo) {
     const termoBusca = `%${termo}%`;
     const [rows] = await pool.query(
-      `SELECT u.*, f.nome as funcao_nome, f.permissoes as funcao_permissoes
+      `SELECT u.*, f.nome as funcao_nome,
+         (SELECT GROUP_CONCAT(p.nome ORDER BY p.nome)
+          FROM funcoes_permissoes fp
+          INNER JOIN permissoes p ON fp.permissao_id = p.id
+          WHERE fp.funcao_id = f.id) as funcao_permissoes
        FROM usuarios u
        INNER JOIN funcoes f ON u.funcao_id = f.id
        WHERE u.nome LIKE ?
@@ -61,7 +85,12 @@ class Usuario {
        ORDER BY u.nome`,
       [termoBusca, termoBusca, termoBusca]
     );
-    return rows;
+    return rows.map((r) => ({
+      ...r,
+      funcao_permissoes: r.funcao_permissoes
+        ? r.funcao_permissoes.split(",").map((p) => p.trim()).filter(Boolean)
+        : [],
+    }));
   }
 
   static async buscarPorEmail(email) {

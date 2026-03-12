@@ -1,7 +1,9 @@
 import express from "express";
 import CategoriaController from "../controllers/CategoriaController.js";
+import { authJwt } from "../middlewares/authJwt.js";
 
 const router = express.Router();
+router.use(authJwt);
 
 router.get("/categorias", CategoriaController.listar);
 router.get("/categorias/:id", CategoriaController.buscarPorId);

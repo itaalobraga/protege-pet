@@ -42,6 +42,12 @@
   overflow: hidden;
 }
 
+.dropdown-menu-right {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
 .dropdown-item-custom {
   display: flex;
   align-items: center;

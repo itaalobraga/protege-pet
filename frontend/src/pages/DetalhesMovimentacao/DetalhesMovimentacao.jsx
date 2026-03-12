@@ -9,8 +9,9 @@ import ApiService from "../../services/ApiService";
 const MAPA_MOTIVOS = {
   DOACAO: "Doação",
   COMPRA: "Compra",
-  USO_ANIMAL: "Uso em animal",
-  USO_INTERNO: "Uso interno",
+  USO_DIARIO: "Uso diário",
+  TRATAMENTO: "Tratamento",
+  ADOCAO: "Adoção",
   DESCARTE: "Descarte",
   AJUSTE: "Ajuste",
 };
@@ -45,12 +46,15 @@ function DetalhesMovimentacao() {
 
   const formatarTipo = (tipo) => (tipo === "ENTRADA" ? "Entrada" : "Saída");
 
-  const formatarMotivo = (motivo) =>
-    MAPA_MOTIVOS[motivo] ||
-    (motivo || "-")
+  const formatarMotivo = (motivo) => {
+    if (!motivo) return "-";
+    if (MAPA_MOTIVOS[motivo]) return MAPA_MOTIVOS[motivo];
+    if (!motivo.includes("_")) return motivo;
+    return motivo
       .toLowerCase()
       .replace(/_/g, " ")
-      .replace(/\b\w/g, (l) => l.toUpperCase());
+      .replace(/(^|\s)\S/g, (m) => m.toUpperCase());
+  };
 
   if (loading) {
     return (

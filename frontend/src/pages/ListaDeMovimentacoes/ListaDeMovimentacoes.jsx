@@ -66,12 +66,18 @@ function ListaDeMovimentacoes() {
     const mapaMotivos = {
       DOACAO: "Doação",
       COMPRA: "Compra",
-      USO_ANIMAL: "Uso em animal",
-      USO_INTERNO: "Uso interno",
+      USO_DIARIO: "Uso diário",
+      TRATAMENTO: "Tratamento",
+      ADOCAO: "Adoção",
       DESCARTE: "Descarte",
       AJUSTE: "Ajuste",
     };
-    return mapaMotivos[motivo] || motivo.toLowerCase().replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+    if (mapaMotivos[motivo]) return mapaMotivos[motivo];
+    if (!motivo.includes("_")) return motivo;
+    return motivo
+      .toLowerCase()
+      .replace(/_/g, " ")
+      .replace(/(^|\s)\S/g, (m) => m.toUpperCase());
   };
 
   const movimentacoesFiltradas = movimentacoes.filter((m) => !tipoFiltro || m.tipo === tipoFiltro);

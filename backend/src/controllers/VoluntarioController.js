@@ -43,7 +43,7 @@ class VoluntarioController {
         nome,
         cpf,
         telefone,
-        vlt_tel_Residencial,
+        vlt_tel_residencial,
         email,
         disponibilidade,
       } = req.body;
@@ -51,12 +51,12 @@ class VoluntarioController {
         !nome ||
         !cpf ||
         !telefone ||
-        !vlt_tel_Residencial ||
+        !vlt_tel_residencial ||
         !email ||
         !disponibilidade
       ) {
         return res
-          .status(404)
+          .status(400)
           .json({ error: "Todos os campos são obrigatórios" });
       }
       if (!aplicarMascaraCpf(cpf)) {
@@ -75,7 +75,7 @@ class VoluntarioController {
         nome,
         cpf,
         telefone,
-        vlt_tel_Residencial,
+        vlt_tel_residencial,
         email,
         disponibilidade,
       });
@@ -93,7 +93,7 @@ class VoluntarioController {
         nome,
         cpf,
         telefone,
-        vlt_tel_Residencial,
+        vlt_tel_residencial,
         email,
         disponibilidade,
       } = req.body;
@@ -114,14 +114,18 @@ class VoluntarioController {
         nome,
         cpf,
         telefone,
-        vlt_tel_Residencial,
+        vlt_tel_residencial,
         email,
         disponibilidade,
       });
 
-      res.status(201).json(voluntario);
+      if (!voluntario) {
+        return res.status(404).json({ error: "Voluntário não encontrado" });
+      }
+      res.status(200).json(voluntario);
     } catch (error) {
       console.error(`Erro ao atualizar cadastro do voluntário ${error}`);
+      res.status(500).json({ error: "Erro ao atualizar voluntário" });
     }
   }
 

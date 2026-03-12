@@ -14,8 +14,9 @@ const MOTIVOS_ENTRADA = [
 ];
 
 const MOTIVOS_SAIDA = [
-  { value: "USO_INTERNO", label: "Uso interno" },
-  { value: "USO_ANIMAL", label: "Uso em animal" },
+  { value: "USO_DIARIO", label: "Uso diário" },
+  { value: "TRATAMENTO", label: "Tratamento" },
+  { value: "ADOCAO", label: "Adoção" },
   { value: "DESCARTE", label: "Descarte" },
   { value: "AJUSTE", label: "Ajuste" },
   { value: "OUTROS", label: "Outros" },

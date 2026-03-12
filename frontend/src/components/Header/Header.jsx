@@ -1,20 +1,33 @@
-import { useState, useRef, useEffect } from "react";
-import { Container } from "react-bootstrap";
-import { Link, useLocation } from "react-router-dom";
-import NavBar from "../NavBar/NavBar.jsx";
+import { useEffect } from "react";
+import { Container, Stack } from "react-bootstrap";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useDropdown } from "../../hooks/useDropdown";
+import logo from "../../assets/img/logo.png";
 import "./header.css";
 
 function Header() {
   const location = useLocation();
   const path = location.pathname;
+  const navigate = useNavigate();
+  const { usuario, logout } = useAuth();
 
-  const [usuariosOpen, setUsuariosOpen] = useState(false);
-  const [produtosOpen, setProdutosOpen] = useState(false);
-  const [animaisOpen, setAnimaisOpen] = useState(false);
+  const [usuariosOpen, usuariosToggle, usuariosClose, usuariosRef] = useDropdown();
+  const [produtosOpen, produtosToggle, produtosClose, produtosRef] = useDropdown();
+  const [animaisOpen, animaisToggle, animaisClose, animaisRef] = useDropdown();
+  const [contaOpen, contaToggle, contaClose, contaRef] = useDropdown();
 
-  const dropdownRefUsuarios = useRef(null);
-  const dropdownRefProdutos = useRef(null);
-  const dropdownRefAnimais = useRef(null);
+  useEffect(() => {
+    usuariosClose();
+    produtosClose();
+    animaisClose();
+  }, [path, usuariosClose, produtosClose, animaisClose]);
+
+  const handleLogout = async () => {
+    contaClose();
+    await logout();
+    navigate("/login", { replace: true });
+  };
 
   const isActive = (modulo) => path.startsWith(`/${modulo}`);
   const isUsuariosActive = isActive("usuarios") || isActive("funcoes");
@@ -39,74 +52,104 @@ function Header() {
       : `${base} text-secondary`;
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        dropdownRefUsuarios.current &&
-        !dropdownRefUsuarios.current.contains(event.target)
-      ) {
-        setUsuariosOpen(false);
-      }
-
-      if (
-        dropdownRefProdutos.current &&
-        !dropdownRefProdutos.current.contains(event.target)
-      ) {
-        setProdutosOpen(false);
-      }
-
-      if (
-        dropdownRefAnimais.current &&
-        !dropdownRefAnimais.current.contains(event.target)
-      ) {
-        setAnimaisOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    setUsuariosOpen(false);
-    setProdutosOpen(false);
-    setAnimaisOpen(false);
-  }, [path]);
-
   return (
     <header>
-      <NavBar />
-      <nav className="py-3 border-bottom">
+      <div className="header-top py-3">
+        <Container>
+          <Stack direction="horizontal" gap={4} className="align-items-center">
+            <Link to="/usuarios" className="d-flex align-items-center">
+              <img
+                alt="Protege Pet"
+                src={logo}
+                width="64"
+                height="48"
+                className="d-inline-block"
+              />
+            </Link>
+            <div className="flex-grow-1">
+              <div className="fw-bold" style={{ color: "#3F4D87", fontSize: "0.95rem" }}>
+                SOCIEDADE PROTETORA DOS ANIMAIS ABANDONADOS
+              </div>
+              <div className="fw-bold" style={{ color: "#009951", fontSize: "0.85rem" }}>
+                PRESIDENTE PRUDENTE
+              </div>
+            </div>
+            {usuario && (
+              <div className="dropdown-container ms-auto" ref={contaRef}>
+                <button
+                  type="button"
+                  className={getDropdownToggleClass(false)}
+                  onClick={contaToggle}
+                  aria-expanded={contaOpen}
+                  aria-haspopup="true"
+                >
+                  <i className="bi bi-person-circle me-1"></i>
+                  CONTA{" "}
+                  <i
+                    className={`bi bi-chevron-${contaOpen ? "up" : "down"} ms-1`}
+                  ></i>
+                </button>
+                {contaOpen && (
+                  <div className="dropdown-menu-custom dropdown-menu-right">
+                    <div className="px-3 py-2 border-bottom">
+                      <div className="fw-semibold small">{usuario.nome}</div>
+                      {usuario.email && (
+                        <div className="text-secondary" style={{ fontSize: "0.75rem" }}>
+                          {usuario.email}
+                        </div>
+                      )}
+                      {usuario.funcao_nome && (
+                        <span
+                          className="badge mt-1"
+                          style={{ backgroundColor: "#009951", fontSize: "0.65rem" }}
+                        >
+                          {usuario.funcao_nome}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="dropdown-item-custom w-100 border-0 bg-transparent text-start"
+                      onClick={handleLogout}
+                    >
+                      <i className="bi bi-box-arrow-right me-2"></i>
+                      Sair
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </Stack>
+        </Container>
+      </div>
+
+      <nav className="py-3 border-bottom header-nav">
         <Container className="d-flex justify-content-center gap-4">
-          <div className="dropdown-container" ref={dropdownRefUsuarios}>
+          <div className="dropdown-container" ref={usuariosRef}>
             <button
               type="button"
               className={getDropdownToggleClass(isUsuariosActive)}
-              onClick={() => setUsuariosOpen((prev) => !prev)}
+              onClick={usuariosToggle}
             >
               USUÁRIOS{" "}
               <i
                 className={`bi bi-chevron-${usuariosOpen ? "up" : "down"} ms-1`}
               ></i>
             </button>
-
             {usuariosOpen && (
               <div className="dropdown-menu-custom">
                 <Link
                   to="/usuarios"
-                  className={`dropdown-item-custom ${
-                    path === "/usuarios" ? "active" : ""
-                  }`}
+                  className={`dropdown-item-custom ${path === "/usuarios" ? "active" : ""}`}
+                  onClick={usuariosClose}
                 >
                   <i className="bi bi-people me-2"></i>
                   Gerenciar Usuários
                 </Link>
-
                 <Link
                   to="/funcoes"
-                  className={`dropdown-item-custom ${
-                    path === "/funcoes" ? "active" : ""
-                  }`}
+                  className={`dropdown-item-custom ${path === "/funcoes" ? "active" : ""}`}
+                  onClick={usuariosClose}
                 >
                   <i className="bi bi-shield-lock me-2"></i>
                   Gerenciar Funções
@@ -123,11 +166,11 @@ function Header() {
             VETERINÁRIOS
           </Link>
 
-          <div className="dropdown-container" ref={dropdownRefAnimais}>
+          <div className="dropdown-container" ref={animaisRef}>
             <button
               type="button"
               className={getDropdownToggleClass(isAnimaisActive)}
-              onClick={() => setAnimaisOpen((prev) => !prev)}
+              onClick={animaisToggle}
               aria-expanded={animaisOpen}
               aria-haspopup="true"
             >
@@ -136,24 +179,20 @@ function Header() {
                 className={`bi bi-chevron-${animaisOpen ? "up" : "down"} ms-1`}
               ></i>
             </button>
-
             {animaisOpen && (
               <div className="dropdown-menu-custom">
                 <Link
                   to="/animais"
-                  className={`dropdown-item-custom ${
-                    path === "/animais" ? "active" : ""
-                  }`}
+                  className={`dropdown-item-custom ${path === "/animais" ? "active" : ""}`}
+                  onClick={animaisClose}
                 >
                   <i className="bi bi-heart me-2"></i>
                   Gerenciar Animais
                 </Link>
-
                 <Link
                   to="/racas"
-                  className={`dropdown-item-custom ${
-                    path === "/racas" ? "active" : ""
-                  }`}
+                  className={`dropdown-item-custom ${path === "/racas" ? "active" : ""}`}
+                  onClick={animaisClose}
                 >
                   <i className="bi bi-tags me-2"></i>
                   Gerenciar Raças
@@ -162,53 +201,49 @@ function Header() {
             )}
           </div>
 
-          <div className="dropdown-container" ref={dropdownRefProdutos}>
+          <div className="dropdown-container" ref={produtosRef}>
             <button
               type="button"
               className={getDropdownToggleClass(isProdutosActive)}
-              onClick={() => setProdutosOpen((prev) => !prev)}
+              onClick={produtosToggle}
             >
-              PRODUTOS
+              PRODUTOS{" "}
               <i
                 className={`bi bi-chevron-${produtosOpen ? "up" : "down"} ms-1`}
               ></i>
             </button>
-
-{produtosOpen && (
-  <div className="dropdown-menu-custom">
-    <Link
-      to="/movimentacoes/nova"
-      className={`dropdown-item-custom ${path === "/movimentacoes/nova" ? "active" : ""}`}
-      onClick={() => setProdutosOpen(false)}
-    >
-      Nova movimentação
-    </Link>
-
-    <Link
-      to="/movimentacoes"
-      className={`dropdown-item-custom ${path === "/movimentacoes" ? "active" : ""}`}
-      onClick={() => setProdutosOpen(false)}
-    >
-      Histórico de movimentações
-    </Link>
-
-    <Link
-      to="/produtos"
-      className={`dropdown-item-custom ${path === "/produtos" ? "active" : ""}`}
-      onClick={() => setProdutosOpen(false)}
-    >
-      Gerenciar produtos
-    </Link>
-
-    <Link
-      to="/categorias"
-      className={`dropdown-item-custom ${path === "/categorias" ? "active" : ""}`}
-      onClick={() => setProdutosOpen(false)}
-    >
-      Gerenciar categorias
-    </Link>
-  </div>
-)}
+            {produtosOpen && (
+              <div className="dropdown-menu-custom">
+                <Link
+                  to="/movimentacoes/nova"
+                  className={`dropdown-item-custom ${path === "/movimentacoes/nova" ? "active" : ""}`}
+                  onClick={produtosClose}
+                >
+                  Nova movimentação
+                </Link>
+                <Link
+                  to="/movimentacoes"
+                  className={`dropdown-item-custom ${path === "/movimentacoes" ? "active" : ""}`}
+                  onClick={produtosClose}
+                >
+                  Histórico de movimentações
+                </Link>
+                <Link
+                  to="/produtos"
+                  className={`dropdown-item-custom ${path === "/produtos" ? "active" : ""}`}
+                  onClick={produtosClose}
+                >
+                  Gerenciar produtos
+                </Link>
+                <Link
+                  to="/categorias"
+                  className={`dropdown-item-custom ${path === "/categorias" ? "active" : ""}`}
+                  onClick={produtosClose}
+                >
+                  Gerenciar categorias
+                </Link>
+              </div>
+            )}
           </div>
         </Container>
       </nav>
