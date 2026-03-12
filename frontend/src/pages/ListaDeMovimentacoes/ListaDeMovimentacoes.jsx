@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { Card, Container, Form, Table, Row, Col } from "react-bootstrap";
-import Header from "../../components/Header/Header.jsx";
+import { Card, Container, Form, Table } from "react-bootstrap";
+import Header from "src/components/Header/Header.jsx";
+import Toast from "react-bootstrap/Toast";
+import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../services/ApiService";
 
 function ListaDeMovimentacoes() {
@@ -8,6 +10,15 @@ function ListaDeMovimentacoes() {
   const [search, setSearch] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState("success");
+
+  const exibirToast = useCallback((mensagem, variante = "success") => {
+    setToastMessage(mensagem);
+    setToastVariant(variante);
+    setShowToast(true);
+  }, []);
 
   const carregarMovimentacoes = useCallback(async (termo = "") => {
     setLoading(true);
@@ -22,10 +33,11 @@ function ListaDeMovimentacoes() {
     } catch (error) {
       console.error("Erro ao carregar movimentações:", error);
       setMovimentacoes([]);
+      exibirToast("Erro ao carregar movimentações.", "danger");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [exibirToast]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -80,74 +92,108 @@ function ListaDeMovimentacoes() {
     <>
       <Header />
 
-      <Container className="py-4">
-        <Card className="shadow-sm border-0">
-          <Card.Body>
-            <h4 className="fw-bold mb-4">Histórico de Movimentações de Estoque</h4>
+      <main>
+        <Container className="py-4">
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h5 className="mb-0 fw-semibold">Histórico de Movimentações de Estoque</h5>
+            <div className="d-flex align-items-center gap-3">
+              <input
+                type="text"
+                placeholder="Buscar por produto, SKU, tipo ou motivo"
+                className="form-control"
+                style={{ width: "280px" }}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Buscar movimentação"
+              />
+              <Form.Select
+                value={tipoFiltro}
+                onChange={(e) => setTipoFiltro(e.target.value)}
+                style={{ width: "180px" }}
+              >
+                <option value="">Todos os tipos</option>
+                <option value="ENTRADA">Entradas</option>
+                <option value="SAIDA">Saídas</option>
+              </Form.Select>
+            </div>
+          </div>
 
-            <Row className="mb-4">
-              <Col md={8}>
-                <Form.Control
-                  type="text"
-                  placeholder="Buscar por produto, SKU, tipo ou motivo"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </Col>
-
-              <Col md={4}>
-                <Form.Select
-                  value={tipoFiltro}
-                  onChange={(e) => setTipoFiltro(e.target.value)}
-                >
-                  <option value="">Todos os tipos</option>
-                  <option value="ENTRADA">Somente entradas</option>
-                  <option value="SAIDA">Somente saídas</option>
-                </Form.Select>
-              </Col>
-            </Row>
-
-            {loading ? (
-              <p className="mb-0">Carregando...</p>
-            ) : movimentacoesFiltradas.length === 0 ? (
-              <p className="mb-0">
-                {search || tipoFiltro
-                  ? "Nenhuma movimentação encontrada."
-                  : "Nenhuma movimentação registrada."}
-              </p>
-            ) : (
-              <Table responsive hover bordered>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Produto</th>
-                    <th>SKU</th>
-                    <th>Tipo</th>
-                    <th>Quantidade</th>
-                    <th>Motivo</th>
-                    <th>Responsável</th>
-                    <th>Observação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {movimentacoesFiltradas.map((movimentacao) => (
-                    <tr key={movimentacao.id}>
-                      <td>{formatarData(movimentacao.created_at)}</td>
-                      <td>{movimentacao.produto_nome}</td>
-                      <td>{movimentacao.produto_sku}</td>
-                      <td>{formatarTipo(movimentacao.tipo)}</td>
-                      <td>{movimentacao.quantidade}</td>
-                      <td>{formatarMotivo(movimentacao.motivo)}</td>
-                      <td>{movimentacao.responsavel || "-"}</td>
-                      <td>{movimentacao.observacao || "-"}</td>
+          <Card className="border-0 shadow-sm">
+            <Card.Body className="p-0">
+              {loading ? (
+                <div className="text-center py-5">
+                  <div className="spinner-border text-secondary" role="status">
+                    <span className="visually-hidden">Carregando...</span>
+                  </div>
+                </div>
+              ) : (
+                <Table hover responsive className="text-center mb-0">
+                  <thead className="table-light">
+                    <tr>
+                      <th className="fw-semibold">Data</th>
+                      <th className="fw-semibold text-start">Produto</th>
+                      <th className="fw-semibold">SKU</th>
+                      <th className="fw-semibold">Tipo</th>
+                      <th className="fw-semibold">Quantidade</th>
+                      <th className="fw-semibold">Motivo</th>
+                      <th className="fw-semibold">Responsável</th>
+                      <th className="fw-semibold text-start">Observação</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )}
-          </Card.Body>
-        </Card>
-      </Container>
+                  </thead>
+                  <tbody>
+                    {movimentacoesFiltradas.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="py-5 text-secondary">
+                          <i className="bi bi-inbox fs-1 d-block mb-2"></i>
+                          {search || tipoFiltro
+                            ? "Nenhuma movimentação encontrada"
+                            : "Nenhuma movimentação registrada"}
+                        </td>
+                      </tr>
+                    ) : (
+                      movimentacoesFiltradas.map((movimentacao) => (
+                        <tr key={movimentacao.id}>
+                          <td className="align-middle">{formatarData(movimentacao.created_at)}</td>
+                          <td className="align-middle text-start">{movimentacao.produto_nome}</td>
+                          <td className="align-middle">{movimentacao.produto_sku}</td>
+                          <td className="align-middle">{formatarTipo(movimentacao.tipo)}</td>
+                          <td className="align-middle">{movimentacao.quantidade}</td>
+                          <td className="align-middle">{formatarMotivo(movimentacao.motivo)}</td>
+                          <td className="align-middle">{movimentacao.responsavel || "-"}</td>
+                          <td className="align-middle text-start">{movimentacao.observacao || "-"}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </Table>
+              )}
+            </Card.Body>
+          </Card>
+        </Container>
+      </main>
+
+      <ToastContainer position="bottom-center" className="mb-4">
+        <Toast
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          delay={4000}
+          autohide
+          className="border-0 shadow"
+        >
+          <Toast.Body
+            className={`d-flex align-items-center gap-2 text-${toastVariant}`}
+          >
+            <i
+              className={`bi bi-${
+                toastVariant === "success"
+                  ? "check-circle-fill"
+                  : "exclamation-circle-fill"
+              }`}
+            ></i>
+            {toastMessage}
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
     </>
   );
 }

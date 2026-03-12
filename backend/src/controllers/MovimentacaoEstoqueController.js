@@ -62,46 +62,6 @@ class MovimentacaoEstoqueController {
     }
   }
 
-  static async registrarSaida(req, res) {
-    try {
-      const { produto_id, quantidade, motivo, observacao, responsavel } = req.body;
-
-      if (!produto_id || quantidade === undefined || !motivo || !responsavel) {
-        return res.status(400).json({
-          error: "Produto, quantidade, motivo e responsável são obrigatórios",
-        });
-      }
-
-      const produto = await ProdutoModel.buscarPorId(produto_id);
-
-      if (!produto) {
-        return res.status(404).json({ error: "Produto não encontrado" });
-      }
-
-      const movimentacao = await MovimentacaoEstoqueModel.criarMovimentacao({
-        produto_id,
-        tipo: "SAIDA",
-        quantidade,
-        motivo: String(motivo).trim().toUpperCase(),
-        observacao: observacao?.trim() || "",
-        responsavel: responsavel?.trim() || "",
-      });
-
-      return res.status(201).json(movimentacao);
-    } catch (error) {
-      console.error("Erro ao registrar saída:", error);
-
-      if (
-        error.message === "Produto não encontrado" ||
-        error.message === "Quantidade inválida" ||
-        error.message === "Saída maior que o estoque disponível"
-      ) {
-        return res.status(400).json({ error: error.message });
-      }
-
-      return res.status(500).json({ error: "Erro ao registrar saída de estoque" });
-    }
-  }
 }
 
 export default MovimentacaoEstoqueController;

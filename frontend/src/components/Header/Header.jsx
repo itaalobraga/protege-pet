@@ -22,8 +22,7 @@ function Header() {
     path === "/produtos" ||
     path === "/categorias" ||
     path === "/movimentacoes" ||
-    path === "/movimentacoes/nova" ||
-    path === "/estoque/saida";
+    path === "/movimentacoes/nova";
   const isAnimaisActive = isActive("animais") || isActive("racas");
 
   const getLinkClass = (modulo) => {
@@ -183,15 +182,7 @@ function Header() {
       className={`dropdown-item-custom ${path === "/movimentacoes/nova" ? "active" : ""}`}
       onClick={() => setProdutosOpen(false)}
     >
-      Entrada de produtos
-    </Link>
-
-    <Link
-      to="/estoque/saida"
-      className={`dropdown-item-custom ${path === "/estoque/saida" ? "active" : ""}`}
-      onClick={() => setProdutosOpen(false)}
-    >
-      Saída de produtos
+      Nova movimentação
     </Link>
 
     <Link

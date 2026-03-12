@@ -17,7 +17,6 @@ import CadastroDeCategorias from "./pages/CadastroDeCategorias/CadastroDeCategor
 import ListaDeRacas from "./pages/ListaDeRacas/ListaDeRacas.jsx";
 import CadastroDeRacas from "./pages/CadastroDeRacas/CadastroDeRacas.jsx";
 import CadastroDeMovimentacoes from "./pages/CadastroDeMovimentacoes/CadastroDeMovimentacoes.jsx";
-import CadastroDeSaidaEstoque from "./pages/CadastroDeSaidaEstoque/CadastroDeSaidaEstoque.jsx";
 import ListaDeMovimentacoes from "./pages/ListaDeMovimentacoes/ListaDeMovimentacoes.jsx";
 import "./App.css";
 
@@ -61,7 +60,6 @@ function App() {
 
         <Route path="/movimentacoes" element={<ListaDeMovimentacoes />} />
         <Route path="/movimentacoes/nova" element={<CadastroDeMovimentacoes />} />
-        <Route path="/estoque/saida" element={<CadastroDeSaidaEstoque />} />
 
       </Routes>
     </BrowserRouter>
