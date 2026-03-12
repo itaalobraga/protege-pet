@@ -25,9 +25,7 @@ class ApiService {
 
   static normalizeError(error) {
     if (isNetworkError(error)) {
-      return new Error(
-        "Não foi possível conectar ao servidor. Verifique se a API está rodando e a URL em .env"
-      );
+      return new Error("Não foi possível conectar ao servidor.");
     }
     return error;
   }
