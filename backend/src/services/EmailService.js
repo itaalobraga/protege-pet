@@ -43,7 +43,9 @@ class EmailService {
       html,
     });
 
-    console.log(result)
+    if (result.error) {
+      console.log(`Erro ao enviar email ${this.from} -> ${to}: `, result.error);
+    }
 
     return result;
   }
