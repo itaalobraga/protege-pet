@@ -20,6 +20,7 @@ function Header() {
   const isUsuariosActive = isActive("usuarios") || isActive("funcoes");
   const isProdutosActive = isActive("produtos") || isActive("categorias");
   const isAnimaisActive = isActive("animais") || isActive("racas");
+  const isConsultasActive = isActive("consultas");
 
   const getLinkClass = (modulo) => {
     const base = "text-decoration-none fw-semibold small menu-link";
@@ -117,6 +118,10 @@ function Header() {
 
           <Link to="/veterinarios" className={getLinkClass("veterinarios")}>
             VETERINÁRIOS
+          </Link>
+
+          <Link to="/consultas" className={isConsultasActive ? "text-decoration-none fw-semibold small menu-link menu-link-ativo" : "text-decoration-none fw-semibold small menu-link text-secondary"}>
+            CONSULTAS
           </Link>
 
           <div className="dropdown-container" ref={dropdownRefAnimais}>
