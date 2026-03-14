@@ -154,15 +154,17 @@ function ListaDeAnimais() {
                               <Link
                                 to={`/animais/cadastro/editar/${animal.id}`}
                                 className="btn btn-outline-primary btn-sm"
+                                aria-label="Editar"
                               >
-                                Editar
+                                <i className="bi bi-pencil"></i>
                               </Link>
                               <Button
                                 variant="outline-danger"
                                 size="sm"
                                 onClick={() => abrirModal(animal.id)}
+                                aria-label="Excluir"
                               >
-                                Excluir
+                                <i className="bi bi-trash"></i>
                               </Button>
                             </div>
                           </td>

@@ -1,5 +1,12 @@
+import bcrypt from "bcrypt";
 import UsuarioModel from "../models/UsuarioModel.js";
 import { randomUUID } from "crypto";
+
+function removerSenha(usuario) {
+  if (!usuario) return usuario;
+  const { senha: _, ...resto } = usuario;
+  return resto;
+}
 
 class UsuarioController {
   static async listar(req, res) {
@@ -13,7 +20,7 @@ class UsuarioController {
         usuarios = await UsuarioModel.listarTodos();
       }
 
-      res.json(usuarios);
+      res.json(usuarios.map(removerSenha));
     } catch (error) {
       console.error("Erro ao listar usuários:", error);
       res.status(500).json({ error: "Erro ao listar usuários" });
@@ -29,7 +36,7 @@ class UsuarioController {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
-      res.json(usuario);
+      res.json(removerSenha(usuario));
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
       res.status(500).json({ error: "Erro ao buscar usuário" });
@@ -57,6 +64,7 @@ class UsuarioController {
       }
 
       const id = randomUUID();
+      const senhaHash = await bcrypt.hash(senha, 10);
 
       const usuario = await UsuarioModel.criar({
         id,
@@ -65,7 +73,7 @@ class UsuarioController {
         telefone,
         email,
         disponibilidade,
-        senha,
+        senha: senhaHash,
       });
 
       res.status(201).json(usuario);
@@ -80,9 +88,9 @@ class UsuarioController {
       const { id } = req.params;
       const { nome, funcao_id, telefone, email, disponibilidade, senha } = req.body;
 
-      if (!nome || !funcao_id || !telefone || !email || !disponibilidade || !senha) {
+      if (!nome || !funcao_id || !telefone || !email || !disponibilidade) {
         return res.status(400).json({
-          error: "Todos os campos são obrigatórios",
+          error: "Nome, função, telefone, email e disponibilidade são obrigatórios",
         });
       }
 
@@ -96,13 +104,18 @@ class UsuarioController {
         return res.status(400).json({ error: "Este email já está cadastrado" });
       }
 
+      let senhaFinal = usuarioExistente.senha;
+      if (senha && senha.length >= 6) {
+        senhaFinal = await bcrypt.hash(senha, 10);
+      }
+
       const usuario = await UsuarioModel.atualizar(id, {
         nome,
         funcao_id,
         telefone,
         email,
         disponibilidade,
-        senha,
+        senha: senhaFinal,
       });
 
       res.json(usuario);

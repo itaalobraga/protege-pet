@@ -1,7 +1,9 @@
 import express from "express";
 import UsuarioController from "../controllers/UsuarioController.js";
+import { authJwt } from "../middlewares/authJwt.js";
 
 const router = express.Router();
+router.use(authJwt);
 
 router.get("/usuarios", UsuarioController.listar);
 router.get("/usuarios/:id", UsuarioController.buscarPorId);

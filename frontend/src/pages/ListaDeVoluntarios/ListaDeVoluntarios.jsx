@@ -134,7 +134,7 @@ function ListaDeVoluntarios() {
                           <td className="align-middle">{voluntario.vlt_nome}</td>
                           <td className="align-middle">{voluntario.vlt_cpf}</td>
                           <td className="align-middle">{voluntario.vlt_telefone}</td>
-                          <td className="align-middle">{voluntario.vlt_tel_Residencial}</td>
+                          <td className="align-middle">{voluntario.vlt_tel_residencial}</td>
                           <td className="align-middle">{voluntario.vlt_email}</td>
                           <td className="align-middle">{voluntario.vlt_disponibilidade || "-"}</td>
                           <td className="align-middle">
@@ -142,15 +142,17 @@ function ListaDeVoluntarios() {
                               <Link
                                 to={`/voluntarios/cadastro/editar/${voluntario.id}`}
                                 className="btn btn-outline-primary btn-sm"
+                                aria-label="Editar"
                               >
-                                Editar
+                                <i className="bi bi-pencil"></i>
                               </Link>
                               <Button
                                 variant="outline-danger"
                                 size="sm"
                                 onClick={() => abrirModal(voluntario.id)}
+                                aria-label="Excluir"
                               >
-                                Excluir
+                                <i className="bi bi-trash"></i>
                               </Button>
                             </div>
                           </td>

@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS voluntarios (
   vlt_nome VARCHAR(200) NOT NULL,
   vlt_cpf VARCHAR(200) NOT NULL,
   vlt_telefone VARCHAR(200) NOT NULL,
-  vlt_tel_Residencial VARCHAR(200) NOT NULL,
+  vlt_tel_residencial VARCHAR(200) NOT NULL,
   vlt_email VARCHAR(200) NOT NULL,
   vlt_disponibilidade VARCHAR(200),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -17,29 +17,70 @@ CREATE INDEX idx_vlt_email ON voluntarios(vlt_email);
 CREATE INDEX idx_vlt_nome ON voluntarios(vlt_nome);
 CREATE INDEX idx_vlt_cpf ON voluntarios(vlt_cpf);
 
-INSERT INTO voluntarios (vlt_nome, vlt_cpf, vlt_telefone, vlt_tel_Residencial, vlt_email, vlt_disponibilidade) VALUES
+INSERT INTO voluntarios (vlt_nome, vlt_cpf, vlt_telefone, vlt_tel_residencial, vlt_email, vlt_disponibilidade) VALUES
 ('Ana Carolina Silva', '123.456.789-00', '(18) 99876-5432', '(18) 3221-4567', 'ana.silva@email.com', 'Segunda a Sexta - Manhã'),
 ('Carlos Eduardo Santos', '234.567.890-11', '(18) 98765-4321', '(18) 3222-5678', 'carlos.santos@email.com', 'Sábados e Domingos'),
 ('Fernanda Oliveira Costa', '345.678.901-22', '(18) 97654-3210', '(18) 3223-6789', 'fernanda.costa@email.com', 'Terça e Quinta - Tarde'),
 ('João Pedro Almeida', '456.789.012-33', '(18) 96543-2109', '(18) 3224-7890', 'joao.almeida@email.com', 'Segunda a Sexta - Noite'),
 ('Mariana Lima Pereira', '567.890.123-44', '(18) 95432-1098', '(18) 3225-8901', 'mariana.lima@email.com', 'Finais de Semana - Integral');
 
+DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS funcoes_permissoes;
+DROP TABLE IF EXISTS funcoes;
+DROP TABLE IF EXISTS permissoes;
+
+CREATE TABLE IF NOT EXISTS permissoes (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL UNIQUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_permissao_nome ON permissoes(nome);
+
+INSERT INTO permissoes (nome) VALUES
+('Gerenciar usuários'),
+('Gerenciar produtos'),
+('Gerenciar voluntários'),
+('Gerenciar veterinários'),
+('Gerenciar animais');
+
 CREATE TABLE IF NOT EXISTS funcoes (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(100) NOT NULL UNIQUE,
-  permissoes JSON NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_funcao_nome ON funcoes(nome);
 
-INSERT INTO funcoes (nome, permissoes) VALUES
-('Administrador', '["Gerenciar usuários", "Gerenciar produtos", "Gerenciar voluntários", "Gerenciar veterinários", "Gerenciar animais"]'),
-('Gerente de Estoque', '["Gerenciar produtos"]'),
-('Coordenador de Voluntários', '["Gerenciar voluntários", "Gerenciar animais"]'),
-('Veterinário Responsável', '["Gerenciar veterinários", "Gerenciar animais"]'),
-('Atendente', '["Gerenciar animais", "Gerenciar voluntários"]');
+INSERT INTO funcoes (nome) VALUES
+('Administrador'),
+('Gerente de Estoque'),
+('Coordenador de Voluntários'),
+('Veterinário Responsável'),
+('Atendente');
+
+CREATE TABLE IF NOT EXISTS funcoes_permissoes (
+  funcao_id INT NOT NULL,
+  permissao_id INT NOT NULL,
+  PRIMARY KEY (funcao_id, permissao_id),
+  CONSTRAINT fk_funcoes_permissoes_funcao
+    FOREIGN KEY (funcao_id) REFERENCES funcoes(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_funcoes_permissoes_permissao
+    FOREIGN KEY (permissao_id) REFERENCES permissoes(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+INSERT INTO funcoes_permissoes (funcao_id, permissao_id) VALUES
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
+(2, 2),
+(3, 3), (3, 5),
+(4, 4), (4, 5),
+(5, 5), (5, 3);
 
 CREATE TABLE IF NOT EXISTS usuarios (
   id VARCHAR(36) PRIMARY KEY,
@@ -51,19 +92,34 @@ CREATE TABLE IF NOT EXISTS usuarios (
   senha VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (funcao_id) REFERENCES funcoes(id) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT fk_usuario_funcao
+    FOREIGN KEY (funcao_id) REFERENCES funcoes(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_usuario_email ON usuarios(email);
 CREATE INDEX idx_usuario_nome ON usuarios(nome);
 CREATE INDEX idx_usuario_funcao ON usuarios(funcao_id);
 
-INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha) VALUES
-('550e8400-e29b-41d4-a716-446655440001', 'Ana Silva', 1, '(11) 98765-4321', 'ana.silva@protegepet.org', 'Segunda a Sexta - Manhã', '123456'),
-('550e8400-e29b-41d4-a716-446655440002', 'Carlos Santos', 4, '(11) 97654-3210', 'carlos.santos@protegepet.org', 'Plantão', '123456'),
-('550e8400-e29b-41d4-a716-446655440003', 'Fernanda Costa', 3, '(11) 96543-2109', 'fernanda.costa@protegepet.org', 'Sábados e Domingos', '123456'),
-('550e8400-e29b-41d4-a716-446655440004', 'João Oliveira', 2, '(11) 95432-1098', 'joao.oliveira@protegepet.org', 'Segunda a Sexta - Tarde', '123456'),
-('550e8400-e29b-41d4-a716-446655440005', 'Mariana Lima', 5, '(11) 94321-0987', 'mariana.lima@protegepet.org', 'Noturno', '123456');
+INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
+SELECT UUID(), 'Roberto Mendes', f.id, '(18) 99999-0000', 'admin@protegepet.org', 'Integral', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+FROM funcoes f WHERE f.nome = 'Administrador' LIMIT 1;
+INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
+SELECT UUID(), 'Ana Silva', f.id, '(18) 98765-4321', 'ana.silva@protegepet.org', 'Segunda a Sexta - Manhã', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+FROM funcoes f WHERE f.nome = 'Atendente' LIMIT 1;
+INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
+SELECT UUID(), 'Carlos Santos', f.id, '(18) 97654-3210', 'carlos.santos@protegepet.org', 'Plantão', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+FROM funcoes f WHERE f.nome = 'Veterinário Responsável' LIMIT 1;
+INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
+SELECT UUID(), 'Fernanda Costa', f.id, '(18) 96543-2109', 'fernanda.costa@protegepet.org', 'Sábados e Domingos', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+FROM funcoes f WHERE f.nome = 'Coordenador de Voluntários' LIMIT 1;
+INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
+SELECT UUID(), 'João Oliveira', f.id, '(18) 95432-1098', 'joao.oliveira@protegepet.org', 'Segunda a Sexta - Tarde', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+FROM funcoes f WHERE f.nome = 'Gerente de Estoque' LIMIT 1;
+INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
+SELECT UUID(), 'Mariana Lima', f.id, '(18) 94321-0987', 'mariana.lima@protegepet.org', 'Noturno', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+FROM funcoes f WHERE f.nome = 'Atendente' LIMIT 1;
 
 DROP TABLE IF EXISTS animais;
 DROP TABLE IF EXISTS racas;
@@ -83,7 +139,6 @@ INSERT INTO racas (nome, especie) VALUES
 ('Siamês', 'FELINA'),
 ('Vira-lata', 'CANINA');
 
-
 CREATE TABLE IF NOT EXISTS animais (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(200) NOT NULL,
@@ -99,12 +154,13 @@ CREATE TABLE IF NOT EXISTS animais (
   status VARCHAR(50) DEFAULT 'Apto',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (raca_id) REFERENCES racas(id) ON DELETE SET NULL
+  CONSTRAINT fk_animal_raca
+    FOREIGN KEY (raca_id) REFERENCES racas(id)
+    ON DELETE SET NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_animal_nome ON animais(nome);
 CREATE INDEX idx_animal_especie ON animais(especie);
-
 
 INSERT INTO animais (nome, especie, raca_id, pelagem, sexo, data_nascimento, data_ocorrencia, local_resgate, porte, peso, status) VALUES
 ('Rex', 'Canina', 1, 'Dourada', 'Macho', '2022-03-15', '2024-01-10', 'Av. Brasil, 1500 - Centro', 'Grande', '28kg', 'Apto'),
@@ -112,8 +168,6 @@ INSERT INTO animais (nome, especie, raca_id, pelagem, sexo, data_nascimento, dat
 ('Thor', 'Canina', 3, 'Preta e marrom', 'Macho', '2021-11-08', '2024-01-25', 'Praça Central', 'Grande', '35kg', 'Em tratamento'),
 ('Luna', 'Felina', 2, 'Branca', 'Fêmea', '2022-09-12', '2024-03-01', 'Condomínio Solar, Bloco B', 'Médio', '5kg', 'Apto'),
 ('Bob', 'Canina', 5, 'Caramelo', 'Macho', '2023-01-01', '2024-02-20', 'Terminal Rodoviário', 'Médio', '15kg', 'Apto');
-
-
 
 CREATE TABLE IF NOT EXISTS categorias_produtos (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -144,7 +198,9 @@ CREATE TABLE IF NOT EXISTS produtos (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_produto_categoria
-  FOREIGN KEY (categoria_id) REFERENCES categorias_produtos(id) ON DELETE RESTRICT ON UPDATE CASCADE
+    FOREIGN KEY (categoria_id) REFERENCES categorias_produtos(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_produto_nome ON produtos(nome);
@@ -240,3 +296,60 @@ CREATE TABLE IF NOT EXISTS consultas_veterinarias (
 
 CREATE INDEX idx_consulta_veterinario_data ON consultas_veterinarias(veterinario_id, data_consulta);
 CREATE INDEX idx_consulta_animal_data ON consultas_veterinarias(animal_id, data_consulta);
+
+CREATE TABLE IF NOT EXISTS movimentacoes_estoque (
+  id VARCHAR(36) PRIMARY KEY,
+  produto_id VARCHAR(100) NOT NULL,
+  tipo ENUM('ENTRADA', 'SAIDA') NOT NULL,
+  quantidade INT NOT NULL,
+  motivo VARCHAR(100) NOT NULL,
+  observacao TEXT,
+  responsavel VARCHAR(150),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_movimentacao_produto
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_movimentacao_produto_id ON movimentacoes_estoque(produto_id);
+CREATE INDEX idx_movimentacao_tipo ON movimentacoes_estoque(tipo);
+CREATE INDEX idx_movimentacao_motivo ON movimentacoes_estoque(motivo);
+CREATE INDEX idx_movimentacao_created_at ON movimentacoes_estoque(created_at);
+
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'ENTRADA', 50, 'DOACAO', 'Empresa Alimento Pet - Campanha de doação', 'João Oliveira'
+FROM produtos p WHERE p.sku = '1507089' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'ENTRADA', 24, 'DOACAO', 'Doação anônima', 'João Oliveira'
+FROM produtos p WHERE p.sku = '8701254' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'ENTRADA', 30, 'COMPRA', 'Aquisição para estoque mensal', 'João Oliveira'
+FROM produtos p WHERE p.sku = '9901001' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'SAIDA', 5, 'USO_DIARIO', 'Refeição dos gatos do setor B', 'Mariana Lima'
+FROM produtos p WHERE p.sku = '1507089' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'SAIDA', 3, 'USO_DIARIO', 'Filhotes em recuperação', 'Mariana Lima'
+FROM produtos p WHERE p.sku = '4509978' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'SAIDA', 4, 'TRATAMENTO', 'Vermifugação dos animais novos', 'Carlos Santos'
+FROM produtos p WHERE p.sku = '9901001' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'ENTRADA', 20, 'DOACAO', 'Marca Pipcat - parceiro', 'João Oliveira'
+FROM produtos p WHERE p.sku = '5587456' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'SAIDA', 2, 'TRATAMENTO', 'Banho dos animais para adoção', 'Ana Silva'
+FROM produtos p WHERE p.sku = '9985320' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'SAIDA', 1, 'ADOCAO', 'Kit adoção - Rex', 'Fernanda Costa'
+FROM produtos p WHERE p.sku = '2234987' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'SAIDA', 1, 'TRATAMENTO', 'Thor - infecção bacteriana', 'Carlos Santos'
+FROM produtos p WHERE p.sku = '9901002' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'ENTRADA', 12, 'COMPRA', 'Reposição antipulgas', 'João Oliveira'
+FROM produtos p WHERE p.sku = '8801655' LIMIT 1;
+INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
+SELECT UUID(), p.id, 'ENTRADA', 15, 'DOACAO', 'Brinquedos para enriquecimento', 'João Oliveira'
+FROM produtos p WHERE p.sku = '1907052' LIMIT 1;

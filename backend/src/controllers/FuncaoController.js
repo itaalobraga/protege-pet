@@ -1,13 +1,5 @@
 import FuncaoModel from "../models/FuncaoModel.js";
 
-const PERMISSOES_VALIDAS = [
-  "Gerenciar usuários",
-  "Gerenciar produtos",
-  "Gerenciar voluntários",
-  "Gerenciar veterinários",
-  "Gerenciar animais"
-];
-
 class FuncaoController {
   static async listar(req, res) {
     try {
@@ -59,11 +51,14 @@ class FuncaoController {
         });
       }
 
-      const permissoesInvalidas = permissoes.filter(p => !PERMISSOES_VALIDAS.includes(p));
+      const permissoesValidas = await FuncaoModel.listarPermissoes();
+      const permissoesInvalidas = permissoes.filter(
+        (p) => !permissoesValidas.includes(p)
+      );
       if (permissoesInvalidas.length > 0) {
         return res.status(400).json({
           error: `Permissões inválidas: ${permissoesInvalidas.join(", ")}`,
-          permissoes_validas: PERMISSOES_VALIDAS
+          permissoes_validas: permissoesValidas,
         });
       }
 
@@ -98,11 +93,14 @@ class FuncaoController {
         });
       }
 
-      const permissoesInvalidas = permissoes.filter(p => !PERMISSOES_VALIDAS.includes(p));
+      const permissoesValidas = await FuncaoModel.listarPermissoes();
+      const permissoesInvalidas = permissoes.filter(
+        (p) => !permissoesValidas.includes(p)
+      );
       if (permissoesInvalidas.length > 0) {
         return res.status(400).json({
           error: `Permissões inválidas: ${permissoesInvalidas.join(", ")}`,
-          permissoes_validas: PERMISSOES_VALIDAS
+          permissoes_validas: permissoesValidas,
         });
       }
 
@@ -112,7 +110,7 @@ class FuncaoController {
       }
 
       const nomeExistente = await FuncaoModel.buscarPorNome(nome);
-      if (nomeExistente && nomeExistente.id !== parseInt(id)) {
+      if (nomeExistente && String(nomeExistente.id) !== String(id)) {
         return res.status(400).json({ error: "Já existe uma função com este nome" });
       }
 
@@ -150,7 +148,13 @@ class FuncaoController {
   }
 
   static async listarPermissoes(req, res) {
-    res.json(PERMISSOES_VALIDAS);
+    try {
+      const permissoes = await FuncaoModel.listarPermissoes();
+      res.json(permissoes);
+    } catch (error) {
+      console.error("Erro ao listar permissões:", error);
+      res.status(500).json({ error: "Erro ao listar permissões" });
+    }
   }
 }
 

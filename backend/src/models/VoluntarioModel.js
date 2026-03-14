@@ -16,29 +16,29 @@ class Voluntario {
   }
 
   static async criar(voluntario) {
-    const { nome, cpf, telefone, vlt_tel_Residencial, email, disponibilidade } =
+    const { nome, cpf, telefone, vlt_tel_residencial, email, disponibilidade } =
       voluntario;
     const [result] = await pool.query(
-      `INSERT INTO voluntarios (vlt_nome, vlt_cpf, vlt_telefone, vlt_tel_Residencial, vlt_email, vlt_disponibilidade) VALUES (?,?,?,?,?,?)`,
-      [nome, cpf, telefone, vlt_tel_Residencial, email, disponibilidade]
+      `INSERT INTO voluntarios (vlt_nome, vlt_cpf, vlt_telefone, vlt_tel_residencial, vlt_email, vlt_disponibilidade) VALUES (?,?,?,?,?,?)`,
+      [nome, cpf, telefone, vlt_tel_residencial, email, disponibilidade]
     );
     return {
       id: result.insertId,
       nome,
       cpf,
       telefone,
-      vlt_tel_Residencial,
+      vlt_tel_residencial,
       email,
       disponibilidade,
     };
   }
 
   static async atualizar(id, voluntario) {
-    const { nome, cpf, telefone, vlt_tel_Residencial, email, disponibilidade } =
+    const { nome, cpf, telefone, vlt_tel_residencial, email, disponibilidade } =
       voluntario;
     const [result] = await pool.query(
-      `UPDATE voluntarios SET vlt_nome = ?, vlt_cpf = ?, vlt_telefone = ?, vlt_tel_Residencial = ? ,vlt_email = ?, vlt_disponibilidade = ? WHERE id = ?`,
-      [nome, cpf, telefone, vlt_tel_Residencial, email, disponibilidade, id]
+      `UPDATE voluntarios SET vlt_nome = ?, vlt_cpf = ?, vlt_telefone = ?, vlt_tel_residencial = ? ,vlt_email = ?, vlt_disponibilidade = ? WHERE id = ?`,
+      [nome, cpf, telefone, vlt_tel_residencial, email, disponibilidade, id]
     );
 
     if (result.affectedRows === 0) {
@@ -49,7 +49,7 @@ class Voluntario {
       nome,
       cpf,
       telefone,
-      vlt_tel_Residencial,
+      vlt_tel_residencial,
       email,
       disponibilidade,
     };

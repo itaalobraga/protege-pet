@@ -17,7 +17,7 @@ function Formulario() {
     cpf: "",
     email: "",
     telefone: "",
-    vlt_tel_Residencial: "",
+    vlt_tel_residencial: "",
     disponibilidade: "",
   });
   const [showToast, setShowToast] = useState(false);
@@ -34,7 +34,7 @@ function Formulario() {
             nome: response.vlt_nome,
             cpf: response.vlt_cpf,
             telefone: response.vlt_telefone,
-            vlt_tel_Residencial: response.vlt_tel_Residencial,
+            vlt_tel_residencial: response.vlt_tel_residencial,
             email: response.vlt_email,
             disponibilidade: response.vlt_disponibilidade,
           });
@@ -67,8 +67,8 @@ function Formulario() {
       novosErros.telefone = "Telefone inválido";
     }
 
-    if (!formData.vlt_tel_Residencial || formData.vlt_tel_Residencial.replace(/\D/g, "").length < 10) {
-      novosErros.vlt_tel_Residencial = "Telefone residencial inválido";
+    if (!formData.vlt_tel_residencial || formData.vlt_tel_residencial.replace(/\D/g, "").length < 10) {
+      novosErros.vlt_tel_residencial = "Telefone residencial inválido";
     }
 
     if (!formData.disponibilidade) {
@@ -92,7 +92,7 @@ function Formulario() {
         nome: formData.nome,
         cpf: formData.cpf,
         telefone: formData.telefone,
-        vlt_tel_Residencial: formData.vlt_tel_Residencial,
+        vlt_tel_residencial: formData.vlt_tel_residencial,
         email: formData.email,
         disponibilidade: formData.disponibilidade,
       };
@@ -191,15 +191,15 @@ function Formulario() {
                   <Form.Label className="fw-semibold">Telefone Residencial *</Form.Label>
                   <Form.Control
                     type="text"
-                    name="vlt_tel_Residencial"
-                    value={formData.vlt_tel_Residencial}
+                    name="vlt_tel_residencial"
+                    value={formData.vlt_tel_residencial}
                     onChange={handleChange}
                     placeholder="(00) 0000-0000"
-                    isInvalid={!!errors.vlt_tel_Residencial}
+                    isInvalid={!!errors.vlt_tel_residencial}
                     ref={withMask("(99) 9999-9999")}
                   />
                   <Form.Control.Feedback type="invalid">
-                    {errors.vlt_tel_Residencial}
+                    {errors.vlt_tel_residencial}
                   </Form.Control.Feedback>
                 </Form.Group>
               </Col>

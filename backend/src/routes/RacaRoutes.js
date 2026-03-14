@@ -1,7 +1,9 @@
 import { Router } from "express";
 import RacaController from "../controllers/RacaController.js";
+import { authJwt } from "../middlewares/authJwt.js";
 
 const router = Router();
+router.use(authJwt);
 router.get("/racas", RacaController.listar);
 router.post("/racas", RacaController.criar);
 router.get("/racas/:id", RacaController.buscarPorId);

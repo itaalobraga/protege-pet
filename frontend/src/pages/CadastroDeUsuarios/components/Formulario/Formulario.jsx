@@ -47,7 +47,7 @@ function Formulario() {
             telefone: response.telefone || "",
             email: response.email || "",
             disponibilidade: response.disponibilidade || "",
-            senha: response.senha || "",
+            senha: "",
           });
         }
       });
@@ -82,7 +82,10 @@ function Formulario() {
       novosErros.disponibilidade = "Selecione uma disponibilidade";
     }
 
-    if (!formData.senha || formData.senha.length < 6) {
+    if (!isEdit && (!formData.senha || formData.senha.length < 6)) {
+      novosErros.senha = "Senha deve ter pelo menos 6 caracteres";
+    }
+    if (isEdit && formData.senha && formData.senha.length < 6) {
       novosErros.senha = "Senha deve ter pelo menos 6 caracteres";
     }
 
@@ -105,8 +108,10 @@ function Formulario() {
         telefone: formData.telefone,
         email: formData.email,
         disponibilidade: formData.disponibilidade,
-        senha: formData.senha,
       };
+      if (!isEdit || formData.senha) {
+        payload.senha = formData.senha;
+      }
 
       try {
         if (isEdit) {
@@ -246,13 +251,15 @@ function Formulario() {
 
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold">Senha *</Form.Label>
+                  <Form.Label className="fw-semibold">
+                    {isEdit ? "Nova senha" : "Senha *"}
+                  </Form.Label>
                   <Form.Control
                     type="password"
                     name="senha"
                     value={formData.senha}
                     onChange={handleChange}
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder={isEdit ? "Deixe em branco para manter" : "Mínimo 6 caracteres"}
                     isInvalid={!!errors.senha}
                   />
                   <Form.Control.Feedback type="invalid">
