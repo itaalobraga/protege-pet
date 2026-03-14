@@ -13,6 +13,8 @@ import CadastroDeProdutos from "./pages/CadastroDeProdutos/CadastroDeProdutos.js
 import ListaDeProdutos from "./pages/ListaDeProdutos/ListaDeProdutos.jsx";
 import CadastroDeVeterinarios from "./pages/CadastroDeVeterinarios/CadastroDeVeterinarios.jsx";
 import ListaDeVeterinarios from "./pages/ListaDeVeterinarios/ListaDeVeterinarios.jsx";
+import AgendaDeConsultas from "./pages/AgendaDeConsultas/AgendaDeConsultas.jsx";
+import ConsultaForm from "./pages/AgendaDeConsultas/ConsultaForm.jsx";
 import CadastroDeFuncoes from "./pages/CadastroDeFuncoes/CadastroDeFuncoes.jsx";
 import ListaDeFuncoes from "./pages/ListaDeFuncoes/ListaDeFuncoes.jsx";
 import ListaDeCategorias from "./pages/ListaDeCategorias/ListaDeCategorias";
@@ -77,6 +79,9 @@ function App() {
               path="/veterinarios/cadastro/editar/:id"
               element={<CadastroDeVeterinarios />}
             />
+            <Route path="/consultas" element={<AgendaDeConsultas />} />
+            <Route path="/consultas/novo" element={<ConsultaForm />} />
+            <Route path="/consultas/editar/:id" element={<ConsultaForm />} />
             <Route path="/funcoes" element={<ListaDeFuncoes />} />
             <Route path="/funcoes/cadastro" element={<CadastroDeFuncoes />} />
             <Route

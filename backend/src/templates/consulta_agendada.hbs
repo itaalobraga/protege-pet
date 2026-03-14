@@ -1,0 +1,14 @@
+<h2>Consulta veterinária agendada</h2>
+
+<p>Olá, {{veterinario_nome}}.</p>
+
+<p>Uma consulta foi agendada para:</p>
+
+<ul>
+  <li>Data e hora: {{data_consulta}}</li>
+  <li>Animal: {{animal_nome}}</li>
+</ul>
+
+{{#if observacao}}
+<p>Observação: {{observacao}}</p>
+{{/if}}

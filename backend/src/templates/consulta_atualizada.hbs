@@ -1,0 +1,18 @@
+<h2>Consulta veterinária atualizada</h2>
+
+<p>Olá, {{veterinario_nome}}.</p>
+
+<p>Uma consulta foi atualizada com os seguintes dados:</p>
+
+<ul>
+  <li>Data e hora: {{data_consulta}}</li>
+  <li>Animal: {{animal_nome}}</li>
+</ul>
+
+{{#if observacao}}
+<p>Observação: {{observacao}}</p>
+{{/if}}
+
+{{#if motivo}}
+<p>Motivo da atualização: {{motivo}}</p>
+{{/if}}
