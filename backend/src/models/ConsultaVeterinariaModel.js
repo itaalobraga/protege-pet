@@ -114,6 +114,7 @@ class ConsultaVeterinariaModel {
       `SELECT
         consultas_veterinarias.*,
         veterinarios.nome AS veterinario_nome,
+        veterinarios.sobrenome AS veterinario_sobrenome,
         animais.nome AS animal_nome
       FROM consultas_veterinarias
       INNER JOIN veterinarios ON veterinarios.id = consultas_veterinarias.veterinario_id

@@ -277,7 +277,12 @@ function AgendaDeConsultas() {
                           consultas.map((c) => (
                             <tr key={c.id}>
                               <td className="align-middle">{formatarDataBR(c.data_consulta)}</td>
-                              <td className="align-middle">{c.veterinario_nome ?? "-"}</td>
+                              <td className="align-middle">
+                                {c.veterinario_nome ?
+                                  c.veterinario_sobrenome ?
+                                    `${c.veterinario_nome} ${c.veterinario_sobrenome}`
+                                    : c.veterinario_nome
+                                  : "-"}</td>
                               <td className="align-middle">{c.animal_nome ?? "-"}</td>
                               <td className="align-middle">{c.observacao || "-"}</td>
                               <td className="align-middle">
