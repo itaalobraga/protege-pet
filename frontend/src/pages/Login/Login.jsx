@@ -66,8 +66,10 @@ function Login() {
         error.message === "Não autenticado" ||
         error.message === "Token inválido";
       exibirToast(
-        mensagemInvalida ? "Email ou senha inválidos. Tente novamente." : error.message,
-        "danger"
+        mensagemInvalida
+          ? "Email ou senha inválidos. Tente novamente."
+          : error.message,
+        "danger",
       );
     }
   };
@@ -75,7 +77,10 @@ function Login() {
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center py-4">
       <Container className="d-flex justify-content-center">
-        <Card className="border-0 shadow-sm" style={{ width: "100%", maxWidth: 400 }}>
+        <Card
+          className="border-0 shadow-sm"
+          style={{ width: "100%", maxWidth: 400 }}
+        >
           <Card.Body className="p-4">
             <Stack gap={3} className="align-items-center mb-4">
               <img src={logo} alt="Protege Pet" width={80} height={60} />
@@ -83,7 +88,9 @@ function Login() {
                 <h5 className="mb-0 fw-semibold" style={{ color: "#3F4D87" }}>
                   Protege Pet
                 </h5>
-                <small className="text-secondary">Entre com suas credenciais</small>
+                <small className="text-secondary">
+                  Entre com suas credenciais
+                </small>
               </div>
             </Stack>
 

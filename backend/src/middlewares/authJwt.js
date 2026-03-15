@@ -21,17 +21,10 @@ export function authJwt(req, res, next) {
 
 export const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  secure: true,
+  sameSite: "none",
+  path: "/",
   maxAge: 24 * 60 * 60 * 1000,
-  path: "/",
-};
-
-export const CLEAR_COOKIE_OPTIONS = {
-  path: "/",
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
 };
 
 export { COOKIE_NAME };

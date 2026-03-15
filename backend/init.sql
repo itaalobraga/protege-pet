@@ -103,22 +103,22 @@ CREATE INDEX idx_usuario_nome ON usuarios(nome);
 CREATE INDEX idx_usuario_funcao ON usuarios(funcao_id);
 
 INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
-SELECT UUID(), 'Roberto Mendes', f.id, '(18) 99999-0000', 'admin@protegepet.org', 'Integral', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+SELECT UUID(), 'Roberto Mendes', f.id, '(18) 99999-0000', 'admin@protegepet.com.br', 'Integral', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
 FROM funcoes f WHERE f.nome = 'Administrador' LIMIT 1;
 INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
-SELECT UUID(), 'Ana Silva', f.id, '(18) 98765-4321', 'ana.silva@protegepet.org', 'Segunda a Sexta - Manhã', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+SELECT UUID(), 'Ana Silva', f.id, '(18) 98765-4321', 'ana.silva@protegepet.com.br', 'Segunda a Sexta - Manhã', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
 FROM funcoes f WHERE f.nome = 'Atendente' LIMIT 1;
 INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
-SELECT UUID(), 'Carlos Santos', f.id, '(18) 97654-3210', 'carlos.santos@protegepet.org', 'Plantão', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+SELECT UUID(), 'Carlos Santos', f.id, '(18) 97654-3210', 'carlos.santos@protegepet.com.br', 'Plantão', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
 FROM funcoes f WHERE f.nome = 'Veterinário Responsável' LIMIT 1;
 INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
-SELECT UUID(), 'Fernanda Costa', f.id, '(18) 96543-2109', 'fernanda.costa@protegepet.org', 'Sábados e Domingos', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+SELECT UUID(), 'Fernanda Costa', f.id, '(18) 96543-2109', 'fernanda.costa@protegepet.com.br', 'Sábados e Domingos', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
 FROM funcoes f WHERE f.nome = 'Coordenador de Voluntários' LIMIT 1;
 INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
-SELECT UUID(), 'João Oliveira', f.id, '(18) 95432-1098', 'joao.oliveira@protegepet.org', 'Segunda a Sexta - Tarde', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+SELECT UUID(), 'João Oliveira', f.id, '(18) 95432-1098', 'joao.oliveira@protegepet.com.br', 'Segunda a Sexta - Tarde', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
 FROM funcoes f WHERE f.nome = 'Gerente de Estoque' LIMIT 1;
 INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, senha)
-SELECT UUID(), 'Mariana Lima', f.id, '(18) 94321-0987', 'mariana.lima@protegepet.org', 'Noturno', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
+SELECT UUID(), 'Mariana Lima', f.id, '(18) 94321-0987', 'mariana.lima@protegepet.com.br', 'Noturno', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
 FROM funcoes f WHERE f.nome = 'Atendente' LIMIT 1;
 
 DROP TABLE IF EXISTS animais;
@@ -238,11 +238,11 @@ CREATE INDEX idx_veterinario_email ON veterinarios(email);
 CREATE INDEX idx_veterinario_crmv ON veterinarios(crmv);
 
 INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv) VALUES
-('Ricardo', 'Mendes', '(11) 99876-5432', 'ricardo.mendes@protegepet.org', 'CRMV-SP 12345'),
-('Juliana', 'Santos', '(11) 98765-4321', 'juliana.santos@protegepet.org', 'CRMV-SP 23456'),
-('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@protegepet.org', 'CRMV-SP 34567'),
-('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678'),
-('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789');
+('Ricardo', 'Mendes', '(11) 99876-5432', 'ricardo.mendes@protegepet.com.br', 'CRMV-SP 12345'),
+('Juliana', 'Santos', '(11) 98765-4321', 'juliana.santos@protegepet.com.br', 'CRMV-SP 23456'),
+('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@protegepet.com.br', 'CRMV-SP 34567'),
+('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.com.br', 'CRMV-SP 45678'),
+('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.com.br', 'CRMV-SP 56789');
 
 CREATE TABLE IF NOT EXISTS disponibilidades_veterinarios (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

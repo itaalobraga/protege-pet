@@ -4,7 +4,6 @@ import UsuarioModel from "../models/UsuarioModel.js";
 import {
   COOKIE_NAME,
   COOKIE_OPTIONS,
-  CLEAR_COOKIE_OPTIONS,
 } from "../middlewares/authJwt.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -65,7 +64,7 @@ class AuthController {
   }
 
   static async logout(req, res) {
-    res.clearCookie(COOKIE_NAME, CLEAR_COOKIE_OPTIONS);
+    res.clearCookie(COOKIE_NAME, COOKIE_OPTIONS);
     res.json({ success: true });
   }
 }
