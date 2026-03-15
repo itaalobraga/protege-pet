@@ -18,11 +18,11 @@ CREATE INDEX idx_vlt_nome ON voluntarios(vlt_nome);
 CREATE INDEX idx_vlt_cpf ON voluntarios(vlt_cpf);
 
 INSERT INTO voluntarios (vlt_nome, vlt_cpf, vlt_telefone, vlt_tel_residencial, vlt_email, vlt_disponibilidade) VALUES
-('Ana Carolina Silva', '123.456.789-00', '(18) 99876-5432', '(18) 3221-4567', 'ana.silva@email.com', 'Segunda a Sexta - Manhã'),
-('Carlos Eduardo Santos', '234.567.890-11', '(18) 98765-4321', '(18) 3222-5678', 'carlos.santos@email.com', 'Sábados e Domingos'),
-('Fernanda Oliveira Costa', '345.678.901-22', '(18) 97654-3210', '(18) 3223-6789', 'fernanda.costa@email.com', 'Terça e Quinta - Tarde'),
-('João Pedro Almeida', '456.789.012-33', '(18) 96543-2109', '(18) 3224-7890', 'joao.almeida@email.com', 'Segunda a Sexta - Noite'),
-('Mariana Lima Pereira', '567.890.123-44', '(18) 95432-1098', '(18) 3225-8901', 'mariana.lima@email.com', 'Finais de Semana - Integral');
+('Ana Carolina Silva', '123.456.789-00', '(18) 99876-5432', '(18) 3221-4567', 'ana.silva@gmail.com', 'Segunda a Sexta - Manhã'),
+('Carlos Eduardo Santos', '234.567.890-11', '(18) 98765-4321', '(18) 3222-5678', 'carlos.santos@gmail.com', 'Sábados e Domingos'),
+('Fernanda Oliveira Costa', '345.678.901-22', '(18) 97654-3210', '(18) 3223-6789', 'fernanda.costa@gmail.com', 'Terça e Quinta - Tarde'),
+('João Pedro Almeida', '456.789.012-33', '(18) 96543-2109', '(18) 3224-7890', 'joao.almeida@gmail.com', 'Segunda a Sexta - Noite'),
+('Mariana Lima Pereira', '567.890.123-44', '(18) 95432-1098', '(18) 3225-8901', 'mariana.lima@gmail.com', 'Finais de Semana - Integral');
 
 DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS funcoes_permissoes;
@@ -238,11 +238,11 @@ CREATE INDEX idx_veterinario_email ON veterinarios(email);
 CREATE INDEX idx_veterinario_crmv ON veterinarios(crmv);
 
 INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv) VALUES
-('Ricardo', 'Mendes', '(11) 99876-5432', 'ricardo.mendes@protegepet.com.br', 'CRMV-SP 12345'),
-('Juliana', 'Santos', '(11) 98765-4321', 'juliana.santos@protegepet.com.br', 'CRMV-SP 23456'),
-('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@protegepet.com.br', 'CRMV-SP 34567'),
-('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.com.br', 'CRMV-SP 45678'),
-('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.com.br', 'CRMV-SP 56789');
+('Ricardo', 'Mendes', '(11) 99876-5432', 'ricardo.mendes@gmail.com', 'CRMV-SP 12345'),
+('Juliana', 'Santos', '(11) 98765-4321', 'juliana.santos@gmail.com', 'CRMV-SP 23456'),
+('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@gmail.com', 'CRMV-SP 34567'),
+('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@gmail.com', 'CRMV-SP 45678'),
+('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@gmail.com', 'CRMV-SP 56789');
 
 CREATE TABLE IF NOT EXISTS disponibilidades_veterinarios (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
