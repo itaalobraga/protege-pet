@@ -12,3 +12,46 @@ body,
 .form-select.placeholder-active option {
   color: #212529;
 }
+
+.fc {
+  --fc-border-color: #dee2e6;
+  --fc-page-bg-color: #ffffff;
+  --fc-neutral-bg-color: #f8f9fa;
+  --fc-today-bg-color: rgba(0, 153, 81, 0.08);
+
+  --fc-button-bg-color: #009951;
+  --fc-button-border-color: #009951;
+  --fc-button-text-color: #ffffff;
+  --fc-button-hover-bg-color: #007f43;
+  --fc-button-hover-border-color: #007f43;
+  --fc-button-active-bg-color: #006b39;
+  --fc-button-active-border-color: #006b39;
+
+  --fc-event-bg-color: #009951;
+  --fc-event-border-color: #009951;
+  --fc-event-text-color: #ffffff;
+
+  --fc-highlight-color: rgba(63, 77, 135, 0.12);
+}
+
+.fc .fc-toolbar-title {
+  color: #3f4d87;
+  font-weight: 700;
+}
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number {
+  color: #3f4d87;
+  text-decoration: none;
+}
+
+.fc .fc-timegrid-slot-label,
+.fc .fc-timegrid-axis-cushion,
+.fc .fc-timegrid-slot-minor {
+  color: #6c757d;
+}
+
+.fc .fc-daygrid-event,
+.fc .fc-timegrid-event {
+  border-radius: 8px;
+}

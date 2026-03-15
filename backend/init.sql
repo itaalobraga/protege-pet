@@ -229,7 +229,6 @@ CREATE TABLE IF NOT EXISTS veterinarios (
   telefone VARCHAR(20) NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
   crmv VARCHAR(20) NOT NULL,
-  disponibilidade VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -238,12 +237,65 @@ CREATE INDEX idx_veterinario_nome ON veterinarios(nome);
 CREATE INDEX idx_veterinario_email ON veterinarios(email);
 CREATE INDEX idx_veterinario_crmv ON veterinarios(crmv);
 
-INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv, disponibilidade) VALUES
-('Ricardo', 'Mendes', '(18) 99876-5432', 'ricardo.mendes@protegepet.org', 'CRMV-SP 12345', 'Segunda a Sexta - Manhã'),
-('Juliana', 'Santos', '(18) 98765-4321', 'juliana.santos@protegepet.org', 'CRMV-SP 23456', 'Plantão'),
-('Fernando', 'Costa', '(18) 97654-3210', 'fernando.costa@protegepet.org', 'CRMV-SP 34567', 'Sábados e Domingos'),
-('Camila', 'Oliveira', '(18) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678', 'Segunda a Sexta - Tarde'),
-('Bruno', 'Lima', '(18) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789', 'Noturno');
+INSERT INTO veterinarios (nome, sobrenome, telefone, email, crmv) VALUES
+('Ricardo', 'Mendes', '(11) 99876-5432', 'ricardo.mendes@protegepet.org', 'CRMV-SP 12345'),
+('Juliana', 'Santos', '(11) 98765-4321', 'juliana.santos@protegepet.org', 'CRMV-SP 23456'),
+('Fernando', 'Costa', '(11) 97654-3210', 'fernando.costa@protegepet.org', 'CRMV-SP 34567'),
+('Camila', 'Oliveira', '(11) 96543-2109', 'camila.oliveira@protegepet.org', 'CRMV-SP 45678'),
+('Bruno', 'Lima', '(11) 95432-1098', 'bruno.lima@protegepet.org', 'CRMV-SP 56789');
+
+CREATE TABLE IF NOT EXISTS disponibilidades_veterinarios (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  veterinario_id INT NOT NULL,
+  dow TINYINT NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (veterinario_id) REFERENCES veterinarios(id) ON DELETE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_disp_vet_dow ON disponibilidades_veterinarios(veterinario_id, dow);
+CREATE INDEX idx_disp_vet_time ON disponibilidades_veterinarios(veterinario_id, start_time, end_time);
+
+INSERT INTO disponibilidades_veterinarios (veterinario_id, dow, start_time, end_time) VALUES
+(1, 1, '08:00:00', '12:00:00'),
+(1, 2, '08:00:00', '12:00:00'),
+(1, 3, '08:00:00', '12:00:00'),
+(1, 4, '08:00:00', '12:00:00'),
+(1, 5, '08:00:00', '12:00:00'),
+(2, 1, '08:00:00', '18:00:00'),
+(2, 2, '08:00:00', '18:00:00'),
+(2, 3, '08:00:00', '18:00:00'),
+(2, 4, '08:00:00', '18:00:00'),
+(2, 5, '08:00:00', '18:00:00'),
+(3, 6, '08:00:00', '18:00:00'),
+(3, 7, '08:00:00', '18:00:00'),
+(4, 1, '13:00:00', '18:00:00'),
+(4, 2, '13:00:00', '18:00:00'),
+(4, 3, '13:00:00', '18:00:00'),
+(4, 4, '13:00:00', '18:00:00'),
+(4, 5, '13:00:00', '18:00:00'),
+(5, 1, '18:00:00', '22:00:00'),
+(5, 2, '18:00:00', '22:00:00'),
+(5, 3, '18:00:00', '22:00:00'),
+(5, 4, '18:00:00', '22:00:00'),
+(5, 5, '18:00:00', '22:00:00');
+
+CREATE TABLE IF NOT EXISTS consultas_veterinarias (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  veterinario_id INT NOT NULL,
+  animal_id INT NOT NULL,
+  data_consulta DATETIME NOT NULL,
+  observacao TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (veterinario_id) REFERENCES veterinarios(id) ON DELETE RESTRICT,
+  FOREIGN KEY (animal_id) REFERENCES animais(id) ON DELETE RESTRICT
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_consulta_veterinario_data ON consultas_veterinarias(veterinario_id, data_consulta);
+CREATE INDEX idx_consulta_animal_data ON consultas_veterinarias(animal_id, data_consulta);
 
 CREATE TABLE IF NOT EXISTS movimentacoes_estoque (
   id VARCHAR(36) PRIMARY KEY,

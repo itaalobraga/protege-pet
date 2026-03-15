@@ -1,4 +1,5 @@
 import VeterinarioModel from "../models/VeterinarioModel.js";
+import VeterinarioDisponibilidadeModel from "../models/VeterinarioDisponibilidadeModel.js";
 
 class VeterinarioController {
   static async listar(req, res) {
@@ -12,7 +13,14 @@ class VeterinarioController {
         veterinarios = await VeterinarioModel.listarTodos();
       }
 
-      res.json(veterinarios);
+      const veterinariosComDisponibilidade = await Promise.all(
+        veterinarios.map(async (v) => ({
+          ...v,
+          disponibilidade: await VeterinarioDisponibilidadeModel.listarPorVeterinario(v.id),
+        }))
+      );
+
+      res.json(veterinariosComDisponibilidade);
     } catch (error) {
       console.error("Erro ao listar veterinários:", error);
       res.status(500).json({ error: "Erro ao listar veterinários" });
@@ -28,7 +36,10 @@ class VeterinarioController {
         return res.status(404).json({ error: "Veterinário não encontrado" });
       }
 
-      res.json(veterinario);
+      res.json({
+        ...veterinario,
+        disponibilidade: await VeterinarioDisponibilidadeModel.listarPorVeterinario(id),
+      });
     } catch (error) {
       console.error("Erro ao buscar veterinário:", error);
       res.status(500).json({ error: "Erro ao buscar veterinário" });
@@ -45,6 +56,10 @@ class VeterinarioController {
         });
       }
 
+      if (!Array.isArray(disponibilidade) || disponibilidade.length === 0) {
+        return res.status(400).json({ error: "Disponibilidade inválida" });
+      }
+
       const emailExistente = await VeterinarioModel.buscarPorEmail(email);
       if (emailExistente) {
         return res.status(400).json({ error: "Este email já está cadastrado" });
@@ -56,10 +71,20 @@ class VeterinarioController {
         telefone,
         email,
         crmv,
-        disponibilidade,
       });
 
-      res.status(201).json(veterinario);
+      const slots = disponibilidade.map((s) => ({
+        dow: s.dow,
+        start_time: s.start_time,
+        end_time: s.end_time,
+      }));
+
+      await VeterinarioDisponibilidadeModel.substituirPorVeterinario(veterinario.id, slots);
+
+      res.status(201).json({
+        ...veterinario,
+        disponibilidade: await VeterinarioDisponibilidadeModel.listarPorVeterinario(veterinario.id),
+      });
     } catch (error) {
       console.error("Erro ao criar veterinário:", error);
       res.status(500).json({ error: "Erro ao criar veterinário" });
@@ -87,10 +112,26 @@ class VeterinarioController {
         telefone,
         email,
         crmv,
-        disponibilidade,
       });
 
-      res.json(veterinario);
+      if (disponibilidade !== undefined) {
+        if (!Array.isArray(disponibilidade) || disponibilidade.length === 0) {
+          return res.status(400).json({ error: "Disponibilidade inválida" });
+        }
+
+        const slots = disponibilidade.map((s) => ({
+          dow: s.dow,
+          start_time: s.start_time,
+          end_time: s.end_time,
+        }));
+
+        await VeterinarioDisponibilidadeModel.substituirPorVeterinario(id, slots);
+      }
+
+      res.json({
+        ...veterinario,
+        disponibilidade: await VeterinarioDisponibilidadeModel.listarPorVeterinario(id),
+      });
     } catch (error) {
       console.error("Erro ao atualizar veterinário:", error);
       res.status(500).json({ error: "Erro ao atualizar veterinário" });
@@ -100,6 +141,14 @@ class VeterinarioController {
   static async excluir(req, res) {
     try {
       const { id } = req.params;
+
+      const consultasAssociadas = await VeterinarioModel.contarConsultas(id);
+      if (consultasAssociadas > 0) {
+        return res.status(400).json({
+          error: `Não é possível excluir este veterinário. Existem ${consultasAssociadas} consulta(s) vinculada(s) a ele.`
+        });
+      }
+
       const sucesso = await VeterinarioModel.excluir(id);
 
       if (!sucesso) {

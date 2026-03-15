@@ -8,6 +8,34 @@ import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../services/ApiService";
 
+const DIAS_SEMANA = {
+  1: "Seg",
+  2: "Ter",
+  3: "Qua",
+  4: "Qui",
+  5: "Sex",
+  6: "Sáb",
+  7: "Dom",
+};
+
+function formatarDisponibilidade(disponibilidade) {
+  if (!Array.isArray(disponibilidade) || disponibilidade.length === 0) return "-";
+
+  const porDia = new Map();
+  for (const item of disponibilidade) {
+    const dow = Number(item.dow);
+    if (!dow || !item.start_time || !item.end_time) continue;
+    const dia = DIAS_SEMANA[dow] || String(dow);
+    const range = `${String(item.start_time).slice(0, 5)}-${String(item.end_time).slice(0, 5)}`;
+    if (!porDia.has(dia)) porDia.set(dia, []);
+    porDia.get(dia).push(range);
+  }
+
+  return Array.from(porDia.entries())
+    .map(([dia, ranges]) => `${dia}: ${ranges.join(", ")}`)
+    .join(" | ");
+}
+
 function ListaDeVeterinarios() {
   const [veterinarios, setVeterinarios] = useState([]);
   const [search, setSearch] = useState("");
@@ -136,7 +164,9 @@ function ListaDeVeterinarios() {
                           <td className="align-middle">{veterinario.telefone}</td>
                           <td className="align-middle">{veterinario.email}</td>
                           <td className="align-middle">{veterinario.crmv}</td>
-                          <td className="align-middle">{veterinario.disponibilidade}</td>
+                          <td className="align-middle">
+                            {formatarDisponibilidade(veterinario.disponibilidade)}
+                          </td>
                           <td className="align-middle">
                             <div className="d-flex gap-2 justify-content-center">
                               <Link

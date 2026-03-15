@@ -15,13 +15,15 @@ function Header() {
   const [usuariosOpen, usuariosToggle, usuariosClose, usuariosRef] = useDropdown();
   const [produtosOpen, produtosToggle, produtosClose, produtosRef] = useDropdown();
   const [animaisOpen, animaisToggle, animaisClose, animaisRef] = useDropdown();
+  const [veterinariosOpen, veterinariosToggle, veterinariosClose, veterinariosRef] = useDropdown();
   const [contaOpen, contaToggle, contaClose, contaRef] = useDropdown();
 
   useEffect(() => {
     usuariosClose();
     produtosClose();
     animaisClose();
-  }, [path, usuariosClose, produtosClose, animaisClose]);
+    veterinariosClose();
+  }, [path, usuariosClose, produtosClose, animaisClose, veterinariosClose]);
 
   const handleLogout = async () => {
     contaClose();
@@ -36,6 +38,7 @@ function Header() {
     path === "/categorias" ||
     path.startsWith("/movimentacoes");
   const isAnimaisActive = isActive("animais") || isActive("racas");
+  const isVeterinariosActive = isActive("veterinarios") || isActive("consultas");
 
   const getLinkClass = (modulo) => {
     const base = "text-decoration-none fw-semibold small menu-link";
@@ -162,9 +165,40 @@ function Header() {
             VOLUNTÁRIOS
           </Link>
 
-          <Link to="/veterinarios" className={getLinkClass("veterinarios")}>
-            VETERINÁRIOS
-          </Link>
+          <div className="dropdown-container" ref={veterinariosRef}>
+            <button
+              type="button"
+              className={getDropdownToggleClass(isVeterinariosActive)}
+              onClick={veterinariosToggle}
+              aria-expanded={veterinariosOpen}
+              aria-haspopup="true"
+            >
+              VETERINÁRIOS{" "}
+              <i
+                className={`bi bi-chevron-${veterinariosOpen ? "up" : "down"} ms-1`}
+              ></i>
+            </button>
+            {veterinariosOpen && (
+              <div className="dropdown-menu-custom">
+                <Link
+                  to="/veterinarios"
+                  className={`dropdown-item-custom ${path === "/veterinarios" ? "active" : ""}`}
+                  onClick={veterinariosClose}
+                >
+                  <i className="bi bi-heart-pulse me-2"></i>
+                  Gerenciar Veterinários
+                </Link>
+                <Link
+                  to="/consultas"
+                  className={`dropdown-item-custom ${path === "/consultas" ? "active" : ""}`}
+                  onClick={veterinariosClose}
+                >
+                  <i className="bi bi-clipboard2-pulse me-2"></i>
+                  Consultas
+                </Link>
+              </div>
+            )}
+          </div>
 
           <div className="dropdown-container" ref={animaisRef}>
             <button
