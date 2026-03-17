@@ -60,7 +60,7 @@ class UsuarioController {
 
       const emailExistente = await UsuarioModel.buscarPorEmail(email);
       if (emailExistente) {
-        return res.status(400).json({ error: "Este email já está cadastrado" });
+        return res.status(409).json({ error: "Este email já está cadastrado" });
       }
 
       const id = randomUUID();
@@ -101,7 +101,7 @@ class UsuarioController {
 
       const emailExistente = await UsuarioModel.buscarPorEmail(email);
       if (emailExistente && emailExistente.id !== id) {
-        return res.status(400).json({ error: "Este email já está cadastrado" });
+        return res.status(409).json({ error: "Este email já está cadastrado" });
       }
 
       let senhaFinal = usuarioExistente.senha;

@@ -64,7 +64,7 @@ class FuncaoController {
 
       const nomeExistente = await FuncaoModel.buscarPorNome(nome);
       if (nomeExistente) {
-        return res.status(400).json({ error: "Já existe uma função com este nome" });
+        return res.status(409).json({ error: "Já existe uma função com este nome" });
       }
 
       const funcao = await FuncaoModel.criar({ nome, permissoes });
@@ -111,7 +111,7 @@ class FuncaoController {
 
       const nomeExistente = await FuncaoModel.buscarPorNome(nome);
       if (nomeExistente && String(nomeExistente.id) !== String(id)) {
-        return res.status(400).json({ error: "Já existe uma função com este nome" });
+        return res.status(409).json({ error: "Já existe uma função com este nome" });
       }
 
       const funcao = await FuncaoModel.atualizar(id, { nome, permissoes });

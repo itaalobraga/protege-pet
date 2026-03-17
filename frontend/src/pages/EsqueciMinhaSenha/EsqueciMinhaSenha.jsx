@@ -37,16 +37,12 @@ function EsqueciMinhaSenha() {
 
     setLoading(true);
     try {
-      await ApiService.post("/auth/esqueci-senha", {
-        email: email.trim(),
-      });
-      exibirToast(
-        "Enviamos instruções para redefinir sua senha."
-      );
+      await ApiService.post("/auth/esqueci-senha", { email: email.trim() });
+      exibirToast("Enviamos instruções para redefinir sua senha.");
     } catch (error) {
       exibirToast(
         error.message || "Erro ao processar solicitação. Tente novamente.",
-        "danger"
+        "danger",
       );
     } finally {
       setLoading(false);

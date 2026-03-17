@@ -62,7 +62,7 @@ class VeterinarioController {
 
       const emailExistente = await VeterinarioModel.buscarPorEmail(email);
       if (emailExistente) {
-        return res.status(400).json({ error: "Este email já está cadastrado" });
+        return res.status(409).json({ error: "Este email já está cadastrado" });
       }
 
       const veterinario = await VeterinarioModel.criar({
@@ -103,7 +103,7 @@ class VeterinarioController {
 
       const emailExistente = await VeterinarioModel.buscarPorEmail(email);
       if (emailExistente && emailExistente.id !== parseInt(id)) {
-        return res.status(400).json({ error: "Este email já está cadastrado" });
+        return res.status(409).json({ error: "Este email já está cadastrado" });
       }
 
       const veterinario = await VeterinarioModel.atualizar(id, {
