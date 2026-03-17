@@ -103,6 +103,14 @@ class Usuario {
     );
     return rows[0];
   }
+
+  static async atualizarSenha(id, senhaHash) {
+    const [result] = await pool.query(
+      `UPDATE usuarios SET senha = ? WHERE id = ?`,
+      [senhaHash, id]
+    );
+    return result.affectedRows > 0;
+  }
 }
 
 export default Usuario;

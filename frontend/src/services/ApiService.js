@@ -12,7 +12,10 @@ function isNetworkError(error) {
 class ApiService {
   static async handleResponse(response, endpoint = "") {
     if (!response.ok) {
-      if (response.status === 401 && !endpoint.includes("/auth/login")) {
+      const rotaPublica = ["/auth/login", "/auth/esqueci-senha", "/auth/redefinir-senha"].some((r) =>
+        endpoint.includes(r)
+      );
+      if (response.status === 401 && !rotaPublica) {
         window.dispatchEvent(new CustomEvent("auth:401"));
       }
       const error = await response.json().catch(() => ({

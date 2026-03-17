@@ -1,11 +1,17 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import UsuarioModel from "../models/UsuarioModel.js";
+import PasswordResetTokenModel from "../models/PasswordResetTokenModel.js";
+import EmailService from "../services/EmailService.js";
 import {
   COOKIE_NAME,
   COOKIE_OPTIONS,
 } from "../middlewares/authJwt.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const JWT_SECRET = process.env.JWT_SECRET;
 
 class AuthController {
@@ -65,7 +71,87 @@ class AuthController {
 
   static async logout(req, res) {
     res.clearCookie(COOKIE_NAME, COOKIE_OPTIONS);
-    res.json({ success: true });
+    res.json({ sucesso: true });
+  }
+
+  static async solicitarRecuperacaoSenha(req, res) {
+    try {
+      const { email } = req.body;
+
+      if (!email?.trim()) {
+        return res.status(400).json({
+          error: "Email é obrigatório",
+        });
+      }
+
+      const usuario = await UsuarioModel.buscarPorEmail(email.trim());
+      if (usuario) {
+        await PasswordResetTokenModel.invalidarTokensDoUsuario(usuario.id);
+        const { token } = await PasswordResetTokenModel.criar(usuario.id);
+
+        const frontendUrl = process.env.FRONTEND_URL;
+        if (!frontendUrl) {
+          throw new Error("FRONTEND_URL não configurada");
+        }
+        const linkResetar = `${frontendUrl.replace(/\/$/, "")}/resetar-senha?token=${token}`;
+
+        const templatePath = path.join(__dirname, "..", "templates", "recuperacao_senha.hbs");
+        const template = fs.readFileSync(templatePath, "utf8");
+
+        await EmailService.sendTemplate({
+          to: usuario.email,
+          subject: "Recuperação de senha - Protege Pet",
+          template,
+          data: {
+            usuario_nome: usuario.nome,
+            link_resetar: linkResetar,
+          },
+        });
+      }
+
+      res.json({
+        message: "Enviamos instruções para redefinir sua senha.",
+      });
+    } catch (error) {
+      console.error("Erro ao solicitar recuperação de senha:", error);
+      res.status(500).json({ error: "Erro ao processar solicitação" });
+    }
+  }
+
+  static async resetarSenha(req, res) {
+    try {
+      const { token, novaSenha } = req.body;
+
+      if (!token || !novaSenha) {
+        return res.status(400).json({
+          error: "Token e nova senha são obrigatórios",
+        });
+      }
+
+      if (novaSenha.length < 6) {
+        return res.status(400).json({
+          error: "A senha deve ter pelo menos 6 caracteres",
+        });
+      }
+
+      const registro = await PasswordResetTokenModel.buscarPorToken(token);
+      if (!registro) {
+        return res.status(400).json({
+          error: "Link inválido ou expirado. Solicite uma nova recuperação de senha.",
+        });
+      }
+
+      const senhaHash = await bcrypt.hash(novaSenha, 10);
+      await UsuarioModel.atualizarSenha(registro.usuario_id, senhaHash);
+      await PasswordResetTokenModel.marcarComoUsado(token);
+
+      res.json({
+        message: "Senha alterada com sucesso. Faça login com a nova senha.",
+      });
+    } catch (error) {
+      console.error("Erro ao resetar senha:", error);
+      res.status(500).json({ error: "Erro ao alterar senha" });
+    }
   }
 }
 

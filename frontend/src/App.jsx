@@ -25,6 +25,8 @@ import CadastroDeMovimentacoes from "./pages/CadastroDeMovimentacoes/CadastroDeM
 import ListaDeMovimentacoes from "./pages/ListaDeMovimentacoes/ListaDeMovimentacoes.jsx";
 import DetalhesMovimentacao from "./pages/DetalhesMovimentacao/DetalhesMovimentacao.jsx";
 import Login from "./pages/Login/Login.jsx";
+import EsqueciMinhaSenha from "./pages/EsqueciMinhaSenha/EsqueciMinhaSenha.jsx";
+import ResetarSenha from "./pages/ResetarSenha/ResetarSenha.jsx";
 import "./App.css";
 
 function App() {
@@ -37,6 +39,22 @@ function App() {
             element={
               <PublicRoute>
                 <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/esqueci-senha"
+            element={
+              <PublicRoute>
+                <EsqueciMinhaSenha />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/resetar-senha"
+            element={
+              <PublicRoute>
+                <ResetarSenha />
               </PublicRoute>
             }
           />

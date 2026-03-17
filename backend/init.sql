@@ -121,6 +121,22 @@ INSERT INTO usuarios (id, nome, funcao_id, telefone, email, disponibilidade, sen
 SELECT UUID(), 'Mariana Lima', f.id, '(18) 94321-0987', 'mariana.lima@protegepet.com.br', 'Noturno', '$2b$10$CRIwsNJRmxEe3QCThfCYEux8sKoxAvz2L09pc7dAgWkJPofKr3TS6'
 FROM funcoes f WHERE f.nome = 'Atendente' LIMIT 1;
 
+CREATE TABLE IF NOT EXISTS tokens_recuperacao_senha (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  usuario_id VARCHAR(36) NOT NULL,
+  token VARCHAR(64) NOT NULL UNIQUE,
+  expira_em DATETIME NOT NULL,
+  usado_em DATETIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_token_recup_senha_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_token_recup_senha ON tokens_recuperacao_senha(token);
+CREATE INDEX idx_token_recup_usuario_expira ON tokens_recuperacao_senha(usuario_id, expira_em);
+
 DROP TABLE IF EXISTS animais;
 DROP TABLE IF EXISTS racas;
 

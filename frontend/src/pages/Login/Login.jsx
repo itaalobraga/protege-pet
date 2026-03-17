@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container, Card, Form, Button, Stack } from "react-bootstrap";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../services/ApiService";
@@ -110,7 +110,7 @@ function Login() {
                 </Form.Control.Feedback>
               </Form.Group>
 
-              <Form.Group className="mb-4">
+              <Form.Group className="mb-3">
                 <Form.Label className="fw-semibold">Senha</Form.Label>
                 <Form.Control
                   type="password"
@@ -123,6 +123,15 @@ function Login() {
                 <Form.Control.Feedback type="invalid">
                   {errors.senha}
                 </Form.Control.Feedback>
+                <Form.Text as="div" className="text-end mt-1">
+                  <Link
+                    to="/esqueci-senha"
+                    className="text-decoration-none small"
+                    style={{ color: "#3F4D87" }}
+                  >
+                    Esqueci minha senha
+                  </Link>
+                </Form.Text>
               </Form.Group>
 
               <Button type="submit" variant="success" className="w-100">
