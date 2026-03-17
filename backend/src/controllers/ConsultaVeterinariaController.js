@@ -6,6 +6,9 @@ import VeterinarioDisponibilidadeModel from "../models/VeterinarioDisponibilidad
 import { format, isValid, parse } from "date-fns";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 class ConsultaVeterinariaController {
   static async listar(req, res) {
@@ -91,12 +94,7 @@ class ConsultaVeterinariaController {
         observacao: observacao || null,
       });
 
-      const templatePath = path.resolve(
-        process.cwd(),
-        "src",
-        "templates",
-        "consulta_agendada.hbs"
-      );
+      const templatePath = path.join(__dirname, "..", "templates", "consulta_agendada.hbs");
       const template = fs.readFileSync(templatePath, "utf8");
 
       await EmailService.sendTemplate({
@@ -174,12 +172,7 @@ class ConsultaVeterinariaController {
         observacao: observacao || null,
       });
 
-      const templatePath = path.resolve(
-        process.cwd(),
-        "src",
-        "templates",
-        "consulta_atualizada.hbs"
-      );
+      const templatePath = path.join(__dirname, "..", "templates", "consulta_atualizada.hbs");
       const template = fs.readFileSync(templatePath, "utf8");
 
       await EmailService.sendTemplate({
@@ -215,12 +208,7 @@ class ConsultaVeterinariaController {
         return res.status(500).json({ error: "Erro ao excluir consulta" });
       }
 
-      const templatePath = path.resolve(
-        process.cwd(),
-        "src",
-        "templates",
-        "consulta_cancelada.hbs"
-      );
+      const templatePath = path.join(__dirname, "..", "templates", "consulta_cancelada.hbs");
       const template = fs.readFileSync(templatePath, "utf8");
 
       await EmailService.sendTemplate({
