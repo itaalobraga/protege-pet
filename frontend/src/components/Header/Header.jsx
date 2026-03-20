@@ -3,6 +3,7 @@ import { Container, Stack } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useDropdown } from "../../hooks/useDropdown";
+import { PERMISSOES, possuiPermissao } from "../../utils/permissoes";
 import logo from "../../assets/img/logo.png";
 import "./header.css";
 
@@ -40,6 +41,15 @@ function Header() {
   const isAnimaisActive = isActive("animais") || isActive("racas");
   const isVeterinariosActive = isActive("veterinarios") || isActive("consultas");
 
+  const podeUsuarios = usuario && possuiPermissao(usuario, PERMISSOES.USUARIOS);
+  const podeVoluntarios = usuario && possuiPermissao(usuario, PERMISSOES.VOLUNTARIOS);
+  const podeVeterinarios = usuario && possuiPermissao(usuario, PERMISSOES.VETERINARIOS);
+  const podeAnimais = usuario && possuiPermissao(usuario, PERMISSOES.ANIMAIS);
+  const podeProdutos = usuario && possuiPermissao(usuario, PERMISSOES.PRODUTOS);
+  const mostrarNav =
+    usuario &&
+    Object.values(PERMISSOES).some((p) => possuiPermissao(usuario, p));
+
   const getLinkClass = (modulo) => {
     const base = "text-decoration-none fw-semibold small menu-link";
     return isActive(modulo)
@@ -60,7 +70,7 @@ function Header() {
       <div className="header-top py-3">
         <Container>
           <Stack direction="horizontal" gap={4} className="align-items-center">
-            <Link to="/usuarios" className="d-flex align-items-center">
+            <Link to="/" className="d-flex align-items-center">
               <img
                 alt="Protege Pet"
                 src={logo}
@@ -126,161 +136,173 @@ function Header() {
         </Container>
       </div>
 
-      <nav className="py-3 border-bottom header-nav">
-        <Container className="d-flex justify-content-center gap-4">
-          <div className="dropdown-container" ref={usuariosRef}>
-            <button
-              type="button"
-              className={getDropdownToggleClass(isUsuariosActive)}
-              onClick={usuariosToggle}
-            >
-              USUÁRIOS{" "}
-              <i
-                className={`bi bi-chevron-${usuariosOpen ? "up" : "down"} ms-1`}
-              ></i>
-            </button>
-            {usuariosOpen && (
-              <div className="dropdown-menu-custom">
-                <Link
-                  to="/usuarios"
-                  className={`dropdown-item-custom ${path === "/usuarios" ? "active" : ""}`}
-                  onClick={usuariosClose}
+      {mostrarNav && (
+        <nav className="py-3 border-bottom header-nav">
+          <Container className="d-flex justify-content-center gap-4 flex-wrap">
+            {podeUsuarios && (
+              <div className="dropdown-container" ref={usuariosRef}>
+                <button
+                  type="button"
+                  className={getDropdownToggleClass(isUsuariosActive)}
+                  onClick={usuariosToggle}
                 >
-                  <i className="bi bi-people me-2"></i>
-                  Gerenciar Usuários
-                </Link>
-                <Link
-                  to="/funcoes"
-                  className={`dropdown-item-custom ${path === "/funcoes" ? "active" : ""}`}
-                  onClick={usuariosClose}
-                >
-                  <i className="bi bi-shield-lock me-2"></i>
-                  Gerenciar Funções
-                </Link>
+                  USUÁRIOS{" "}
+                  <i
+                    className={`bi bi-chevron-${usuariosOpen ? "up" : "down"} ms-1`}
+                  ></i>
+                </button>
+                {usuariosOpen && (
+                  <div className="dropdown-menu-custom">
+                    <Link
+                      to="/usuarios"
+                      className={`dropdown-item-custom ${path === "/usuarios" ? "active" : ""}`}
+                      onClick={usuariosClose}
+                    >
+                      <i className="bi bi-people me-2"></i>
+                      Gerenciar Usuários
+                    </Link>
+                    <Link
+                      to="/funcoes"
+                      className={`dropdown-item-custom ${path === "/funcoes" ? "active" : ""}`}
+                      onClick={usuariosClose}
+                    >
+                      <i className="bi bi-shield-lock me-2"></i>
+                      Gerenciar Funções
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
-          </div>
 
-          <Link to="/voluntarios" className={getLinkClass("voluntarios")}>
-            VOLUNTÁRIOS
-          </Link>
+            {podeVoluntarios && (
+              <Link to="/voluntarios" className={getLinkClass("voluntarios")}>
+                VOLUNTÁRIOS
+              </Link>
+            )}
 
-          <div className="dropdown-container" ref={veterinariosRef}>
-            <button
-              type="button"
-              className={getDropdownToggleClass(isVeterinariosActive)}
-              onClick={veterinariosToggle}
-              aria-expanded={veterinariosOpen}
-              aria-haspopup="true"
-            >
-              VETERINÁRIOS{" "}
-              <i
-                className={`bi bi-chevron-${veterinariosOpen ? "up" : "down"} ms-1`}
-              ></i>
-            </button>
-            {veterinariosOpen && (
-              <div className="dropdown-menu-custom">
-                <Link
-                  to="/veterinarios"
-                  className={`dropdown-item-custom ${path === "/veterinarios" ? "active" : ""}`}
-                  onClick={veterinariosClose}
+            {podeVeterinarios && (
+              <div className="dropdown-container" ref={veterinariosRef}>
+                <button
+                  type="button"
+                  className={getDropdownToggleClass(isVeterinariosActive)}
+                  onClick={veterinariosToggle}
+                  aria-expanded={veterinariosOpen}
+                  aria-haspopup="true"
                 >
-                  <i className="bi bi-heart-pulse me-2"></i>
-                  Gerenciar Veterinários
-                </Link>
-                <Link
-                  to="/consultas"
-                  className={`dropdown-item-custom ${path === "/consultas" ? "active" : ""}`}
-                  onClick={veterinariosClose}
-                >
-                  <i className="bi bi-clipboard2-pulse me-2"></i>
-                  Consultas
-                </Link>
+                  VETERINÁRIOS{" "}
+                  <i
+                    className={`bi bi-chevron-${veterinariosOpen ? "up" : "down"} ms-1`}
+                  ></i>
+                </button>
+                {veterinariosOpen && (
+                  <div className="dropdown-menu-custom">
+                    <Link
+                      to="/veterinarios"
+                      className={`dropdown-item-custom ${path === "/veterinarios" ? "active" : ""}`}
+                      onClick={veterinariosClose}
+                    >
+                      <i className="bi bi-heart-pulse me-2"></i>
+                      Gerenciar Veterinários
+                    </Link>
+                    <Link
+                      to="/consultas"
+                      className={`dropdown-item-custom ${path === "/consultas" ? "active" : ""}`}
+                      onClick={veterinariosClose}
+                    >
+                      <i className="bi bi-clipboard2-pulse me-2"></i>
+                      Consultas
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
-          </div>
 
-          <div className="dropdown-container" ref={animaisRef}>
-            <button
-              type="button"
-              className={getDropdownToggleClass(isAnimaisActive)}
-              onClick={animaisToggle}
-              aria-expanded={animaisOpen}
-              aria-haspopup="true"
-            >
-              ANIMAIS{" "}
-              <i
-                className={`bi bi-chevron-${animaisOpen ? "up" : "down"} ms-1`}
-              ></i>
-            </button>
-            {animaisOpen && (
-              <div className="dropdown-menu-custom">
-                <Link
-                  to="/animais"
-                  className={`dropdown-item-custom ${path === "/animais" ? "active" : ""}`}
-                  onClick={animaisClose}
+            {podeAnimais && (
+              <div className="dropdown-container" ref={animaisRef}>
+                <button
+                  type="button"
+                  className={getDropdownToggleClass(isAnimaisActive)}
+                  onClick={animaisToggle}
+                  aria-expanded={animaisOpen}
+                  aria-haspopup="true"
                 >
-                  <i className="bi bi-heart me-2"></i>
-                  Gerenciar Animais
-                </Link>
-                <Link
-                  to="/racas"
-                  className={`dropdown-item-custom ${path === "/racas" ? "active" : ""}`}
-                  onClick={animaisClose}
-                >
-                  <i className="bi bi-tags me-2"></i>
-                  Gerenciar Raças
-                </Link>
+                  ANIMAIS{" "}
+                  <i
+                    className={`bi bi-chevron-${animaisOpen ? "up" : "down"} ms-1`}
+                  ></i>
+                </button>
+                {animaisOpen && (
+                  <div className="dropdown-menu-custom">
+                    <Link
+                      to="/animais"
+                      className={`dropdown-item-custom ${path === "/animais" ? "active" : ""}`}
+                      onClick={animaisClose}
+                    >
+                      <i className="bi bi-heart me-2"></i>
+                      Gerenciar Animais
+                    </Link>
+                    <Link
+                      to="/racas"
+                      className={`dropdown-item-custom ${path === "/racas" ? "active" : ""}`}
+                      onClick={animaisClose}
+                    >
+                      <i className="bi bi-tags me-2"></i>
+                      Gerenciar Raças
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
-          </div>
 
-          <div className="dropdown-container" ref={produtosRef}>
-            <button
-              type="button"
-              className={getDropdownToggleClass(isProdutosActive)}
-              onClick={produtosToggle}
-            >
-              PRODUTOS{" "}
-              <i
-                className={`bi bi-chevron-${produtosOpen ? "up" : "down"} ms-1`}
-              ></i>
-            </button>
-            {produtosOpen && (
-              <div className="dropdown-menu-custom">
-                <Link
-                  to="/movimentacoes/nova"
-                  className={`dropdown-item-custom ${path === "/movimentacoes/nova" ? "active" : ""}`}
-                  onClick={produtosClose}
+            {podeProdutos && (
+              <div className="dropdown-container" ref={produtosRef}>
+                <button
+                  type="button"
+                  className={getDropdownToggleClass(isProdutosActive)}
+                  onClick={produtosToggle}
                 >
-                  Nova movimentação
-                </Link>
-                <Link
-                  to="/movimentacoes"
-                  className={`dropdown-item-custom ${path === "/movimentacoes" ? "active" : ""}`}
-                  onClick={produtosClose}
-                >
-                  Histórico de movimentações
-                </Link>
-                <Link
-                  to="/produtos"
-                  className={`dropdown-item-custom ${path === "/produtos" ? "active" : ""}`}
-                  onClick={produtosClose}
-                >
-                  Gerenciar produtos
-                </Link>
-                <Link
-                  to="/categorias"
-                  className={`dropdown-item-custom ${path === "/categorias" ? "active" : ""}`}
-                  onClick={produtosClose}
-                >
-                  Gerenciar categorias
-                </Link>
+                  PRODUTOS{" "}
+                  <i
+                    className={`bi bi-chevron-${produtosOpen ? "up" : "down"} ms-1`}
+                  ></i>
+                </button>
+                {produtosOpen && (
+                  <div className="dropdown-menu-custom">
+                    <Link
+                      to="/movimentacoes/nova"
+                      className={`dropdown-item-custom ${path === "/movimentacoes/nova" ? "active" : ""}`}
+                      onClick={produtosClose}
+                    >
+                      Nova movimentação
+                    </Link>
+                    <Link
+                      to="/movimentacoes"
+                      className={`dropdown-item-custom ${path === "/movimentacoes" ? "active" : ""}`}
+                      onClick={produtosClose}
+                    >
+                      Histórico de movimentações
+                    </Link>
+                    <Link
+                      to="/produtos"
+                      className={`dropdown-item-custom ${path === "/produtos" ? "active" : ""}`}
+                      onClick={produtosClose}
+                    >
+                      Gerenciar produtos
+                    </Link>
+                    <Link
+                      to="/categorias"
+                      className={`dropdown-item-custom ${path === "/categorias" ? "active" : ""}`}
+                      onClick={produtosClose}
+                    >
+                      Gerenciar categorias
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        </Container>
-      </nav>
+          </Container>
+        </nav>
+      )}
     </header>
   );
 }

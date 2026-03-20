@@ -5,14 +5,6 @@ import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../../../services/ApiService";
 
-const PERMISSOES_DISPONIVEIS = [
-  "Gerenciar usuários",
-  "Gerenciar produtos",
-  "Gerenciar voluntários",
-  "Gerenciar veterinários",
-  "Gerenciar animais",
-];
-
 function Formulario() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,22 +14,41 @@ function Formulario() {
     nome: "",
     permissoes: [],
   });
+  const [permissoesDisponiveis, setPermissoesDisponiveis] = useState(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVariant, setToastVariant] = useState("success");
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (isEdit) {
-      ApiService.get(`/funcoes/${id}`).then((response) => {
-        if (response) {
-          setFormData({
-            nome: response.nome || "",
-            permissoes: response.permissoes || [],
-          });
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await ApiService.get("/funcoes/permissoes");
+        if (!cancelled) {
+          setPermissoesDisponiveis(Array.isArray(list) ? list : []);
         }
-      });
-    }
+      } catch {
+        if (!cancelled) {
+          setPermissoesDisponiveis([]);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isEdit) return;
+    ApiService.get(`/funcoes/${id}`).then((response) => {
+      if (response) {
+        setFormData({
+          nome: response.nome || "",
+          permissoes: response.permissoes || [],
+        });
+      }
+    });
   }, [id, isEdit]);
 
   const handleChange = (e) => {
@@ -98,6 +109,16 @@ function Formulario() {
     }
   };
 
+  if (permissoesDisponiveis === null) {
+    return (
+      <div className="d-flex justify-content-center py-5">
+        <div className="spinner-border text-success" role="status">
+          <span className="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -142,7 +163,12 @@ function Formulario() {
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-semibold">Permissões *</Form.Label>
                   <div className={`p-3 border rounded ${errors.permissoes ? "border-danger" : ""}`}>
-                    {PERMISSOES_DISPONIVEIS.map((permissao) => (
+                    {permissoesDisponiveis.length === 0 && (
+                      <p className="text-secondary small mb-0">
+                        Não foi possível carregar a lista de permissões. Tente novamente mais tarde.
+                      </p>
+                    )}
+                    {permissoesDisponiveis.map((permissao) => (
                       <Form.Check
                         key={permissao}
                         type="checkbox"
