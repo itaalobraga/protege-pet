@@ -30,6 +30,8 @@ import DetalhesMovimentacao from "./pages/DetalhesMovimentacao/DetalhesMovimenta
 import Login from "./pages/Login/Login.jsx";
 import EsqueciMinhaSenha from "./pages/EsqueciMinhaSenha/EsqueciMinhaSenha.jsx";
 import ResetarSenha from "./pages/ResetarSenha/ResetarSenha.jsx";
+import CadastroDeDoacoes from "./pages/CadastroDeDoacoes/CadastroDeDoacoes.jsx";
+import ListaDeDoacoes from "./pages/ListaDeDoacoes/ListaDeDoacoes.jsx";
 import "./App.css";
 
 function App() {
@@ -109,6 +111,12 @@ function App() {
               <Route path="/movimentacoes/nova" element={<CadastroDeMovimentacoes />} />
               <Route path="/movimentacoes/:id" element={<DetalhesMovimentacao />} />
             </Route>
+
+            <Route element={<RotaComPermissao permissao={PERMISSOES.DOACOES} />}>
+              <Route path="/doacoes" element={<ListaDeDoacoes />} />
+              <Route path="/doacoes/cadastro" element={<CadastroDeDoacoes />} />
+            </Route>
+
           </Route>
         </Routes>
       </AuthProvider>
