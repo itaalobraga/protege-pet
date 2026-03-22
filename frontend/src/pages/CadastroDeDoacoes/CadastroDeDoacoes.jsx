@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useCallback, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Button, Card, Container, Form, Row, Col } from "react-bootstrap";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
@@ -8,11 +8,15 @@ import ApiService from "../../services/ApiService";
 
 function CadastroDeDoacoes() {
   const navigate = useNavigate();
+
   const [tipoDoacao, setTipoDoacao] = useState("DINHEIRO");
   const [doadorNome, setDoadorNome] = useState("");
   const [doadorContato, setDoadorContato] = useState("");
   const [valor, setValor] = useState("");
-  const [item, setItem] = useState("");
+  
+
+  const [produtos, setProdutos] = useState([]);
+  const [produtoId, setProdutoId] = useState("");
   const [quantidade, setQuantidade] = useState("");
   const [observacao, setObservacao] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,35 +31,38 @@ function CadastroDeDoacoes() {
     setShowToast(true);
   }, []);
 
+  useEffect(() => {
+    async function carregarProdutos() {
+      try {
+        const response = await ApiService.get("/produtos");
+        setProdutos(response || []);
+      } catch (error) {
+        console.error("Erro ao carregar produtos:", error);
+      }
+    }
+    carregarProdutos();
+  }, []);
+
   const handleMudancaTipo = (novoTipo) => {
     setTipoDoacao(novoTipo);
     if (novoTipo === "DINHEIRO") {
-      setItem("");
+      setProdutoId("");
       setQuantidade("");
     } else {
       setValor("");
     }
   };
 
-  const limparFormulario = () => {
-    setDoadorNome("");
-    setDoadorContato("");
-    setTipoDoacao("DINHEIRO");
-    setValor("");
-    setItem("");
-    setQuantidade("");
-    setObservacao("");
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     if (tipoDoacao === "DINHEIRO" && (!valor || Number(valor) <= 0)) {
       exibirToast("Informe um valor válido para a doação financeira.", "danger");
       return;
     }
 
-    if (tipoDoacao === "PRODUTO" && (!item || !quantidade || Number(quantidade) <= 0)) {
-      exibirToast("Informe o item e a quantidade para doações físicas.", "danger");
+    if (tipoDoacao === "PRODUTO" && (!produtoId || !quantidade || Number(quantidade) <= 0)) {
+      exibirToast("Selecione o produto e informe a quantidade.", "danger");
       return;
     }
 
@@ -67,13 +74,13 @@ function CadastroDeDoacoes() {
         doador_contato: doadorContato,
         tipo_doacao: tipoDoacao,
         valor: tipoDoacao === "DINHEIRO" ? Number(valor) : 0,
-        item: tipoDoacao === "PRODUTO" ? item : "",
+        produto_id: tipoDoacao === "PRODUTO" ? produtoId : null,
         quantidade: tipoDoacao === "PRODUTO" ? Number(quantidade) : 0,
         observacao,
       });
 
       exibirToast("Doação registrada com sucesso!", "success");
-      limparFormulario();
+      
       setTimeout(() => {
         navigate("/doacoes");
       }, 1000);
@@ -94,7 +101,7 @@ function CadastroDeDoacoes() {
             <Card.Body className="p-4">
               <h3 className="fw-bold mb-2">Recebimento de Doação</h3>
               <p className="text-muted mb-4">
-                Registre as doações recebidas pelo Protegepet, seja em dinheiro ou em produtos físicos.
+                Registre as doações recebidas. Doações de produtos atualizarão o estoque automaticamente.
               </p>
 
               <Form onSubmit={handleSubmit}>
@@ -107,7 +114,7 @@ function CadastroDeDoacoes() {
                         onChange={(e) => handleMudancaTipo(e.target.value)}
                       >
                         <option value="DINHEIRO">Dinheiro / Transferência</option>
-                        <option value="PRODUTO">Produto Físico (Ração, remédio, etc)</option>
+                        <option value="PRODUTO">Produto (Atualiza o Estoque)</option>
                       </Form.Select>
                     </Form.Group>
                   </Col>
@@ -119,19 +126,19 @@ function CadastroDeDoacoes() {
                         type="text"
                         value={doadorNome}
                         onChange={(e) => setDoadorNome(e.target.value)}
-                        placeholder="Ex.: João Silva (Deixe em branco se anônimo)"
+                        placeholder="Ex.: João Silva"
                       />
                     </Form.Group>
                   </Col>
                   
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Contato do Doador (Opcional)</Form.Label>
+                      <Form.Label>E-mail do Doador (Para enviar recibo)</Form.Label>
                       <Form.Control
-                        type="text"
+                        type="email"
                         value={doadorContato}
                         onChange={(e) => setDoadorContato(e.target.value)}
-                        placeholder="Ex.: (11) 99999-9999 ou email"
+                        placeholder="email@exemplo.com"
                       />
                     </Form.Group>
                   </Col>
@@ -146,7 +153,7 @@ function CadastroDeDoacoes() {
                           min="0.01"
                           value={valor}
                           onChange={(e) => setValor(e.target.value)}
-                          placeholder="0,00"
+                          placeholder="0.00"
                           required
                         />
                       </Form.Group>
@@ -155,14 +162,19 @@ function CadastroDeDoacoes() {
                     <>
                       <Col md={8}>
                         <Form.Group className="mb-3">
-                          <Form.Label>Nome do Item / Produto</Form.Label>
-                          <Form.Control
-                            type="text"
-                            value={item}
-                            onChange={(e) => setItem(e.target.value)}
-                            placeholder="Ex.: Saco de Ração Pedigree 15kg"
+                          <Form.Label>Produto para Estoque</Form.Label>
+                          <Form.Select
+                            value={produtoId}
+                            onChange={(e) => setProdutoId(e.target.value)}
                             required
-                          />
+                          >
+                            <option value="">Selecione o produto doado</option>
+                            {produtos.map((produto) => (
+                              <option key={produto.id} value={produto.id}>
+                                {produto.nome} (Estoque atual: {produto.quantidade})
+                              </option>
+                            ))}
+                          </Form.Select>
                         </Form.Group>
                       </Col>
                       <Col md={4}>
@@ -183,33 +195,24 @@ function CadastroDeDoacoes() {
 
                   <Col md={12}>
                     <Form.Group className="mb-4">
-                      <Form.Label>Observação (Opcional)</Form.Label>
+                      <Form.Label>Observação</Form.Label>
                       <Form.Control
                         as="textarea"
                         rows={3}
                         value={observacao}
                         onChange={(e) => setObservacao(e.target.value)}
-                        placeholder="Ex.: Doação recebida durante a feira de adoção."
                       />
                     </Form.Group>
                   </Col>
                 </Row>
 
-                <div className="d-flex gap-2">
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    disabled={loading}
-                  >
-                    {loading ? "Registrando..." : "Registrar Doação"}
+                <div className="d-flex gap-2 mt-2">
+                  <Button type="submit" variant="primary" disabled={loading}>
+                    {loading ? "Salvando..." : "Registrar Doação"}
                   </Button>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={limparFormulario}
-                  >
-                    Limpar
-                  </Button>
+                  <Link to="/doacoes" className="btn btn-secondary">
+                    Cancelar
+                  </Link>
                 </div>
               </Form>
             </Card.Body>
@@ -225,16 +228,8 @@ function CadastroDeDoacoes() {
           autohide
           className="border-0 shadow"
         >
-          <Toast.Body
-            className={`d-flex align-items-center gap-2 text-${toastVariant}`}
-          >
-            <i
-              className={`bi bi-${
-                toastVariant === "success"
-                  ? "check-circle-fill"
-                  : "exclamation-circle-fill"
-              }`}
-            ></i>
+          <Toast.Body className={`d-flex align-items-center gap-2 text-${toastVariant}`}>
+            <i className={`bi bi-${toastVariant === "success" ? "check-circle-fill" : "exclamation-circle-fill"}`}></i>
             {toastMessage}
           </Toast.Body>
         </Toast>
