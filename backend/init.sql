@@ -369,3 +369,22 @@ FROM produtos p WHERE p.sku = '8801655' LIMIT 1;
 INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
 SELECT UUID(), p.id, 'ENTRADA', 15, 'DOACAO', 'Brinquedos para enriquecimento', 'João Oliveira'
 FROM produtos p WHERE p.sku = '1907052' LIMIT 1;
+--tabeçla doação vito
+CREATE TABLE doacoes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  doador_nome VARCHAR(255) DEFAULT 'Anônimo',
+  doador_contato VARCHAR(255),
+  tipo_doacao ENUM('DINHEIRO', 'PRODUTO') NOT NULL,
+  valor DECIMAL(10, 2) DEFAULT 0.00,
+  produto_id INT, 
+  quantidade INT DEFAULT 0,
+  observacao TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (produto_id) REFERENCES produtos(id)
+);
+
+CREATE INDEX idx_doacao_nome ON doacoes(doador_nome);
+CREATE INDEX idx_doacao_tipo ON doacoes(tipo_doacao);
+
+INSERT INTO permissoes (nome, descricao) 
+VALUES ('Gerenciar doações', 'Permite cadastrar e visualizar as doações do sistema');
