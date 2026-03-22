@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Card, Container, Table, Form, InputGroup } from "react-bootstrap";
+import { Card, Container, Table, Form, Row, Col } from "react-bootstrap";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
@@ -25,7 +25,6 @@ function ListaDeDoacoes() {
   const carregarDoacoes = useCallback(async () => {
     setLoading(true);
     try {
-      // Bate na rota GET que já deixamos pronta no Node!
       const response = await ApiService.get(`/doacoes?busca=${busca}`);
       setDoacoes(response || []);
     } catch (error) {
@@ -39,7 +38,7 @@ function ListaDeDoacoes() {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       carregarDoacoes();
-    }, 500); 
+    }, 500);
 
     return () => clearTimeout(delayDebounceFn);
   }, [busca, carregarDoacoes]);
@@ -53,28 +52,33 @@ function ListaDeDoacoes() {
       <Header />
       <main>
         <Container className="py-4">
+          
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h3 className="fw-bold mb-1">Doações Recebidas</h3>
-              <p className="text-muted mb-0">Gerencie todas as doações do Protegepet</p>
+              <h3 className="fw-bold mb-1">Doações</h3>
+              <p className="text-muted mb-0">Gerencie todas as doações do sistema</p>
             </div>
-            <Link to="/doacoes/cadastro" className="btn btn-primary d-flex align-items-center gap-2">
+            <Link to="/doacoes/cadastro" className="btn btn-success btn-sm d-flex align-items-center gap-2">
               <i className="bi bi-plus-lg"></i> Nova Doação
             </Link>
           </div>
 
           <Card className="shadow-sm border-0 mb-4">
             <Card.Body className="p-4">
-              <InputGroup className="mb-4">
-                <InputGroup.Text className="bg-white">
-                  <i className="bi bi-search"></i>
-                </InputGroup.Text>
-                <Form.Control
-                  placeholder="Buscar por nome do doador, contato, item ou observação..."
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                />
-              </InputGroup>
+              
+              <Row className="mb-4">
+                <Col md={6} lg={4}>
+                  <Form.Group>
+                    <Form.Control
+                      type="text"
+                      placeholder="Pesquisar doações..."
+                      value={busca}
+                      onChange={(e) => setBusca(e.target.value)}
+                      className="form-control"
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
 
               <div className="table-responsive">
                 <Table hover className="align-middle">
@@ -83,7 +87,7 @@ function ListaDeDoacoes() {
                       <th>Data</th>
                       <th>Doador</th>
                       <th>Tipo</th>
-                      <th>Detalhes (Valor/Item)</th>
+                      <th>Detalhes</th>
                       <th>Observação</th>
                     </tr>
                   </thead>
@@ -116,7 +120,7 @@ function ListaDeDoacoes() {
                           <td>
                             {doacao.tipo_doacao === 'DINHEIRO' 
                               ? <span className="text-success fw-bold">{formatarValor(doacao.valor)}</span>
-                              : <span>{doacao.quantidade}x {doacao.item}</span>
+                              : <span>{doacao.quantidade} item(ns)</span>
                             }
                           </td>
                           <td>
