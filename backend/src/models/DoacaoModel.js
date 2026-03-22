@@ -1,5 +1,4 @@
 import pool from "../config/database.js";
-import { randomUUID } from "crypto";
 
 class DoacaoModel {
   static async listarTodas(termo = "") {
@@ -10,7 +9,7 @@ class DoacaoModel {
         d.doador_contato,
         d.tipo_doacao,
         d.valor,
-        d.item,
+        d.produto_id,
         d.quantidade,
         d.observacao,
         d.created_at
@@ -25,11 +24,10 @@ class DoacaoModel {
           d.doador_nome LIKE ?
           OR d.doador_contato LIKE ?
           OR d.tipo_doacao LIKE ?
-          OR d.item LIKE ?
           OR COALESCE(d.observacao, '') LIKE ?
       `;
       const like = `%${termo}%`;
-      params.push(like, like, like, like, like);
+      params.push(like, like, like, like);
     }
 
     query += ` ORDER BY d.created_at DESC`;
@@ -41,87 +39,59 @@ class DoacaoModel {
   static async buscarPorId(id) {
     const [rows] = await pool.query(
       `
-      SELECT
-        d.id,
-        d.doador_nome,
-        d.doador_contato,
-        d.tipo_doacao,
-        d.valor,
-        d.item,
-        d.quantidade,
-        d.observacao,
-        d.created_at
-      FROM doacoes d
-      WHERE d.id = ?
+      SELECT * FROM doacoes WHERE id = ?
       `,
       [id]
     );
     return rows[0] || null;
   }
 
-  static async criarDoacao(dados) {
-    // Usando connection para gerenciar a transação
-    const connection = await pool.getConnection();
+  static async criarDoacao(dados, connectionParam) {
+    const connection = connectionParam || await pool.getConnection();
 
     try {
-      await connection.beginTransaction();
-
       const {
         doador_nome,
         doador_contato,
         tipo_doacao,
         valor,
-        item,
+        produto_id, 
         quantidade,
         observacao,
       } = dados;
 
-      const id = randomUUID();
+      const query = `
+        INSERT INTO doacoes
+        (doador_nome, doador_contato, tipo_doacao, valor, produto_id, quantidade, observacao)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `;
 
-      await connection.query(
-        `
-          INSERT INTO doacoes
-          (
-            id,
-            doador_nome,
-            doador_contato,
-            tipo_doacao,
-            valor,
-            item,
-            quantidade,
-            observacao
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `,
-        [
-          id,
-          doador_nome || "Anônimo",
-          doador_contato || null,
-          tipo_doacao,
-          valor || 0,
-          item || null,
-          quantidade || 0,
-          observacao || null,
-        ]
-      );
+      const values = [
+        doador_nome || "Anônimo",
+        doador_contato || null,
+        tipo_doacao,
+        valor || 0,
+        produto_id || null,
+        quantidade || 0,
+        observacao || null,
+      ];
 
-      await connection.commit();
+      const [result] = await connection.query(query, values);
 
       return {
-        id,
+        id: result.insertId, 
         doador_nome: doador_nome || "Anônimo",
         doador_contato: doador_contato || null,
         tipo_doacao,
         valor: valor || 0,
-        item: item || null,
+        produto_id: produto_id || null,
         quantidade: quantidade || 0,
         observacao: observacao || null,
       };
-    } catch (error) {
-      await connection.rollback();
-      throw error;
     } finally {
-      connection.release();
+      if (!connectionParam) {
+        connection.release();
+      }
     }
   }
 }
