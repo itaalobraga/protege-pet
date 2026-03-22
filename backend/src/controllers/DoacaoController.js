@@ -1,9 +1,12 @@
 import DoacaoModel from "../models/DoacaoModel.js";
 import MovimentacaoEstoqueModel from "../models/MovimentacaoEstoqueModel.js";
 import pool from "../config/database.js";
-import { Resend } from "resend";
+import EmailService from "../services/EmailService.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 class DoacaoController {
   static async listar(req, res) {
@@ -44,7 +47,7 @@ class DoacaoController {
         doador_contato,
         tipo_doacao,
         valor,
-        produto_id, 
+        produto_id,
         quantidade,
         observacao,
       } = req.body;
@@ -80,30 +83,32 @@ class DoacaoController {
           quantidade: Number(quantidade),
           motivo: 'DOACAO',
           observacao: `Entrada automática via recebimento de doação #${novaDoacao.id}`,
-          responsavel: req.usuario?.nome || "Sistema" 
+          responsavel: req.usuario?.nome || "Sistema"
         });
       }
 
       await connection.commit();
+
       if (doador_contato && doador_contato.includes('@')) {
         try {
-          await resend.emails.send({
-            from: 'Protegepet <nao-responda@protegepet.com>', 
+          const templatePath = path.join(__dirname, "..", "templates", "recibo_doacao.hbs");
+          const template = fs.readFileSync(templatePath, "utf8");
+
+          const formatarMoeda = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+          
+          const detalhe = tipo_doacao === 'DINHEIRO' 
+            ? formatarMoeda(valor) 
+            : `${quantidade} unidade(s) de produto para o estoque.`;
+
+          await EmailService.sendTemplate({
             to: doador_contato,
-            subject: 'Recibo de Doação - Protegepet',
-            html: `
-              <h3>Olá, ${doador_nome || 'Amigo(a)'}!</h3>
-              <p>O Protegepet agradece imensamente a sua colaboração.</p>
-              <p><strong>Detalhes do Recebimento:</strong></p>
-              <ul>
-                <li><strong>Tipo:</strong> ${tipo_doacao}</li>
-                ${tipo_doacao === 'DINHEIRO' 
-                  ? `<li><strong>Valor:</strong> R$ ${valor}</li>` 
-                  : `<li><strong>Quantidade:</strong> ${quantidade} item(ns)</li>`
-                }
-              </ul>
-              <p>Com sua ajuda, podemos continuar protegendo nossos animais!</p>
-            `
+            subject: "Recibo de Doação - Protege Pet",
+            template,
+            data: {
+              doador_nome: doador_nome || 'Amigo(a) da Protege Pet',
+              tipo_doacao: tipo_doacao === 'DINHEIRO' ? 'Financeira' : 'Produto',
+              detalhe_doacao: detalhe
+            },
           });
         } catch (emailError) {
           console.error("Aviso: Falha ao enviar recibo por e-mail", emailError);
