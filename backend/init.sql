@@ -43,7 +43,8 @@ INSERT INTO permissoes (nome) VALUES
 ('Gerenciar produtos'),
 ('Gerenciar voluntários'),
 ('Gerenciar veterinários'),
-('Gerenciar animais');
+('Gerenciar animais'),
+('Gerenciar doações');
 
 CREATE TABLE IF NOT EXISTS funcoes (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -385,6 +386,3 @@ CREATE TABLE doacoes (
 
 CREATE INDEX idx_doacao_nome ON doacoes(doador_nome);
 CREATE INDEX idx_doacao_tipo ON doacoes(tipo_doacao);
-
-INSERT INTO permissoes (nome, descricao) 
-VALUES ('Gerenciar doações', 'Permite cadastrar e visualizar as doações do sistema');
