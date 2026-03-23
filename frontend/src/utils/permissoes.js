@@ -4,6 +4,7 @@ export const PERMISSOES = {
   VOLUNTARIOS: "Gerenciar voluntários",
   VETERINARIOS: "Gerenciar veterinários",
   ANIMAIS: "Gerenciar animais",
+  DOACOES: "Gerenciar doações",
 };
 
 export const ROTAS_INICIO = [
@@ -12,6 +13,7 @@ export const ROTAS_INICIO = [
   { permissao: PERMISSOES.VETERINARIOS, path: "/veterinarios" },
   { permissao: PERMISSOES.ANIMAIS, path: "/animais" },
   { permissao: PERMISSOES.PRODUTOS, path: "/produtos" },
+  { permissao: PERMISSOES.DOACOES, path: "/doacoes" },
 ];
 
 export function possuiPermissao(usuario, permissao) {

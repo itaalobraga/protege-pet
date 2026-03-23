@@ -14,6 +14,7 @@ import pool from "./config/database.js";
 import RacaRoutes from "./routes/RacaRoutes.js";
 import MovimentacaoEstoqueRoutes from "./routes/MovimentacaoEstoqueRoutes.js";
 import AuthRoutes from "./routes/AuthRoutes.js";
+import DoacaoRoutes from "./routes/DoacaoRoutes.js";
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ app.use("/api", FuncaoRoutes);
 app.use("/api", CategoriaRoutes);
 app.use("/api", RacaRoutes);
 app.use("/api", MovimentacaoEstoqueRoutes);
+app.use("/api", DoacaoRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "API ProtegePet está rodando" });
