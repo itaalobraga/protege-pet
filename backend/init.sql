@@ -44,7 +44,8 @@ INSERT INTO permissoes (nome) VALUES
 ('Gerenciar voluntários'),
 ('Gerenciar veterinários'),
 ('Gerenciar animais'),
-('Gerenciar adocoes');
+('Gerenciar adocoes'),
+('Gerenciar doações');
 
 CREATE TABLE IF NOT EXISTS funcoes (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -77,7 +78,7 @@ CREATE TABLE IF NOT EXISTS funcoes_permissoes (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 INSERT INTO funcoes_permissoes (funcao_id, permissao_id) VALUES
-(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), 
 (2, 2),
 (3, 3), (3, 5),
 (4, 4), (4, 5),
@@ -398,3 +399,21 @@ INSERT INTO adocoes (nome, cpf, telefone, email, animal_id) VALUES
 ('Ana Costa', '456.789.012-33', '(18) 96543-2109', 'ana.costa@email.com', 5);
 
 
+CREATE TABLE doacoes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  doador_nome VARCHAR(255) DEFAULT 'Anônimo',
+  doador_contato VARCHAR(255),
+  tipo_doacao ENUM('DINHEIRO', 'PRODUTO') NOT NULL,
+  valor DECIMAL(10, 2) DEFAULT 0.00,
+  produto_id VARCHAR(100) NULL,
+  quantidade INT DEFAULT 0,
+  observacao TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_doacoes_produto
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_doacao_nome ON doacoes(doador_nome);
+CREATE INDEX idx_doacao_tipo ON doacoes(tipo_doacao);

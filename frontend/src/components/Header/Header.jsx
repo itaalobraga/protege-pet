@@ -27,11 +27,14 @@ function Header() {
   const [contaOpen, contaToggle, contaClose, contaRef] = useDropdown();
   const [adocaoOpen, adocaoToggle, adocaoClose, adocaoRef] = useDropdown();
 
+  const [doacoesOpen, doacoesToggle, doacoesClose, doacoesRef] = useDropdown();
+
   useEffect(() => {
     usuariosClose();
     produtosClose();
     animaisClose();
     veterinariosClose();
+    doacoesClose();
     adocaoClose();
   }, [
     path,
@@ -39,6 +42,7 @@ function Header() {
     produtosClose,
     animaisClose,
     veterinariosClose,
+    doacoesClose,
     adocaoClose,
   ]);
 
@@ -60,6 +64,8 @@ function Header() {
 
   const isAdocaoActive = isActive("adocoes") || isActive("listar-adocoes");
 
+  const isDoacoesActive = isActive("doacoes");
+
   const podeUsuarios = usuario && possuiPermissao(usuario, PERMISSOES.USUARIOS);
   const podeVoluntarios =
     usuario && possuiPermissao(usuario, PERMISSOES.VOLUNTARIOS);
@@ -67,6 +73,8 @@ function Header() {
     usuario && possuiPermissao(usuario, PERMISSOES.VETERINARIOS);
   const podeAnimais = usuario && possuiPermissao(usuario, PERMISSOES.ANIMAIS);
   const podeProdutos = usuario && possuiPermissao(usuario, PERMISSOES.PRODUTOS);
+  const podeDoacoes = usuario && possuiPermissao(usuario, PERMISSOES.DOACOES);
+
   const mostrarNav =
     usuario &&
     Object.values(PERMISSOES).some((p) => possuiPermissao(usuario, p));
@@ -359,6 +367,43 @@ function Header() {
                 </div>
               )}
             </div>
+
+            {podeDoacoes && (
+              <div className="dropdown-container" ref={doacoesRef}>
+                <button
+                  type="button"
+                  className={getDropdownToggleClass(isDoacoesActive)}
+                  onClick={doacoesToggle}
+                  aria-expanded={doacoesOpen}
+                  aria-haspopup="true"
+                >
+                  DOAÇÕES{" "}
+                  <i
+                    className={`bi bi-chevron-${doacoesOpen ? "up" : "down"} ms-1`}
+                  ></i>
+                </button>
+                {doacoesOpen && (
+                  <div className="dropdown-menu-custom">
+                    <Link
+                      to="/doacoes/cadastro"
+                      className={`dropdown-item-custom ${path === "/doacoes/cadastro" ? "active" : ""}`}
+                      onClick={doacoesClose}
+                    >
+                      <i className="bi bi-box2-heart me-2"></i>
+                      Receber Doação
+                    </Link>
+                    <Link
+                      to="/doacoes"
+                      className={`dropdown-item-custom ${path === "/doacoes" ? "active" : ""}`}
+                      onClick={doacoesClose}
+                    >
+                      <i className="bi bi-list-check me-2"></i>
+                      Histórico de Doações
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </Container>
         </nav>
       )}

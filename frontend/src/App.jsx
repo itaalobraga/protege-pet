@@ -32,6 +32,8 @@ import EsqueciMinhaSenha from "./pages/EsqueciMinhaSenha/EsqueciMinhaSenha.jsx";
 import ResetarSenha from "./pages/ResetarSenha/ResetarSenha.jsx";
 import ListaDeAdocoes from "./pages/ListaDeAdocoes/ListaDeAdocoes.jsx";
 import CadastroDeAdocoes from "./pages/CadastroDeAdocoes/CadastroDeAdocoes.jsx";
+import CadastroDeDoacoes from "./pages/CadastroDeDoacoes/CadastroDeDoacoes.jsx";
+import ListaDeDoacoes from "./pages/ListaDeDoacoes/ListaDeDoacoes.jsx";
 import "./App.css";
 
 function App() {
@@ -175,6 +177,13 @@ function App() {
                 path="/adocoes/cadastro/editar/:id"
                 element={<CadastroDeAdocoes />}
               />
+            </Route>
+
+            <Route
+              element={<RotaComPermissao permissao={PERMISSOES.DOACOES} />}
+            >
+              <Route path="/doacoes" element={<ListaDeDoacoes />} />
+              <Route path="/doacoes/cadastro" element={<CadastroDeDoacoes />} />
             </Route>
           </Route>
         </Routes>
