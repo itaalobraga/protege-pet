@@ -27,6 +27,8 @@ import DetalhesMovimentacao from "./pages/DetalhesMovimentacao/DetalhesMovimenta
 import Login from "./pages/Login/Login.jsx";
 import EsqueciMinhaSenha from "./pages/EsqueciMinhaSenha/EsqueciMinhaSenha.jsx";
 import ResetarSenha from "./pages/ResetarSenha/ResetarSenha.jsx";
+import ListaDeAdocoes from "./pages/ListaDeAdocoes/ListaDeAdocoes.jsx";
+import CadastroDeAdocoes from "./pages/CadastroDeAdocoes/CadastroDeAdocoes.jsx";
 import "./App.css";
 
 function App() {
@@ -129,6 +131,12 @@ function App() {
             <Route
               path="/movimentacoes/:id"
               element={<DetalhesMovimentacao />}
+            />
+            <Route path="/listar-adocoes" element={<ListaDeAdocoes />} />
+            <Route path="/adocoes/cadastro" element={<CadastroDeAdocoes />} />
+            <Route
+              path="/adocoes/cadastro/editar/:id"
+              element={<CadastroDeAdocoes />}
             />
           </Route>
         </Routes>

@@ -369,3 +369,31 @@ FROM produtos p WHERE p.sku = '8801655' LIMIT 1;
 INSERT INTO movimentacoes_estoque (id, produto_id, tipo, quantidade, motivo, observacao, responsavel)
 SELECT UUID(), p.id, 'ENTRADA', 15, 'DOACAO', 'Brinquedos para enriquecimento', 'João Oliveira'
 FROM produtos p WHERE p.sku = '1907052' LIMIT 1;
+
+CREATE TABLE IF NOT EXISTS adocoes (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(200) NOT NULL,
+  cpf VARCHAR(20) NOT NULL,
+  telefone VARCHAR(20) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  animal_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_adocao_animal
+    FOREIGN KEY (animal_id) REFERENCES animais(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_adocao_nome ON adocoes(nome);
+CREATE INDEX idx_adocao_email ON adocoes(email);
+CREATE INDEX idx_adocao_cpf ON adocoes(cpf);
+CREATE INDEX idx_adocao_animal_id ON adocoes(animal_id);
+
+INSERT INTO adocoes (nome, cpf, telefone, email, animal_id) VALUES
+('João Silva', '123.456.789-00', '(18) 99876-5432', 'joao.silva@email.com', 1),
+('Maria Santos', '234.567.890-11', '(18) 98765-4321', 'maria.santos@email.com', 2),
+('Pedro Oliveira', '345.678.901-22', '(18) 97654-3210', 'pedro.oliveira@email.com', 4),
+('Ana Costa', '456.789.012-33', '(18) 96543-2109', 'ana.costa@email.com', 5);
+
+
