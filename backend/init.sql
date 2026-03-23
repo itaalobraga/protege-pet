@@ -43,7 +43,8 @@ INSERT INTO permissoes (nome) VALUES
 ('Gerenciar produtos'),
 ('Gerenciar voluntários'),
 ('Gerenciar veterinários'),
-('Gerenciar animais');
+('Gerenciar animais'),
+('Gerenciar adocoes');
 
 CREATE TABLE IF NOT EXISTS funcoes (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -76,7 +77,7 @@ CREATE TABLE IF NOT EXISTS funcoes_permissoes (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 INSERT INTO funcoes_permissoes (funcao_id, permissao_id) VALUES
-(1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
 (2, 2),
 (3, 3), (3, 5),
 (4, 4), (4, 5),

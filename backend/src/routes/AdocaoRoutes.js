@@ -1,16 +1,42 @@
 import express from "express";
 import AdocaoController from "../controllers/AdocaoController.js";
 import { authJwt } from "../middlewares/authJwt.js";
+import { exigirPermissao } from "../middlewares/exigirPermissao.js";
 
 const router = express.Router();
-router.use(authJwt);
+const validarPermissao = exigirPermissao("Gerenciar adocoes");
 
-router.get("/adocoes", AdocaoController.listar);
-router.get("/adocoes/:id", AdocaoController.buscarPorId);
-router.get("/adocoes/cpf/:cpf", AdocaoController.buscarPorCPF);
-router.get("/adocoes/email/:email", AdocaoController.buscarPorEmail);
-router.post("/adocoes", AdocaoController.criar);
-router.put("/adocoes/:id", AdocaoController.atualizar);
-router.delete("/adocoes/:id", AdocaoController.excluir);
+router.get("/adocoes", authJwt, validarPermissao, AdocaoController.listar);
+router.get(
+  "/adocoes/:id",
+  authJwt,
+  validarPermissao,
+  AdocaoController.buscarPorId,
+);
+router.get(
+  "/adocoes/cpf/:cpf",
+  authJwt,
+  validarPermissao,
+  AdocaoController.buscarPorCPF,
+);
+router.get(
+  "/adocoes/email/:email",
+  authJwt,
+  validarPermissao,
+  AdocaoController.buscarPorEmail,
+);
+router.post("/adocoes", authJwt, validarPermissao, AdocaoController.criar);
+router.put(
+  "/adocoes/:id",
+  authJwt,
+  validarPermissao,
+  AdocaoController.atualizar,
+);
+router.delete(
+  "/adocoes/:id",
+  authJwt,
+  validarPermissao,
+  AdocaoController.excluir,
+);
 
 export default router;
