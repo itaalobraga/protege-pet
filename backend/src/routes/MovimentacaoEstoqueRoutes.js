@@ -1,12 +1,13 @@
 import express from "express";
 import MovimentacaoEstoqueController from "../controllers/MovimentacaoEstoqueController.js";
 import { authJwt } from "../middlewares/authJwt.js";
+import { exigirPermissao } from "../middlewares/exigirPermissao.js";
 
 const router = express.Router();
-router.use(authJwt);
+const validarPermissao = exigirPermissao("Gerenciar produtos");
 
-router.get("/movimentacoes-estoque", MovimentacaoEstoqueController.listar);
-router.get("/movimentacoes-estoque/:id", MovimentacaoEstoqueController.buscarPorId);
-router.post("/movimentacoes-estoque", MovimentacaoEstoqueController.criar);
+router.get("/movimentacoes-estoque", authJwt, validarPermissao, MovimentacaoEstoqueController.listar);
+router.get("/movimentacoes-estoque/:id", authJwt, validarPermissao, MovimentacaoEstoqueController.buscarPorId);
+router.post("/movimentacoes-estoque", authJwt, validarPermissao, MovimentacaoEstoqueController.criar);
 
 export default router;

@@ -58,8 +58,8 @@ function Login() {
       });
       await checkAuth();
       exibirToast("Login realizado com sucesso!");
-      const from = location.state?.from?.pathname || "/usuarios";
-      setTimeout(() => navigate(from, { replace: true }), 1000);
+      const from = location.state?.from?.pathname;
+      setTimeout(() => navigate(from || "/", { replace: true }), 1000);
     } catch (error) {
       const mensagemInvalida =
         !error?.message ||

@@ -1,15 +1,15 @@
 import express from "express";
 import ProdutoController from "../controllers/ProdutoController.js";
 import { authJwt } from "../middlewares/authJwt.js";
+import { exigirPermissao } from "../middlewares/exigirPermissao.js";
 
 const router = express.Router();
-router.use(authJwt);
+const validarPermissao = exigirPermissao("Gerenciar produtos");
 
-router.get("/produtos", ProdutoController.listar);
-router.get("/produtos/:id", ProdutoController.buscarPorId);
-router.post("/produtos", ProdutoController.criar);
-router.put("/produtos/:id", ProdutoController.atualizar);
-router.delete("/produtos/:id", ProdutoController.excluir);
+router.get("/produtos", authJwt, validarPermissao, ProdutoController.listar);
+router.get("/produtos/:id", authJwt, validarPermissao, ProdutoController.buscarPorId);
+router.post("/produtos", authJwt, validarPermissao, ProdutoController.criar);
+router.put("/produtos/:id", authJwt, validarPermissao, ProdutoController.atualizar);
+router.delete("/produtos/:id", authJwt, validarPermissao, ProdutoController.excluir);
 
 export default router;
-

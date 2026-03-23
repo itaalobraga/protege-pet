@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 function PublicRoute({ children }) {
   const { usuario, loading } = useAuth();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/usuarios";
+  const from = location.state?.from?.pathname || "/";
 
   if (loading) {
     return (

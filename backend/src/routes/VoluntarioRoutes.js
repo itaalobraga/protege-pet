@@ -1,14 +1,15 @@
 import express from "express";
 import VoluntarioController from "../controllers/VoluntarioController.js";
 import { authJwt } from "../middlewares/authJwt.js";
+import { exigirPermissao } from "../middlewares/exigirPermissao.js";
 
 const router = express.Router();
-router.use(authJwt);
+const validarPermissao = exigirPermissao("Gerenciar voluntários");
 
-router.get("/voluntarios", VoluntarioController.listar);
-router.get("/voluntarios/:id", VoluntarioController.buscarPorId);
-router.post("/voluntarios", VoluntarioController.criar);
-router.put("/voluntarios/:id", VoluntarioController.atualizar);
-router.delete("/voluntarios/:id", VoluntarioController.excluir);
+router.get("/voluntarios", authJwt, validarPermissao, VoluntarioController.listar);
+router.get("/voluntarios/:id", authJwt, validarPermissao, VoluntarioController.buscarPorId);
+router.post("/voluntarios", authJwt, validarPermissao, VoluntarioController.criar);
+router.put("/voluntarios/:id", authJwt, validarPermissao, VoluntarioController.atualizar);
+router.delete("/voluntarios/:id", authJwt, validarPermissao, VoluntarioController.excluir);
 
 export default router;
