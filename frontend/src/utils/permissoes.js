@@ -4,7 +4,7 @@ export const PERMISSOES = {
   VOLUNTARIOS: "Gerenciar voluntários",
   VETERINARIOS: "Gerenciar veterinários",
   ANIMAIS: "Gerenciar animais",
-  ADOCOES: "Gerenciar adocoes",
+  ADOCOES: "Gerenciar adoções",
   DOACOES: "Gerenciar doações",
 };
 
