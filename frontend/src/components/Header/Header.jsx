@@ -13,12 +13,20 @@ function Header() {
   const navigate = useNavigate();
   const { usuario, logout } = useAuth();
 
-  const [usuariosOpen, usuariosToggle, usuariosClose, usuariosRef] = useDropdown();
-  const [produtosOpen, produtosToggle, produtosClose, produtosRef] = useDropdown();
+  const [usuariosOpen, usuariosToggle, usuariosClose, usuariosRef] =
+    useDropdown();
+  const [produtosOpen, produtosToggle, produtosClose, produtosRef] =
+    useDropdown();
   const [animaisOpen, animaisToggle, animaisClose, animaisRef] = useDropdown();
-  const [veterinariosOpen, veterinariosToggle, veterinariosClose, veterinariosRef] = useDropdown();
+  const [
+    veterinariosOpen,
+    veterinariosToggle,
+    veterinariosClose,
+    veterinariosRef,
+  ] = useDropdown();
   const [contaOpen, contaToggle, contaClose, contaRef] = useDropdown();
-  
+  const [adocaoOpen, adocaoToggle, adocaoClose, adocaoRef] = useDropdown();
+
   const [doacoesOpen, doacoesToggle, doacoesClose, doacoesRef] = useDropdown();
 
   useEffect(() => {
@@ -27,7 +35,16 @@ function Header() {
     animaisClose();
     veterinariosClose();
     doacoesClose();
-  }, [path, usuariosClose, produtosClose, animaisClose, veterinariosClose, doacoesClose]);
+    adocaoClose();
+  }, [
+    path,
+    usuariosClose,
+    produtosClose,
+    animaisClose,
+    veterinariosClose,
+    doacoesClose,
+    adocaoClose,
+  ]);
 
   const handleLogout = async () => {
     contaClose();
@@ -42,13 +59,18 @@ function Header() {
     path === "/categorias" ||
     path.startsWith("/movimentacoes");
   const isAnimaisActive = isActive("animais") || isActive("racas");
-  const isVeterinariosActive = isActive("veterinarios") || isActive("consultas");
-  
+  const isVeterinariosActive =
+    isActive("veterinarios") || isActive("consultas");
+
+  const isAdocaoActive = isActive("adocoes") || isActive("listar-adocoes");
+
   const isDoacoesActive = isActive("doacoes");
 
   const podeUsuarios = usuario && possuiPermissao(usuario, PERMISSOES.USUARIOS);
-  const podeVoluntarios = usuario && possuiPermissao(usuario, PERMISSOES.VOLUNTARIOS);
-  const podeVeterinarios = usuario && possuiPermissao(usuario, PERMISSOES.VETERINARIOS);
+  const podeVoluntarios =
+    usuario && possuiPermissao(usuario, PERMISSOES.VOLUNTARIOS);
+  const podeVeterinarios =
+    usuario && possuiPermissao(usuario, PERMISSOES.VETERINARIOS);
   const podeAnimais = usuario && possuiPermissao(usuario, PERMISSOES.ANIMAIS);
   const podeProdutos = usuario && possuiPermissao(usuario, PERMISSOES.PRODUTOS);
   const podeDoacoes = usuario && possuiPermissao(usuario, PERMISSOES.DOACOES);
@@ -87,10 +109,16 @@ function Header() {
               />
             </Link>
             <div className="flex-grow-1">
-              <div className="fw-bold" style={{ color: "#3F4D87", fontSize: "0.95rem" }}>
+              <div
+                className="fw-bold"
+                style={{ color: "#3F4D87", fontSize: "0.95rem" }}
+              >
                 SOCIEDADE PROTETORA DOS ANIMAIS ABANDONADOS
               </div>
-              <div className="fw-bold" style={{ color: "#009951", fontSize: "0.85rem" }}>
+              <div
+                className="fw-bold"
+                style={{ color: "#009951", fontSize: "0.85rem" }}
+              >
                 PRESIDENTE PRUDENTE
               </div>
             </div>
@@ -114,14 +142,20 @@ function Header() {
                     <div className="px-3 py-2 border-bottom">
                       <div className="fw-semibold small">{usuario.nome}</div>
                       {usuario.email && (
-                        <div className="text-secondary" style={{ fontSize: "0.75rem" }}>
+                        <div
+                          className="text-secondary"
+                          style={{ fontSize: "0.75rem" }}
+                        >
                           {usuario.email}
                         </div>
                       )}
                       {usuario.funcao_nome && (
                         <span
                           className="badge mt-1"
-                          style={{ backgroundColor: "#009951", fontSize: "0.65rem" }}
+                          style={{
+                            backgroundColor: "#009951",
+                            fontSize: "0.65rem",
+                          }}
                         >
                           {usuario.funcao_nome}
                         </span>
@@ -307,6 +341,32 @@ function Header() {
                 )}
               </div>
             )}
+            <div className="dropdown-container" ref={adocaoRef}>
+              <button
+                type="button"
+                className={getDropdownToggleClass(isAdocaoActive)}
+                onClick={adocaoToggle}
+                aria-expanded={adocaoOpen}
+                aria-haspopup="true"
+              >
+                ADOÇÕES{" "}
+                <i
+                  className={`bi bi-chevron-${adocaoOpen ? "up" : "down"} ms-1`}
+                ></i>
+              </button>
+              {adocaoOpen && (
+                <div className="dropdown-menu-custom">
+                  <Link
+                    to="/listar-adocoes"
+                    className={`dropdown-item-custom ${path === "/listar-adocoes" ? "active" : ""}`}
+                    onClick={adocaoClose}
+                  >
+                    <i className="bi bi-clipboard2-check me-2"></i>
+                    Listar Adoções
+                  </Link>
+                </div>
+              )}
+            </div>
 
             {podeDoacoes && (
               <div className="dropdown-container" ref={doacoesRef}>
@@ -344,7 +404,6 @@ function Header() {
                 )}
               </div>
             )}
-
           </Container>
         </nav>
       )}

@@ -30,6 +30,8 @@ import DetalhesMovimentacao from "./pages/DetalhesMovimentacao/DetalhesMovimenta
 import Login from "./pages/Login/Login.jsx";
 import EsqueciMinhaSenha from "./pages/EsqueciMinhaSenha/EsqueciMinhaSenha.jsx";
 import ResetarSenha from "./pages/ResetarSenha/ResetarSenha.jsx";
+import ListaDeAdocoes from "./pages/ListaDeAdocoes/ListaDeAdocoes.jsx";
+import CadastroDeAdocoes from "./pages/CadastroDeAdocoes/CadastroDeAdocoes.jsx";
 import CadastroDeDoacoes from "./pages/CadastroDeDoacoes/CadastroDeDoacoes.jsx";
 import ListaDeDoacoes from "./pages/ListaDeDoacoes/ListaDeDoacoes.jsx";
 import "./App.css";
@@ -67,56 +69,122 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route path="/" element={<RedirecaoInicio />} />
 
-            <Route element={<RotaComPermissao permissao={PERMISSOES.USUARIOS} />}>
+            <Route
+              element={<RotaComPermissao permissao={PERMISSOES.USUARIOS} />}
+            >
               <Route path="/usuarios" element={<ListaDeUsuarios />} />
-              <Route path="/usuarios/cadastro" element={<CadastroDeUsuarios />} />
-              <Route path="/usuarios/cadastro/editar/:id" element={<CadastroDeUsuarios />} />
+              <Route
+                path="/usuarios/cadastro"
+                element={<CadastroDeUsuarios />}
+              />
+              <Route
+                path="/usuarios/cadastro/editar/:id"
+                element={<CadastroDeUsuarios />}
+              />
               <Route path="/funcoes" element={<ListaDeFuncoes />} />
               <Route path="/funcoes/cadastro" element={<CadastroDeFuncoes />} />
-              <Route path="/funcoes/cadastro/editar/:id" element={<CadastroDeFuncoes />} />
+              <Route
+                path="/funcoes/cadastro/editar/:id"
+                element={<CadastroDeFuncoes />}
+              />
             </Route>
 
-            <Route element={<RotaComPermissao permissao={PERMISSOES.VOLUNTARIOS} />}>
+            <Route
+              element={<RotaComPermissao permissao={PERMISSOES.VOLUNTARIOS} />}
+            >
               <Route path="/voluntarios" element={<ListaDeVoluntarios />} />
-              <Route path="/voluntarios/cadastro" element={<CadastroDeVoluntarios />} />
-              <Route path="/voluntarios/cadastro/editar/:id" element={<CadastroDeVoluntarios />} />
+              <Route
+                path="/voluntarios/cadastro"
+                element={<CadastroDeVoluntarios />}
+              />
+              <Route
+                path="/voluntarios/cadastro/editar/:id"
+                element={<CadastroDeVoluntarios />}
+              />
             </Route>
 
-            <Route element={<RotaComPermissao permissao={PERMISSOES.VETERINARIOS} />}>
+            <Route
+              element={<RotaComPermissao permissao={PERMISSOES.VETERINARIOS} />}
+            >
               <Route path="/veterinarios" element={<ListaDeVeterinarios />} />
-              <Route path="/veterinarios/cadastro" element={<CadastroDeVeterinarios />} />
-              <Route path="/veterinarios/cadastro/editar/:id" element={<CadastroDeVeterinarios />} />
+              <Route
+                path="/veterinarios/cadastro"
+                element={<CadastroDeVeterinarios />}
+              />
+              <Route
+                path="/veterinarios/cadastro/editar/:id"
+                element={<CadastroDeVeterinarios />}
+              />
               <Route path="/consultas" element={<AgendaDeConsultas />} />
               <Route path="/consultas/novo" element={<ConsultaForm />} />
               <Route path="/consultas/editar/:id" element={<ConsultaForm />} />
             </Route>
 
-            <Route element={<RotaComPermissao permissao={PERMISSOES.ANIMAIS} />}>
+            <Route
+              element={<RotaComPermissao permissao={PERMISSOES.ANIMAIS} />}
+            >
               <Route path="/animais" element={<ListaDeAnimais />} />
               <Route path="/animais/cadastro" element={<CadastroDeAnimais />} />
-              <Route path="/animais/cadastro/editar/:id" element={<CadastroDeAnimais />} />
+              <Route
+                path="/animais/cadastro/editar/:id"
+                element={<CadastroDeAnimais />}
+              />
               <Route path="/racas" element={<ListaDeRacas />} />
               <Route path="/racas/cadastro" element={<CadastroDeRacas />} />
-              <Route path="/racas/cadastro/editar/:id" element={<CadastroDeRacas />} />
+              <Route
+                path="/racas/cadastro/editar/:id"
+                element={<CadastroDeRacas />}
+              />
             </Route>
 
-            <Route element={<RotaComPermissao permissao={PERMISSOES.PRODUTOS} />}>
+            <Route
+              element={<RotaComPermissao permissao={PERMISSOES.PRODUTOS} />}
+            >
               <Route path="/produtos" element={<ListaDeProdutos />} />
-              <Route path="/produtos/cadastro" element={<CadastroDeProdutos />} />
-              <Route path="/produtos/cadastro/editar/:id" element={<CadastroDeProdutos />} />
+              <Route
+                path="/produtos/cadastro"
+                element={<CadastroDeProdutos />}
+              />
+              <Route
+                path="/produtos/cadastro/editar/:id"
+                element={<CadastroDeProdutos />}
+              />
               <Route path="/categorias" element={<ListaDeCategorias />} />
-              <Route path="/categorias/cadastro" element={<CadastroDeCategorias />} />
-              <Route path="/categorias/cadastro/editar/:id" element={<CadastroDeCategorias />} />
+              <Route
+                path="/categorias/cadastro"
+                element={<CadastroDeCategorias />}
+              />
+              <Route
+                path="/categorias/cadastro/editar/:id"
+                element={<CadastroDeCategorias />}
+              />
               <Route path="/movimentacoes" element={<ListaDeMovimentacoes />} />
-              <Route path="/movimentacoes/nova" element={<CadastroDeMovimentacoes />} />
-              <Route path="/movimentacoes/:id" element={<DetalhesMovimentacao />} />
+              <Route
+                path="/movimentacoes/nova"
+                element={<CadastroDeMovimentacoes />}
+              />
+              <Route
+                path="/movimentacoes/:id"
+                element={<DetalhesMovimentacao />}
+              />
+            </Route>
+            <Route
+              element={<RotaComPermissao permissao={PERMISSOES.ADOCOES} />}
+            >
+              <Route path="/listar-adocoes" element={<ListaDeAdocoes />} />
+              <Route path="/adocoes/cadastro" element={<CadastroDeAdocoes />} />
+              <Route
+                path="/adocoes/cadastro/editar/:id"
+                element={<CadastroDeAdocoes />}
+              />
             </Route>
 
-            <Route element={<RotaComPermissao permissao={PERMISSOES.DOACOES} />}>
+            <Route
+              element={<RotaComPermissao permissao={PERMISSOES.DOACOES} />}
+            >
               <Route path="/doacoes" element={<ListaDeDoacoes />} />
               <Route path="/doacoes/cadastro" element={<CadastroDeDoacoes />} />
             </Route>
-
           </Route>
         </Routes>
       </AuthProvider>
