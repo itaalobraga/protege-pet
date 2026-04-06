@@ -44,7 +44,7 @@ INSERT INTO permissoes (nome) VALUES
 ('Gerenciar voluntários'),
 ('Gerenciar veterinários'),
 ('Gerenciar animais'),
-('Gerenciar adocoes'),
+('Gerenciar adoções'),
 ('Gerenciar doações');
 
 CREATE TABLE IF NOT EXISTS funcoes (
