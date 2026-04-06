@@ -4,7 +4,7 @@ import { authJwt } from "../middlewares/authJwt.js";
 import { exigirPermissao } from "../middlewares/exigirPermissao.js";
 
 const router = express.Router();
-const validarPermissao = exigirPermissao("Gerenciar adocoes");
+const validarPermissao = exigirPermissao("Gerenciar adoções");
 
 router.get("/adocoes", authJwt, validarPermissao, AdocaoController.listar);
 router.get(
