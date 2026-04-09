@@ -46,7 +46,8 @@ INSERT INTO permissoes (nome) VALUES
 ('Gerenciar animais'),
 ('Gerenciar adoções'),
 ('Gerenciar doações'),
-('Gerenciar medicamentos');
+('Gerenciar medicamentos'),
+('Gerenciar atendimentos veterinários');
 
 CREATE TABLE IF NOT EXISTS funcoes (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -79,7 +80,7 @@ CREATE TABLE IF NOT EXISTS funcoes_permissoes (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 INSERT INTO funcoes_permissoes (funcao_id, permissao_id) VALUES
-(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9),
 (2, 2),
 (3, 3), (3, 5),
 (4, 4), (4, 5),
@@ -432,3 +433,25 @@ CREATE TABLE IF NOT EXISTS medicamentos (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_medicamento_nome ON medicamentos(nome);
+
+INSERT INTO medicamentos (nome, principio_ativo, dosagem, forma_farmaceutica, fabricante, descricao) VALUES
+('Amoxicilina 500mg', 'Amoxicilina', '500mg', 'Comprimido', 'Vetnil', 'Antibiótico de amplo espectro para infecções bacterianas'),
+('Dipirona gotas', 'Dipirona sódica', '20mg/ml', 'Solução oral', 'União Química', 'Analgésico e antitérmico; ajustar dose por peso'),
+('Vermífugo canino', 'Praziquantel + Febantel + Pirantel', 'comprimido único por faixa de peso', 'Comprimido mastigável', 'Merial', 'Tratamento de vermes intestinais e teníase'),
+('Carprofeno 25mg', 'Carprofeno', '25mg', 'Comprimido', 'Zoetis', 'Anti-inflamatório não esteroidal para dor pós-operatória'),
+('Shampoo dermatológico', NULL, '250ml', 'Shampoo', 'Virbac', 'Uso tópico; auxilia em dermatites e prurido leve');
+
+CREATE TABLE IF NOT EXISTS tipos_exames (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(200) NOT NULL,
+  descricao TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_tipo_exame_nome ON tipos_exames(nome);
+
+INSERT INTO tipos_exames (nome, descricao) VALUES
+('Hemograma completo', 'Contagem de células sanguíneas e avaliação geral'),
+('Bioquímico sérico', 'Função hepática, renal e eletrólitos'),
+('Radiografia de tórax', 'Imagem para avaliação cardiopulmonar');

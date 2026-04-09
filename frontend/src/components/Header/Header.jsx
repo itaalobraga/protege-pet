@@ -28,12 +28,19 @@ function Header() {
   const [adocaoOpen, adocaoToggle, adocaoClose, adocaoRef] = useDropdown();
 
   const [doacoesOpen, doacoesToggle, doacoesClose, doacoesRef] = useDropdown();
+  const [
+    atendimentosVeterinariosOpen,
+    atendimentosVeterinariosToggle,
+    atendimentosVeterinariosClose,
+    atendimentosVeterinariosRef,
+  ] = useDropdown();
 
   useEffect(() => {
     usuariosClose();
     produtosClose();
     animaisClose();
     veterinariosClose();
+    atendimentosVeterinariosClose();
     doacoesClose();
     adocaoClose();
   }, [
@@ -42,6 +49,7 @@ function Header() {
     produtosClose,
     animaisClose,
     veterinariosClose,
+    atendimentosVeterinariosClose,
     doacoesClose,
     adocaoClose,
   ]);
@@ -62,6 +70,8 @@ function Header() {
   const isVeterinariosActive =
     isActive("veterinarios") || isActive("consultas");
 
+  const isAtendimentosVeterinariosActive = path.startsWith("/tipos-de-exames");
+
   const isAdocaoActive = isActive("adocoes") || isActive("listar-adocoes");
 
   const isDoacoesActive = isActive("doacoes");
@@ -76,6 +86,9 @@ function Header() {
   const podeDoacoes = usuario && possuiPermissao(usuario, PERMISSOES.DOACOES);
   const podeMedicamentos =
     usuario && possuiPermissao(usuario, PERMISSOES.MEDICAMENTOS);
+  const podeAtendimentosVeterinarios =
+    usuario &&
+    possuiPermissao(usuario, PERMISSOES.ATENDIMENTOS_VETERINARIOS);
 
   const mostrarNav =
     usuario &&
@@ -254,6 +267,40 @@ function Header() {
                     >
                       <i className="bi bi-clipboard2-pulse me-2"></i>
                       Consultas
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {podeAtendimentosVeterinarios && (
+              <div
+                className="dropdown-container"
+                ref={atendimentosVeterinariosRef}
+              >
+                <button
+                  type="button"
+                  className={getDropdownToggleClass(
+                    isAtendimentosVeterinariosActive,
+                  )}
+                  onClick={atendimentosVeterinariosToggle}
+                  aria-expanded={atendimentosVeterinariosOpen}
+                  aria-haspopup="true"
+                >
+                  ATENDIMENTOS VETERINÁRIOS{" "}
+                  <i
+                    className={`bi bi-chevron-${atendimentosVeterinariosOpen ? "up" : "down"} ms-1`}
+                  ></i>
+                </button>
+                {atendimentosVeterinariosOpen && (
+                  <div className="dropdown-menu-custom">
+                    <Link
+                      to="/tipos-de-exames"
+                      className={`dropdown-item-custom ${path.startsWith("/tipos-de-exames") ? "active" : ""}`}
+                      onClick={atendimentosVeterinariosClose}
+                    >
+                      <i className="bi bi-clipboard2-pulse me-2"></i>
+                      Tipos de exames
                     </Link>
                   </div>
                 )}
