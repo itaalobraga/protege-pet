@@ -36,6 +36,8 @@ import CadastroDeDoacoes from "./pages/CadastroDeDoacoes/CadastroDeDoacoes.jsx";
 import ListaDeDoacoes from "./pages/ListaDeDoacoes/ListaDeDoacoes.jsx";
 import ListaDeMedicamentos from "./pages/ListaDeMedicamentos/ListaDeMedicamentos.jsx";
 import CadastroDeMedicamentos from "./pages/CadastroDeMedicamentos/CadastroDeMedicamentos.jsx";
+import ListaDeTiposDeExames from "./pages/ListaDeTiposDeExames/ListaDeTiposDeExames.jsx";
+import CadastroDeTiposDeExames from "./pages/CadastroDeTiposDeExames/CadastroDeTiposDeExames.jsx";
 import "./App.css";
 
 function App() {
@@ -186,6 +188,27 @@ function App() {
             >
               <Route path="/doacoes" element={<ListaDeDoacoes />} />
               <Route path="/doacoes/cadastro" element={<CadastroDeDoacoes />} />
+            </Route>
+
+            <Route
+              element={
+                <RotaComPermissao
+                  permissao={PERMISSOES.ATENDIMENTOS_VETERINARIOS}
+                />
+              }
+            >
+              <Route
+                path="/tipos-de-exames"
+                element={<ListaDeTiposDeExames />}
+              />
+              <Route
+                path="/tipos-de-exames/cadastro"
+                element={<CadastroDeTiposDeExames />}
+              />
+              <Route
+                path="/tipos-de-exames/cadastro/editar/:id"
+                element={<CadastroDeTiposDeExames />}
+              />
             </Route>
 
             <Route
