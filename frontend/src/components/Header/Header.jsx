@@ -74,6 +74,8 @@ function Header() {
   const podeAnimais = usuario && possuiPermissao(usuario, PERMISSOES.ANIMAIS);
   const podeProdutos = usuario && possuiPermissao(usuario, PERMISSOES.PRODUTOS);
   const podeDoacoes = usuario && possuiPermissao(usuario, PERMISSOES.DOACOES);
+  const podeMedicamentos =
+    usuario && possuiPermissao(usuario, PERMISSOES.MEDICAMENTOS);
 
   const mostrarNav =
     usuario &&
@@ -367,6 +369,15 @@ function Header() {
                 </div>
               )}
             </div>
+
+            {podeMedicamentos && (
+              <Link
+                to="/medicamentos"
+                className={getLinkClass("medicamentos")}
+              >
+                MEDICAMENTOS
+              </Link>
+            )}
 
             {podeDoacoes && (
               <div className="dropdown-container" ref={doacoesRef}>
