@@ -8,6 +8,7 @@ export const PERMISSOES = {
   DOACOES: "Gerenciar doações",
   MEDICAMENTOS: "Gerenciar medicamentos",
   ATENDIMENTOS_VETERINARIOS: "Gerenciar atendimentos veterinários",
+  PRESCRICOES_MINISTRACOES: "Gerenciar prescrições e ministrações",
 };
 
 export const ROTAS_INICIO = [
@@ -20,6 +21,7 @@ export const ROTAS_INICIO = [
   { permissao: PERMISSOES.DOACOES, path: "/doacoes" },
   { permissao: PERMISSOES.ATENDIMENTOS_VETERINARIOS, path: "/tipos-de-exames" },
   { permissao: PERMISSOES.MEDICAMENTOS, path: "/medicamentos" },
+  { permissao: PERMISSOES.PRESCRICOES_MINISTRACOES, path: "/prescricoes" },
 ];
 
 export function possuiPermissao(usuario, permissao) {

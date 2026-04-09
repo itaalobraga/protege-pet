@@ -70,7 +70,8 @@ function Header() {
   const isVeterinariosActive =
     isActive("veterinarios") || isActive("consultas");
 
-  const isAtendimentosVeterinariosActive = path.startsWith("/tipos-de-exames");
+  const isAtendimentosVeterinariosActive =
+    path.startsWith("/tipos-de-exames") || path.startsWith("/prescricoes");
 
   const isAdocaoActive = isActive("adocoes") || isActive("listar-adocoes");
 
@@ -89,6 +90,9 @@ function Header() {
   const podeAtendimentosVeterinarios =
     usuario &&
     possuiPermissao(usuario, PERMISSOES.ATENDIMENTOS_VETERINARIOS);
+  const podePrescricoesMinistracoes =
+    usuario &&
+    possuiPermissao(usuario, PERMISSOES.PRESCRICOES_MINISTRACOES);
 
   const mostrarNav =
     usuario &&
@@ -273,7 +277,7 @@ function Header() {
               </div>
             )}
 
-            {podeAtendimentosVeterinarios && (
+            {(podeAtendimentosVeterinarios || podePrescricoesMinistracoes) && (
               <div
                 className="dropdown-container"
                 ref={atendimentosVeterinariosRef}
@@ -294,14 +298,26 @@ function Header() {
                 </button>
                 {atendimentosVeterinariosOpen && (
                   <div className="dropdown-menu-custom">
-                    <Link
-                      to="/tipos-de-exames"
-                      className={`dropdown-item-custom ${path.startsWith("/tipos-de-exames") ? "active" : ""}`}
-                      onClick={atendimentosVeterinariosClose}
-                    >
-                      <i className="bi bi-clipboard2-pulse me-2"></i>
-                      Tipos de exames
-                    </Link>
+                    {podeAtendimentosVeterinarios && (
+                      <Link
+                        to="/tipos-de-exames"
+                        className={`dropdown-item-custom ${path.startsWith("/tipos-de-exames") ? "active" : ""}`}
+                        onClick={atendimentosVeterinariosClose}
+                      >
+                        <i className="bi bi-clipboard2-pulse me-2"></i>
+                        Tipos de exames
+                      </Link>
+                    )}
+                    {podePrescricoesMinistracoes && (
+                      <Link
+                        to="/prescricoes"
+                        className={`dropdown-item-custom ${path.startsWith("/prescricoes") ? "active" : ""}`}
+                        onClick={atendimentosVeterinariosClose}
+                      >
+                        <i className="bi bi-capsule-pill me-2"></i>
+                        Prescrições
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>

@@ -38,6 +38,10 @@ import ListaDeMedicamentos from "./pages/ListaDeMedicamentos/ListaDeMedicamentos
 import CadastroDeMedicamentos from "./pages/CadastroDeMedicamentos/CadastroDeMedicamentos.jsx";
 import ListaDeTiposDeExames from "./pages/ListaDeTiposDeExames/ListaDeTiposDeExames.jsx";
 import CadastroDeTiposDeExames from "./pages/CadastroDeTiposDeExames/CadastroDeTiposDeExames.jsx";
+import ListaDePrescricoes from "./pages/ListaDePrescricoes/ListaDePrescricoes.jsx";
+import CadastroDePrescricoes from "./pages/CadastroDePrescricoes/CadastroDePrescricoes.jsx";
+import ListaDeMinistracoes from "./pages/ListaDeMinistracoes/ListaDeMinistracoes.jsx";
+import CadastroDeMinistracoes from "./pages/CadastroDeMinistracoes/CadastroDeMinistracoes.jsx";
 import "./App.css";
 
 function App() {
@@ -222,6 +226,32 @@ function App() {
               <Route
                 path="/medicamentos/cadastro/editar/:id"
                 element={<CadastroDeMedicamentos />}
+              />
+            </Route>
+
+            <Route
+              element={
+                <RotaComPermissao
+                  permissao={PERMISSOES.PRESCRICOES_MINISTRACOES}
+                />
+              }
+            >
+              <Route path="/prescricoes" element={<ListaDePrescricoes />} />
+              <Route
+                path="/prescricoes/cadastro"
+                element={<CadastroDePrescricoes />}
+              />
+              <Route
+                path="/prescricoes/cadastro/editar/:id"
+                element={<CadastroDePrescricoes />}
+              />
+              <Route
+                path="/prescricoes/:prescricaoId/ministracoes"
+                element={<ListaDeMinistracoes />}
+              />
+              <Route
+                path="/prescricoes/:prescricaoId/ministracoes/nova"
+                element={<CadastroDeMinistracoes />}
               />
             </Route>
           </Route>
