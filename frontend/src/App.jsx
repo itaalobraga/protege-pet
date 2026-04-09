@@ -34,6 +34,8 @@ import ListaDeAdocoes from "./pages/ListaDeAdocoes/ListaDeAdocoes.jsx";
 import CadastroDeAdocoes from "./pages/CadastroDeAdocoes/CadastroDeAdocoes.jsx";
 import CadastroDeDoacoes from "./pages/CadastroDeDoacoes/CadastroDeDoacoes.jsx";
 import ListaDeDoacoes from "./pages/ListaDeDoacoes/ListaDeDoacoes.jsx";
+import ListaDeMedicamentos from "./pages/ListaDeMedicamentos/ListaDeMedicamentos.jsx";
+import CadastroDeMedicamentos from "./pages/CadastroDeMedicamentos/CadastroDeMedicamentos.jsx";
 import "./App.css";
 
 function App() {
@@ -184,6 +186,20 @@ function App() {
             >
               <Route path="/doacoes" element={<ListaDeDoacoes />} />
               <Route path="/doacoes/cadastro" element={<CadastroDeDoacoes />} />
+            </Route>
+
+            <Route
+              element={<RotaComPermissao permissao={PERMISSOES.MEDICAMENTOS} />}
+            >
+              <Route path="/medicamentos" element={<ListaDeMedicamentos />} />
+              <Route
+                path="/medicamentos/cadastro"
+                element={<CadastroDeMedicamentos />}
+              />
+              <Route
+                path="/medicamentos/cadastro/editar/:id"
+                element={<CadastroDeMedicamentos />}
+              />
             </Route>
           </Route>
         </Routes>
