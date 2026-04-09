@@ -18,6 +18,8 @@ import AdocaoRoutes from "./routes/AdocaoRoutes.js";
 import DoacaoRoutes from "./routes/DoacaoRoutes.js";
 import MedicamentoRoutes from "./routes/MedicamentoRoutes.js";
 import TipoExameRoutes from "./routes/TipoExameRoutes.js";
+import PrescricaoRoutes from "./routes/PrescricaoRoutes.js";
+import MinistracaoRoutes from "./routes/MinistracaoRoutes.js";
 
 dotenv.config();
 
@@ -72,6 +74,8 @@ app.use("/api", AdocaoRoutes);
 app.use("/api", DoacaoRoutes);
 app.use("/api", MedicamentoRoutes);
 app.use("/api", TipoExameRoutes);
+app.use("/api", PrescricaoRoutes);
+app.use("/api", MinistracaoRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "API ProtegePet está rodando" });

@@ -47,7 +47,8 @@ INSERT INTO permissoes (nome) VALUES
 ('Gerenciar adoções'),
 ('Gerenciar doações'),
 ('Gerenciar medicamentos'),
-('Gerenciar atendimentos veterinários');
+('Gerenciar atendimentos veterinários'),
+('Gerenciar prescrições e ministrações');
 
 CREATE TABLE IF NOT EXISTS funcoes (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -80,10 +81,10 @@ CREATE TABLE IF NOT EXISTS funcoes_permissoes (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 INSERT INTO funcoes_permissoes (funcao_id, permissao_id) VALUES
-(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9),
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10),
 (2, 2),
 (3, 3), (3, 5),
-(4, 4), (4, 5),
+(4, 4), (4, 5), (4, 10),
 (5, 5), (5, 3);
 
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -440,6 +441,53 @@ INSERT INTO medicamentos (nome, principio_ativo, dosagem, forma_farmaceutica, fa
 ('Vermífugo canino', 'Praziquantel + Febantel + Pirantel', 'comprimido único por faixa de peso', 'Comprimido mastigável', 'Merial', 'Tratamento de vermes intestinais e teníase'),
 ('Carprofeno 25mg', 'Carprofeno', '25mg', 'Comprimido', 'Zoetis', 'Anti-inflamatório não esteroidal para dor pós-operatória'),
 ('Shampoo dermatológico', NULL, '250ml', 'Shampoo', 'Virbac', 'Uso tópico; auxilia em dermatites e prurido leve');
+
+CREATE TABLE IF NOT EXISTS prescricoes (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  consulta_id INT NOT NULL,
+  medicamento_id INT NOT NULL,
+  dosagem VARCHAR(120) NOT NULL,
+  frequencia VARCHAR(120) NOT NULL,
+  duracao_dias INT NOT NULL,
+  observacao TEXT,
+  status ENUM('ATIVA', 'ENCERRADA', 'CANCELADA') NOT NULL DEFAULT 'ATIVA',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_prescricao_consulta
+    FOREIGN KEY (consulta_id) REFERENCES consultas_veterinarias(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_prescricao_medicamento
+    FOREIGN KEY (medicamento_id) REFERENCES medicamentos(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_prescricao_consulta ON prescricoes(consulta_id);
+CREATE INDEX idx_prescricao_status ON prescricoes(status);
+CREATE INDEX idx_prescricao_consulta_periodo ON prescricoes(consulta_id, created_at);
+
+CREATE TABLE IF NOT EXISTS ministracoes (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  prescricao_id INT NOT NULL,
+  quantidade_aplicada INT NOT NULL,
+  data_hora DATETIME NOT NULL,
+  responsavel_id INT NOT NULL,
+  observacao TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_ministracao_prescricao
+    FOREIGN KEY (prescricao_id) REFERENCES prescricoes(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_ministracao_responsavel
+    FOREIGN KEY (responsavel_id) REFERENCES veterinarios(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_ministracao_prescricao ON ministracoes(prescricao_id);
+CREATE INDEX idx_ministracao_periodo ON ministracoes(data_hora);
+CREATE INDEX idx_ministracao_prescricao_periodo ON ministracoes(prescricao_id, data_hora);
 
 CREATE TABLE IF NOT EXISTS tipos_exames (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
