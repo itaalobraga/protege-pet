@@ -1,6 +1,7 @@
 import express from "express";
 import DiagnosticoController from "../controllers/DiagnosticoController.js";
-import { verificarToken, exigirPermissao } from "../middlewares/authJwt.js";
+import { authJwt as verificarToken } from "../middlewares/authJwt.js";
+import { exigirPermissao } from "../middlewares/exigirPermissao.js";
 
 const router = express.Router();
 router.use(verificarToken);
