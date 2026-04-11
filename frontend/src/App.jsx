@@ -44,6 +44,8 @@ import ListaDeMinistracoes from "./pages/ListaDeMinistracoes/ListaDeMinistracoes
 import CadastroDeMinistracoes from "./pages/CadastroDeMinistracoes/CadastroDeMinistracoes.jsx";
 import ListaDeDiagnosticos from "./pages/ListaDeDiagnosticos/ListaDeDiagnosticos.jsx";
 import CadastroDeDiagnosticos from "./pages/CadastroDeDiagnosticos/CadastroDeDiagnosticos.jsx";
+import ListaDeAtendimentos from './pages/ListaDeAtendimentos/ListaDeAtendimentos';
+import CadastroDeAtendimentos from './pages/CadastroDeAtendimentos/CadastroDeAtendimentos';
 import "./App.css";
 
 function App() {
