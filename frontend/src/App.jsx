@@ -42,6 +42,10 @@ import ListaDePrescricoes from "./pages/ListaDePrescricoes/ListaDePrescricoes.js
 import CadastroDePrescricoes from "./pages/CadastroDePrescricoes/CadastroDePrescricoes.jsx";
 import ListaDeMinistracoes from "./pages/ListaDeMinistracoes/ListaDeMinistracoes.jsx";
 import CadastroDeMinistracoes from "./pages/CadastroDeMinistracoes/CadastroDeMinistracoes.jsx";
+import ListaDeDiagnosticos from "./pages/ListaDeDiagnosticos/ListaDeDiagnosticos.jsx";
+import CadastroDeDiagnosticos from "./pages/CadastroDeDiagnosticos/CadastroDeDiagnosticos.jsx";
+import ListaDeAtendimentos from './pages/ListaDeAtendimentos/ListaDeAtendimentos';
+import CadastroDeAtendimentos from './pages/CadastroDeAtendimentos/CadastroDeAtendimentos';
 import "./App.css";
 
 function App() {
@@ -227,6 +231,12 @@ function App() {
                 path="/medicamentos/cadastro/editar/:id"
                 element={<CadastroDeMedicamentos />}
               />
+              <Route path="/atendimentos"
+              element={<ListaDeAtendimentos />} 
+              />
+              <Route path="/atendimentos/cadastro"
+              element={<CadastroDeAtendimentos />}
+              />
             </Route>
 
             <Route
@@ -253,6 +263,10 @@ function App() {
                 path="/prescricoes/:prescricaoId/ministracoes/nova"
                 element={<CadastroDeMinistracoes />}
               />
+              <Route element={<RotaComPermissao permissao={PERMISSOES.DIAGNOSTICOS} />}>
+              <Route path="/diagnosticos" element={<ListaDeDiagnosticos />} />
+              <Route path="/diagnosticos/cadastro" element={<CadastroDeDiagnosticos />} />
+            </Route>
             </Route>
           </Route>
         </Routes>
