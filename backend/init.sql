@@ -309,8 +309,6 @@ CREATE TABLE IF NOT EXISTS consultas_veterinarias (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   veterinario_id INT NOT NULL,
   animal_id INT NOT NULL,
-  diagnostico_id INT, 
-  peso DECIMAL(5,2),
   data_consulta DATETIME NOT NULL,
   observacao TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -321,7 +319,6 @@ CREATE TABLE IF NOT EXISTS consultas_veterinarias (
 
 CREATE INDEX idx_consulta_veterinario_data ON consultas_veterinarias(veterinario_id, data_consulta);
 CREATE INDEX idx_consulta_animal_data ON consultas_veterinarias(animal_id, data_consulta);
-CREATE INDEX idx_consulta_diagnostico ON consultas_veterinarias(diagnostico_id);
 
 CREATE TABLE IF NOT EXISTS movimentacoes_estoque (
   id VARCHAR(36) PRIMARY KEY,
@@ -515,15 +512,31 @@ CREATE TABLE diagnosticos (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-ALTER TABLE consultas_veterinarias
-  ADD CONSTRAINT fk_consulta_diagnostico
-  FOREIGN KEY (diagnostico_id) REFERENCES diagnosticos(id)
-  ON DELETE RESTRICT;
-
-CREATE TABLE IF NOT EXISTS consulta_exames (
+CREATE TABLE IF NOT EXISTS atendimentos (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   consulta_id INT NOT NULL,
+  peso DECIMAL(5,2),
+  diagnostico_id INT,
+  observacao TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_atendimento_consulta (consulta_id),
+  CONSTRAINT fk_atendimento_consulta
+    FOREIGN KEY (consulta_id) REFERENCES consultas_veterinarias(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_atendimento_diagnostico
+    FOREIGN KEY (diagnostico_id) REFERENCES diagnosticos(id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_atendimento_diagnostico ON atendimentos(diagnostico_id);
+
+CREATE TABLE IF NOT EXISTS atendimento_exames (
+  atendimento_id INT NOT NULL,
   tipo_exame_id INT NOT NULL,
-  PRIMARY KEY (consulta_id, tipo_exame_id),
-  FOREIGN KEY (consulta_id) REFERENCES consultas_veterinarias(id) ON DELETE CASCADE,
+  PRIMARY KEY (atendimento_id, tipo_exame_id),
+  FOREIGN KEY (atendimento_id) REFERENCES atendimentos(id) ON DELETE CASCADE,
   FOREIGN KEY (tipo_exame_id) REFERENCES tipos_exames(id) ON DELETE RESTRICT
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

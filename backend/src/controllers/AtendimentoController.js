@@ -1,7 +1,21 @@
 import AtendimentoModel from "../models/AtendimentoModel.js";
+import ConsultaVeterinariaModel from "../models/ConsultaVeterinariaModel.js";
+import ConsultaVeterinariaController from "./ConsultaVeterinariaController.js";
 import pool from "../config/database.js";
 
 class AtendimentoController {
+  static async listarConsultasSemAtendimento(req, res) {
+    try {
+      const consultas = await ConsultaVeterinariaModel.listar({
+        sem_atendimento: true,
+      });
+      res.json(consultas);
+    } catch (error) {
+      console.error("Erro ao listar consultas disponíveis:", error);
+      res.status(500).json({ error: "Erro ao carregar consultas disponíveis" });
+    }
+  }
+
   static async listar(req, res) {
     try {
       const atendimentos = await AtendimentoModel.listarTodos();
@@ -38,29 +52,81 @@ class AtendimentoController {
       await connection.beginTransaction();
 
       const {
+        consulta_id,
         animal_id,
         veterinario_id,
+        data_consulta,
+        observacao_agenda,
         diagnostico_id,
         peso,
         observacoes,
         exames,
-        data_atendimento,
       } = req.body;
 
-      if (!animal_id || !veterinario_id) {
+      let consultaIdFinal = consulta_id != null ? Number(consulta_id) : null;
+
+      if (
+        consultaIdFinal &&
+        (!Number.isInteger(consultaIdFinal) || consultaIdFinal < 1)
+      ) {
+        await connection.rollback();
         return res
           .status(400)
-          .json({ error: "Selecione o Animal e o Veterinário responsável." });
+          .json({ error: "Identificador de consulta inválido" });
+      }
+
+      if (consultaIdFinal) {
+        const [existente] = await connection.query(
+          "SELECT id FROM atendimentos WHERE consulta_id = ? LIMIT 1",
+          [consultaIdFinal],
+        );
+        if (existente.length > 0) {
+          await connection.rollback();
+          return res.status(409).json({
+            error: "Esta consulta já possui um atendimento clínico registrado.",
+          });
+        }
+        const consulta =
+          await ConsultaVeterinariaModel.buscarPorId(consultaIdFinal);
+        if (!consulta) {
+          await connection.rollback();
+          return res.status(404).json({ error: "Consulta não encontrada" });
+        }
+      } else {
+        if (!animal_id || !veterinario_id || !data_consulta) {
+          await connection.rollback();
+          return res.status(400).json({
+            error:
+              "Informe uma consulta já agendada (consulta_id) ou os dados para agendar (animal_id, veterinario_id, data_consulta).",
+          });
+        }
+
+        const criacao =
+          await ConsultaVeterinariaController.criarConsultaValidada(
+            {
+              veterinario_id,
+              animal_id,
+              data_consulta,
+              observacao: observacao_agenda ?? null,
+            },
+            false,
+            connection,
+          );
+
+        if (!criacao.ok) {
+          await connection.rollback();
+          return res.status(criacao.status).json(criacao.payload);
+        }
+
+        consultaIdFinal = criacao.consulta.id;
       }
 
       const novoAtendimento = await AtendimentoModel.registrar(
         {
-          animal_id,
-          veterinario_id,
+          consulta_id: consultaIdFinal,
           diagnostico_id,
           peso,
           observacoes,
-          data_atendimento,
         },
         exames,
         connection,
@@ -99,11 +165,11 @@ class AtendimentoController {
       const {
         animal_id,
         veterinario_id,
+        data_atendimento,
         diagnostico_id,
         peso,
         observacoes,
         exames,
-        data_atendimento,
       } = req.body;
 
       if (!animal_id || !veterinario_id) {
@@ -113,15 +179,53 @@ class AtendimentoController {
           .json({ error: "Selecione o Animal e o Veterinário responsável." });
       }
 
+      const dataConsultaStr =
+        data_atendimento ||
+        new Date().toISOString().slice(0, 19).replace("T", " ");
+
+      const consultaId = existente.consulta_id;
+
+      const okDisp =
+        await ConsultaVeterinariaController.validarDisponibilidadeConsulta(
+          veterinario_id,
+          dataConsultaStr,
+        );
+
+      if (!okDisp) {
+        await connection.rollback();
+        return res.status(400).json({
+          error: "Data da consulta fora da disponibilidade do veterinário",
+        });
+      }
+
+      const conflito = await ConsultaVeterinariaModel.existeConflitoDiferente(
+        {
+          id: consultaId,
+          veterinario_id,
+          data_consulta: dataConsultaStr,
+        },
+        connection,
+      );
+
+      if (conflito) {
+        await connection.rollback();
+        return res.status(409).json({
+          error:
+            "Já existe consulta agendada para este veterinário neste horário",
+        });
+      }
+
       const ok = await AtendimentoModel.atualizar(
         id,
         {
           animal_id,
           veterinario_id,
+          data_consulta: dataConsultaStr,
+        },
+        {
           diagnostico_id,
           peso,
           observacoes,
-          data_atendimento,
         },
         exames,
         connection,

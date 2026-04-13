@@ -134,6 +134,16 @@ function DetalhesAtendimento() {
               <Row>
                 <Col md={6}>
                   <div className="mb-4">
+                    <div className="text-secondary small mb-1">Consulta (agenda)</div>
+                    <div className="fw-semibold">
+                      {atendimento.consulta_id != null
+                        ? `#${atendimento.consulta_id}`
+                        : "-"}
+                    </div>
+                  </div>
+                </Col>
+                <Col md={6}>
+                  <div className="mb-4">
                     <div className="text-secondary small mb-1">Data e hora</div>
                     <div className="fw-semibold">
                       {formatarDataHora(atendimento.data_atendimento)}
@@ -190,7 +200,17 @@ function DetalhesAtendimento() {
                 </Col>
                 <Col md={12}>
                   <div className="mb-4">
-                    <div className="text-secondary small mb-1">Observações</div>
+                    <div className="text-secondary small mb-1">Observação da agenda</div>
+                    <div className="fw-semibold">
+                      {atendimento.observacao_agenda || (
+                        <span className="text-muted">Nenhuma</span>
+                      )}
+                    </div>
+                  </div>
+                </Col>
+                <Col md={12}>
+                  <div className="mb-4">
+                    <div className="text-secondary small mb-1">Observações (prontuário)</div>
                     <div className="fw-semibold">
                       {atendimento.observacoes || "-"}
                     </div>
