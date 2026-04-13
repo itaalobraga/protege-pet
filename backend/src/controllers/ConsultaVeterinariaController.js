@@ -13,13 +13,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 class ConsultaVeterinariaController {
   static async listar(req, res) {
     try {
-      const { veterinario_id, animal_id, inicio, fim } = req.query;
+      const { veterinario_id, animal_id, inicio, fim, sem_atendimento } =
+        req.query;
 
       const consultas = await ConsultaVeterinariaModel.listar({
         veterinario_id,
         animal_id,
         inicio,
         fim,
+        sem_atendimento:
+          sem_atendimento === "1" ||
+          sem_atendimento === "true" ||
+          sem_atendimento === "yes",
       });
 
       res.json(consultas);
@@ -45,56 +50,93 @@ class ConsultaVeterinariaController {
     }
   }
 
-  static async criar(req, res) {
-    try {
-      const { veterinario_id, animal_id, data_consulta, observacao } = req.body;
+  static async criarConsultaValidada(
+    body,
+    enviarNotificacao = true,
+    connection = null,
+  ) {
+    const { veterinario_id, animal_id, data_consulta, observacao } = body;
 
-      if (!veterinario_id || !animal_id || !data_consulta) {
-        return res.status(400).json({
+    if (!veterinario_id || !animal_id || !data_consulta) {
+      return {
+        ok: false,
+        status: 400,
+        payload: {
           error: "veterinario_id, animal_id e data_consulta são obrigatórios",
-        });
-      }
+        },
+      };
+    }
 
-      const veterinario = await VeterinarioModel.buscarPorId(veterinario_id);
-      if (!veterinario) {
-        return res.status(404).json({ error: "Veterinário não encontrado" });
-      }
+    const veterinario = await VeterinarioModel.buscarPorId(veterinario_id);
+    if (!veterinario) {
+      return {
+        ok: false,
+        status: 404,
+        payload: { error: "Veterinário não encontrado" },
+      };
+    }
 
-      const animal = await AnimalModel.buscarPorId(animal_id);
-      if (!animal) {
-        return res.status(404).json({ error: "Animal não encontrado" });
-      }
+    const animal = await AnimalModel.buscarPorId(animal_id);
+    if (!animal) {
+      return {
+        ok: false,
+        status: 404,
+        payload: { error: "Animal não encontrado" },
+      };
+    }
 
-      const dentroDaDisponibilidade = await ConsultaVeterinariaController.#validarDisponibilidade(
-        veterinario_id,
-        data_consulta
-      );
-
-      if (!dentroDaDisponibilidade) {
-        return res.status(400).json({
-          error: "Data da consulta fora da disponibilidade do veterinário",
-        });
-      }
-
-      const conflito = await ConsultaVeterinariaModel.existeConflito({
+    const dentroDaDisponibilidade =
+      await ConsultaVeterinariaController.#validarDisponibilidade(
         veterinario_id,
         data_consulta,
-      });
+      );
 
-      if (conflito) {
-        return res.status(409).json({
-          error: "Já existe consulta agendada para este veterinário neste horário",
-        });
-      }
+    if (!dentroDaDisponibilidade) {
+      return {
+        ok: false,
+        status: 400,
+        payload: {
+          error: "Data da consulta fora da disponibilidade do veterinário",
+        },
+      };
+    }
 
-      const consulta = await ConsultaVeterinariaModel.criar({
+    const conflito = await ConsultaVeterinariaModel.existeConflito(
+      {
+        veterinario_id,
+        data_consulta,
+      },
+      connection,
+    );
+
+    if (conflito) {
+      return {
+        ok: false,
+        status: 409,
+        payload: {
+          error:
+            "Já existe consulta agendada para este veterinário neste horário",
+        },
+      };
+    }
+
+    const consulta = await ConsultaVeterinariaModel.criar(
+      {
         veterinario_id,
         animal_id,
         data_consulta,
         observacao: observacao || null,
-      });
+      },
+      connection,
+    );
 
-      const templatePath = path.join(__dirname, "..", "templates", "consulta_agendada.hbs");
+    if (enviarNotificacao) {
+      const templatePath = path.join(
+        __dirname,
+        "..",
+        "templates",
+        "consulta_agendada.hbs",
+      );
       const template = fs.readFileSync(templatePath, "utf8");
 
       await EmailService.sendTemplate({
@@ -104,12 +146,33 @@ class ConsultaVeterinariaController {
         data: {
           veterinario_nome: `${veterinario.nome} ${veterinario.sobrenome}`,
           animal_nome: animal.nome,
-          data_consulta: ConsultaVeterinariaController.#formatarDataBrasileira(data_consulta),
+          data_consulta:
+            ConsultaVeterinariaController.#formatarDataBrasileira(
+              data_consulta,
+            ),
           observacao: observacao || "",
         },
       });
+    }
 
-      res.status(201).json(consulta);
+    return { ok: true, consulta };
+  }
+
+  static async criar(req, res) {
+    try {
+      const enviarNotificacao = req.body.enviar_notificacao !== false;
+      const resultado =
+        await ConsultaVeterinariaController.criarConsultaValidada(
+          req.body,
+          enviarNotificacao,
+          null,
+        );
+
+      if (!resultado.ok) {
+        return res.status(resultado.status).json(resultado.payload);
+      }
+
+      res.status(201).json(resultado.consulta);
     } catch (error) {
       console.error("Erro ao criar consulta:", error);
       res.status(500).json({ error: "Erro ao criar consulta" });
@@ -142,10 +205,11 @@ class ConsultaVeterinariaController {
         return res.status(404).json({ error: "Animal não encontrado" });
       }
 
-      const dentroDaDisponibilidade = await ConsultaVeterinariaController.#validarDisponibilidade(
-        veterinario_id,
-        data_consulta
-      );
+      const dentroDaDisponibilidade =
+        await ConsultaVeterinariaController.#validarDisponibilidade(
+          veterinario_id,
+          data_consulta,
+        );
 
       if (!dentroDaDisponibilidade) {
         return res.status(400).json({
@@ -161,7 +225,8 @@ class ConsultaVeterinariaController {
 
       if (conflito) {
         return res.status(409).json({
-          error: "Já existe consulta agendada para este veterinário neste horário",
+          error:
+            "Já existe consulta agendada para este veterinário neste horário",
         });
       }
 
@@ -172,7 +237,12 @@ class ConsultaVeterinariaController {
         observacao: observacao || null,
       });
 
-      const templatePath = path.join(__dirname, "..", "templates", "consulta_atualizada.hbs");
+      const templatePath = path.join(
+        __dirname,
+        "..",
+        "templates",
+        "consulta_atualizada.hbs",
+      );
       const template = fs.readFileSync(templatePath, "utf8");
 
       await EmailService.sendTemplate({
@@ -182,7 +252,10 @@ class ConsultaVeterinariaController {
         data: {
           veterinario_nome: `${veterinario.nome} ${veterinario.sobrenome}`,
           animal_nome: animal.nome,
-          data_consulta: ConsultaVeterinariaController.#formatarDataBrasileira(data_consulta),
+          data_consulta:
+            ConsultaVeterinariaController.#formatarDataBrasileira(
+              data_consulta,
+            ),
           observacao: observacao || "",
         },
       });
@@ -203,12 +276,35 @@ class ConsultaVeterinariaController {
         return res.status(404).json({ error: "Consulta não encontrada" });
       }
 
+      const nAtend =
+        await ConsultaVeterinariaModel.contarAtendimentosPorConsulta(id);
+      if (nAtend > 0) {
+        return res.status(409).json({
+          error:
+            "Não é possível excluir: existe atendimento clínico vinculado a esta consulta. Remova ou ajuste o atendimento antes.",
+        });
+      }
+
+      const nPresc =
+        await ConsultaVeterinariaModel.contarPrescricoesPorConsulta(id);
+      if (nPresc > 0) {
+        return res.status(409).json({
+          error:
+            "Não é possível excluir: existem prescrições vinculadas a esta consulta.",
+        });
+      }
+
       const sucesso = await ConsultaVeterinariaModel.excluir(id);
       if (!sucesso) {
         return res.status(500).json({ error: "Erro ao excluir consulta" });
       }
 
-      const templatePath = path.join(__dirname, "..", "templates", "consulta_cancelada.hbs");
+      const templatePath = path.join(
+        __dirname,
+        "..",
+        "templates",
+        "consulta_cancelada.hbs",
+      );
       const template = fs.readFileSync(templatePath, "utf8");
 
       await EmailService.sendTemplate({
@@ -218,7 +314,9 @@ class ConsultaVeterinariaController {
         data: {
           veterinario_nome: `${existente.veterinario_nome} ${existente.veterinario_sobrenome}`,
           animal_nome: existente.animal_nome,
-          data_consulta: ConsultaVeterinariaController.#formatarDataBrasileira(existente.data_consulta),
+          data_consulta: ConsultaVeterinariaController.#formatarDataBrasileira(
+            existente.data_consulta,
+          ),
           observacao: existente.observacao || "",
         },
       });
@@ -230,12 +328,28 @@ class ConsultaVeterinariaController {
     }
   }
 
+  /** Validação de agenda reutilizada pelo fluxo de atendimento (atualização de data/horário). */
+  static async validarDisponibilidadeConsulta(
+    veterinario_id,
+    dataConsultaMysql,
+  ) {
+    return ConsultaVeterinariaController.#validarDisponibilidade(
+      veterinario_id,
+      dataConsultaMysql,
+    );
+  }
+
   static async #validarDisponibilidade(veterinario_id, dataConsultaMysql) {
-    const slots = await VeterinarioDisponibilidadeModel.listarSlots(veterinario_id);
+    const slots =
+      await VeterinarioDisponibilidadeModel.listarSlots(veterinario_id);
     if (!Array.isArray(slots) || slots.length === 0) return false;
 
-    const dow = ConsultaVeterinariaController.#dowMysqlLikeFromMysqlDateTime(dataConsultaMysql);
-    const hhmm = ConsultaVeterinariaController.#hhmmFromMysqlDateTime(dataConsultaMysql);
+    const dow =
+      ConsultaVeterinariaController.#dowMysqlLikeFromMysqlDateTime(
+        dataConsultaMysql,
+      );
+    const hhmm =
+      ConsultaVeterinariaController.#hhmmFromMysqlDateTime(dataConsultaMysql);
 
     for (const slot of slots) {
       if (Number(slot.dow) !== dow) continue;

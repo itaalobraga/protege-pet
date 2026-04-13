@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button, Card, Container, Form, Row, Col, Spinner } from "react-bootstrap";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
+import { format, isValid, parse } from "date-fns";
 import Header from "src/components/Header/Header.jsx";
 import ApiService from "../../services/ApiService";
 
@@ -11,6 +12,19 @@ function formatarDataParaDatetimeLocal(valor) {
   const s = String(valor).replace(" ", "T");
   if (s.length >= 16) return s.slice(0, 16);
   return s;
+}
+
+function toMysqlDateTimeFromDatetimeLocal(datetimeLocal) {
+  const dt = parse(String(datetimeLocal ?? ""), "yyyy-MM-dd'T'HH:mm", new Date(0));
+  if (!isValid(dt)) return null;
+  return format(dt, "yyyy-MM-dd HH:mm:ss");
+}
+
+function formatarDataConsultaOpcao(mysql) {
+  if (!mysql) return "";
+  const dt = parse(String(mysql).replace(" ", "T"), "yyyy-MM-dd'T'HH:mm:ss", new Date(0));
+  if (!isValid(dt)) return String(mysql);
+  return format(dt, "dd/MM/yyyy HH:mm");
 }
 
 function CadastroDeAtendimentos() {
@@ -25,7 +39,12 @@ function CadastroDeAtendimentos() {
   const [veterinarios, setVeterinarios] = useState([]);
   const [diagnosticos, setDiagnosticos] = useState([]);
   const [tiposExames, setTiposExames] = useState([]);
+  const [consultasSemAtendimento, setConsultasSemAtendimento] = useState([]);
   const [loadingDados, setLoadingDados] = useState(true);
+
+  const [modoConsulta, setModoConsulta] = useState("existente");
+  const [consultaId, setConsultaId] = useState("");
+  const [observacaoAgenda, setObservacaoAgenda] = useState("");
 
   const [animalId, setAnimalId] = useState("");
   const [veterinarioId, setVeterinarioId] = useState("");
@@ -34,6 +53,7 @@ function CadastroDeAtendimentos() {
   const [dataAtendimento, setDataAtendimento] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [examesSelecionados, setExamesSelecionados] = useState([]);
+  const [consultaIdVinculoEdicao, setConsultaIdVinculoEdicao] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -52,24 +72,31 @@ function CadastroDeAtendimentos() {
     async function carregar() {
       setLoadingDados(true);
       try {
-        const [resAnimais, resVeterinarios, resDiagnosticos, resExames] =
-          await Promise.all([
-            ApiService.get("/animais"),
-            ApiService.get("/veterinarios"),
-            ApiService.get("/diagnosticos"),
-            ApiService.get("/tipos-de-exames"),
-          ]);
+        const reqs = [
+          ApiService.get("/animais"),
+          ApiService.get("/veterinarios"),
+          ApiService.get("/diagnosticos"),
+          ApiService.get("/tipos-de-exames"),
+        ];
+        if (!isEdit) {
+          reqs.push(ApiService.get("/atendimentos/consultas-sem-atendimento"));
+        }
 
+        const results = await Promise.all(reqs);
         if (cancelado) return;
 
-        setAnimais(resAnimais || []);
-        setVeterinarios(resVeterinarios || []);
-        setDiagnosticos(resDiagnosticos || []);
-        setTiposExames(resExames || []);
+        setAnimais(results[0] || []);
+        setVeterinarios(results[1] || []);
+        setDiagnosticos(results[2] || []);
+        setTiposExames(results[3] || []);
+        if (!isEdit) {
+          setConsultasSemAtendimento(results[4] || []);
+        }
 
         if (isEdit && atendimentoId) {
           const at = await ApiService.get(`/atendimentos/${atendimentoId}`);
           if (cancelado) return;
+          setConsultaIdVinculoEdicao(at.consulta_id ?? null);
           setAnimalId(String(at.animal_id ?? ""));
           setVeterinarioId(String(at.veterinario_id ?? ""));
           setDiagnosticoId(
@@ -132,28 +159,76 @@ function CadastroDeAtendimentos() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!animalId || !veterinarioId) {
-      exibirToast("Animal e Veterinário são obrigatórios.", "danger");
+
+    if (!isEdit) {
+      if (modoConsulta === "existente") {
+        if (!consultaId) {
+          exibirToast("Selecione uma consulta da agenda ou crie uma nova.", "danger");
+          return;
+        }
+      } else if (!animalId || !veterinarioId) {
+        exibirToast("Animal e veterinário são obrigatórios para agendar.", "danger");
+        return;
+      }
+    } else if (!animalId || !veterinarioId) {
+      exibirToast("Animal e veterinário são obrigatórios.", "danger");
       return;
+    }
+
+    if (!isEdit && modoConsulta === "nova") {
+      const dataMysql = toMysqlDateTimeFromDatetimeLocal(dataAtendimento);
+      if (!dataMysql) {
+        exibirToast("Informe uma data e hora válidas para a consulta.", "danger");
+        return;
+      }
+    }
+
+    if (isEdit) {
+      if (!dataAtendimento) {
+        exibirToast("Informe a data e hora da consulta.", "danger");
+        return;
+      }
     }
 
     setLoading(true);
     try {
-      const payload = {
-        animal_id: animalId,
-        veterinario_id: veterinarioId,
+      const exames = examesSelecionados;
+      const baseClinico = {
         diagnostico_id: diagnosticoId || null,
         peso: peso ? parseFloat(peso) : null,
-        data_atendimento: dataAtendimento.replace("T", " ") + ":00",
         observacoes,
-        exames: examesSelecionados,
+        exames,
       };
 
       if (isEdit) {
+        const payload = {
+          animal_id: Number(animalId),
+          veterinario_id: Number(veterinarioId),
+          data_atendimento: toMysqlDateTimeFromDatetimeLocal(dataAtendimento),
+          ...baseClinico,
+        };
+        if (!payload.data_atendimento) {
+          exibirToast("Data e hora inválidas.", "danger");
+          setLoading(false);
+          return;
+        }
         await ApiService.put(`/atendimentos/${atendimentoId}`, payload);
         exibirToast("Atendimento atualizado com sucesso!", "success");
+      } else if (modoConsulta === "existente") {
+        await ApiService.post("/atendimentos", {
+          consulta_id: Number(consultaId),
+          ...baseClinico,
+        });
+        exibirToast("Atendimento registrado com sucesso!", "success");
       } else {
-        await ApiService.post("/atendimentos", payload);
+        const dataMysql = toMysqlDateTimeFromDatetimeLocal(dataAtendimento);
+        await ApiService.post("/atendimentos", {
+          animal_id: Number(animalId),
+          veterinario_id: Number(veterinarioId),
+          data_consulta: dataMysql,
+          observacao_agenda: observacaoAgenda.trim() || null,
+          ...baseClinico,
+        });
         exibirToast("Atendimento registrado com sucesso!", "success");
       }
       setTimeout(() => navigate("/atendimentos"), 1500);
@@ -190,67 +265,159 @@ function CadastroDeAtendimentos() {
               </h3>
               <p className="text-muted mb-4">
                 {isEdit
-                  ? "Altere os dados da consulta, peso, diagnóstico e exames solicitados."
-                  : "Registre a consulta, peso, diagnóstico e solicite exames."}
+                  ? "Altere data da consulta na agenda, peso, diagnóstico e exames. As observações abaixo são do prontuário clínico."
+                  : "Vincule o atendimento a uma consulta já agendada ou crie o agendamento aqui (sem enviar e-mail ao veterinário). Em seguida registre peso, diagnóstico e exames."}
               </p>
 
               <Form onSubmit={handleSubmit}>
+                {!isEdit && (
+                  <Row className="mb-4">
+                    <Col md={12}>
+                      <Form.Label className="fw-semibold d-block mb-2">
+                        Consulta na agenda
+                      </Form.Label>
+                      <div className="d-flex flex-wrap gap-4">
+                        <Form.Check
+                          type="radio"
+                          id="modo-consulta-existente"
+                          name="modoConsulta"
+                          label="Usar consulta já cadastrada"
+                          checked={modoConsulta === "existente"}
+                          onChange={() => setModoConsulta("existente")}
+                        />
+                        <Form.Check
+                          type="radio"
+                          id="modo-consulta-nova"
+                          name="modoConsulta"
+                          label="Criar nova consulta (sem notificação por e-mail)"
+                          checked={modoConsulta === "nova"}
+                          onChange={() => setModoConsulta("nova")}
+                        />
+                      </div>
+                      <Form.Text className="text-muted">
+                        Ao criar nova consulta por este fluxo, o sistema não envia e-mail de agendamento.
+                      </Form.Text>
+                    </Col>
+                  </Row>
+                )}
+
+                {isEdit && consultaIdVinculoEdicao != null && (
+                  <Row className="mb-3">
+                    <Col>
+                      <div className="small text-muted">
+                        Vinculado à consulta da agenda{" "}
+                        <span className="fw-semibold">#{consultaIdVinculoEdicao}</span>
+                      </div>
+                    </Col>
+                  </Row>
+                )}
+
+                {!isEdit && modoConsulta === "existente" && (
+                  <Row>
+                    <Col md={12} className="mb-3">
+                      <Form.Group>
+                        <Form.Label>
+                          Selecione a consulta <span className="text-danger">*</span>
+                        </Form.Label>
+                        <Form.Select
+                          value={consultaId}
+                          onChange={(e) => setConsultaId(e.target.value)}
+                          required={modoConsulta === "existente"}
+                        >
+                          <option value="">Escolha um horário agendado sem atendimento…</option>
+                          {consultasSemAtendimento.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              #{c.id} — {c.animal_nome} — Dr(a). {c.veterinario_nome}{" "}
+                              {c.veterinario_sobrenome || ""} —{" "}
+                              {formatarDataConsultaOpcao(c.data_consulta)}
+                            </option>
+                          ))}
+                        </Form.Select>
+                        {consultasSemAtendimento.length === 0 && (
+                          <Form.Text className="text-warning">
+                            Não há consultas livres. Use &quot;Criar nova consulta&quot; ou cadastre
+                            um horário na agenda de consultas.
+                          </Form.Text>
+                        )}
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                )}
+
+                {(isEdit || modoConsulta === "nova") && (
+                  <Row>
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>
+                          Paciente (animal) <span className="text-danger">*</span>
+                        </Form.Label>
+                        <Form.Select
+                          value={animalId}
+                          onChange={(e) => setAnimalId(e.target.value)}
+                          required
+                        >
+                          <option value="">Selecione o animal…</option>
+                          {animais.map((a) => (
+                            <option key={a.id} value={a.id}>
+                              {a.nome} ({a.especie})
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>
+                          Veterinário responsável{" "}
+                          <span className="text-danger">*</span>
+                        </Form.Label>
+                        <Form.Select
+                          value={veterinarioId}
+                          onChange={(e) => setVeterinarioId(e.target.value)}
+                          required
+                        >
+                          <option value="">Selecione o veterinário…</option>
+                          {veterinarios.map((v) => (
+                            <option key={v.id} value={v.id}>
+                              Dr(a). {v.nome}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </Form.Group>
+                    </Col>
+
+                    <Col md={6}>
+                      <Form.Group className="mb-3">
+                        <Form.Label>
+                          Data e hora da consulta{" "}
+                          <span className="text-danger">*</span>
+                        </Form.Label>
+                        <Form.Control
+                          type="datetime-local"
+                          value={dataAtendimento}
+                          onChange={(e) => setDataAtendimento(e.target.value)}
+                          required
+                        />
+                      </Form.Group>
+                    </Col>
+
+                    {!isEdit && modoConsulta === "nova" && (
+                      <Col md={6}>
+                        <Form.Group className="mb-3">
+                          <Form.Label>Observação da agenda (opcional)</Form.Label>
+                          <Form.Control
+                            value={observacaoAgenda}
+                            onChange={(e) => setObservacaoAgenda(e.target.value)}
+                            placeholder="Ex.: retorno, jejum, etc."
+                          />
+                        </Form.Group>
+                      </Col>
+                    )}
+                  </Row>
+                )}
+
                 <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        Paciente (animal) <span className="text-danger">*</span>
-                      </Form.Label>
-                      <Form.Select
-                        value={animalId}
-                        onChange={(e) => setAnimalId(e.target.value)}
-                        required
-                      >
-                        <option value="">Selecione o animal…</option>
-                        {animais.map((a) => (
-                          <option key={a.id} value={a.id}>
-                            {a.nome} ({a.especie})
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        Veterinário responsável{" "}
-                        <span className="text-danger">*</span>
-                      </Form.Label>
-                      <Form.Select
-                        value={veterinarioId}
-                        onChange={(e) => setVeterinarioId(e.target.value)}
-                        required
-                      >
-                        <option value="">Selecione o veterinário…</option>
-                        {veterinarios.map((v) => (
-                          <option key={v.id} value={v.id}>
-                            Dr(a). {v.nome}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-
-                  <Col md={4}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        Data e hora <span className="text-danger">*</span>
-                      </Form.Label>
-                      <Form.Control
-                        type="datetime-local"
-                        value={dataAtendimento}
-                        onChange={(e) => setDataAtendimento(e.target.value)}
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-
                   <Col md={4}>
                     <Form.Group className="mb-3">
                       <Form.Label>Peso do animal (kg)</Form.Label>
@@ -280,7 +447,9 @@ function CadastroDeAtendimentos() {
                       </Form.Select>
                     </Form.Group>
                   </Col>
+                </Row>
 
+                <Row>
                   <Col md={12}>
                     <Form.Group className="mb-4">
                       <Form.Label>Exames solicitados</Form.Label>

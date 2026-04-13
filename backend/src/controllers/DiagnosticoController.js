@@ -80,7 +80,7 @@ class DiagnosticoController {
       if (resultado.motivo === "vinculos") {
         return res.status(409).json({
           error:
-            "Não é possível excluir: existem atendimentos (consultas) vinculados a este diagnóstico.",
+            "Não é possível excluir: existem atendimentos vinculados a este diagnóstico.",
         });
       }
       if (!resultado.removido) {

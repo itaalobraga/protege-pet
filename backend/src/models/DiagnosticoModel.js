@@ -4,7 +4,7 @@ class DiagnosticoModel {
   static async listarTodos(busca = "") {
     let query = `
       SELECT d.*,
-        (SELECT COUNT(*) FROM consultas_veterinarias c WHERE c.diagnostico_id = d.id) AS atendimentos_vinculados
+        (SELECT COUNT(*) FROM atendimentos a WHERE a.diagnostico_id = d.id) AS atendimentos_vinculados
       FROM diagnosticos d
     `;
     const params = [];
@@ -23,7 +23,7 @@ class DiagnosticoModel {
   static async buscarPorId(id) {
     const query = `
       SELECT d.*,
-        (SELECT COUNT(*) FROM consultas_veterinarias c WHERE c.diagnostico_id = d.id) AS atendimentos_vinculados
+        (SELECT COUNT(*) FROM atendimentos a WHERE a.diagnostico_id = d.id) AS atendimentos_vinculados
       FROM diagnosticos d
       WHERE d.id = ?
     `;
@@ -49,7 +49,7 @@ class DiagnosticoModel {
 
   static async contarAtendimentosPorDiagnostico(id) {
     const [rows] = await pool.query(
-      "SELECT COUNT(*) AS total FROM consultas_veterinarias WHERE diagnostico_id = ?",
+      "SELECT COUNT(*) AS total FROM atendimentos WHERE diagnostico_id = ?",
       [id]
     );
     return Number(rows[0]?.total || 0);

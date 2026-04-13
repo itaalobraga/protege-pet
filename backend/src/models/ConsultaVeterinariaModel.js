@@ -21,8 +21,9 @@ function normalizeRow(row) {
 }
 
 class ConsultaVeterinariaModel {
-  static async criar({ veterinario_id, animal_id, data_consulta, observacao }) {
-    const [result] = await pool.query(
+  static async criar({ veterinario_id, animal_id, data_consulta, observacao }, connection = null) {
+    const conn = connection || pool;
+    const [result] = await conn.query(
       `INSERT INTO consultas_veterinarias (veterinario_id, animal_id, data_consulta, observacao)
        VALUES (?, ?, ?, ?)`,
       [veterinario_id, animal_id, data_consulta, observacao ?? null]
@@ -37,8 +38,9 @@ class ConsultaVeterinariaModel {
     };
   }
 
-  static async atualizar(id, { veterinario_id, animal_id, data_consulta, observacao }) {
-    const [result] = await pool.query(
+  static async atualizar(id, { veterinario_id, animal_id, data_consulta, observacao }, connection = null) {
+    const conn = connection || pool;
+    const [result] = await conn.query(
       `UPDATE consultas_veterinarias
        SET veterinario_id = ?, animal_id = ?, data_consulta = ?, observacao = ?
        WHERE id = ?`,
@@ -84,28 +86,34 @@ class ConsultaVeterinariaModel {
     return normalizeRow(rows[0]);
   }
 
-  static async listar({ veterinario_id, animal_id, inicio, fim }) {
+  static async listar({ veterinario_id, animal_id, inicio, fim, sem_atendimento }) {
     const where = [];
     const params = [];
 
     if (veterinario_id) {
-      where.push("veterinario_id = ?");
+      where.push("consultas_veterinarias.veterinario_id = ?");
       params.push(veterinario_id);
     }
 
     if (animal_id) {
-      where.push("animal_id = ?");
+      where.push("consultas_veterinarias.animal_id = ?");
       params.push(animal_id);
     }
 
     if (inicio) {
-      where.push("data_consulta >= ?");
+      where.push("consultas_veterinarias.data_consulta >= ?");
       params.push(inicio);
     }
 
     if (fim) {
-      where.push("data_consulta <= ?");
+      where.push("consultas_veterinarias.data_consulta <= ?");
       params.push(fim);
+    }
+
+    if (sem_atendimento) {
+      where.push(
+        "NOT EXISTS (SELECT 1 FROM atendimentos at WHERE at.consulta_id = consultas_veterinarias.id)"
+      );
     }
 
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
@@ -120,15 +128,16 @@ class ConsultaVeterinariaModel {
       INNER JOIN veterinarios ON veterinarios.id = consultas_veterinarias.veterinario_id
       INNER JOIN animais ON animais.id = consultas_veterinarias.animal_id
       ${whereSql}
-      ORDER BY data_consulta DESC`,
+      ORDER BY consultas_veterinarias.data_consulta DESC`,
       params
     );
 
     return rows.map(normalizeRow);
   }
 
-  static async existeConflito({ veterinario_id, data_consulta }) {
-    const [rows] = await pool.query(
+  static async existeConflito({ veterinario_id, data_consulta }, connection = null) {
+    const conn = connection || pool;
+    const [rows] = await conn.query(
       `SELECT 1
        FROM consultas_veterinarias
        WHERE veterinario_id = ?
@@ -139,8 +148,9 @@ class ConsultaVeterinariaModel {
     return rows.length > 0;
   }
 
-  static async existeConflitoDiferente({ id, veterinario_id, data_consulta }) {
-    const [rows] = await pool.query(
+  static async existeConflitoDiferente({ id, veterinario_id, data_consulta }, connection = null) {
+    const conn = connection || pool;
+    const [rows] = await conn.query(
       `SELECT 1
        FROM consultas_veterinarias
        WHERE veterinario_id = ?
@@ -150,6 +160,24 @@ class ConsultaVeterinariaModel {
       [veterinario_id, data_consulta, id]
     );
     return rows.length > 0;
+  }
+
+  static async contarAtendimentosPorConsulta(consultaId, connection = null) {
+    const conn = connection || pool;
+    const [rows] = await conn.query(
+      "SELECT COUNT(*) AS n FROM atendimentos WHERE consulta_id = ?",
+      [consultaId]
+    );
+    return Number(rows[0]?.n || 0);
+  }
+
+  static async contarPrescricoesPorConsulta(consultaId, connection = null) {
+    const conn = connection || pool;
+    const [rows] = await conn.query(
+      "SELECT COUNT(*) AS n FROM prescricoes WHERE consulta_id = ?",
+      [consultaId]
+    );
+    return Number(rows[0]?.n || 0);
   }
 
   static async excluir(id) {
