@@ -321,6 +321,7 @@ CREATE TABLE IF NOT EXISTS consultas_veterinarias (
 
 CREATE INDEX idx_consulta_veterinario_data ON consultas_veterinarias(veterinario_id, data_consulta);
 CREATE INDEX idx_consulta_animal_data ON consultas_veterinarias(animal_id, data_consulta);
+CREATE INDEX idx_consulta_diagnostico ON consultas_veterinarias(diagnostico_id);
 
 CREATE TABLE IF NOT EXISTS movimentacoes_estoque (
   id VARCHAR(36) PRIMARY KEY,
@@ -404,7 +405,6 @@ INSERT INTO adocoes (nome, cpf, telefone, email, animal_id) VALUES
 ('Maria Santos', '234.567.890-11', '(18) 98765-4321', 'maria.santos@email.com', 2),
 ('Pedro Oliveira', '345.678.901-22', '(18) 97654-3210', 'pedro.oliveira@email.com', 4),
 ('Ana Costa', '456.789.012-33', '(18) 96543-2109', 'ana.costa@email.com', 5);
-
 
 CREATE TABLE doacoes (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -508,15 +508,18 @@ INSERT INTO tipos_exames (nome, descricao) VALUES
 ('Bioquímico sérico', 'Função hepática, renal e eletrólitos'),
 ('Radiografia de tórax', 'Imagem para avaliação cardiopulmonar');
 
---vitor tela de diagnostico
 CREATE TABLE diagnosticos (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
   descricao TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-); 
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
---vitor consutla exame 
+ALTER TABLE consultas_veterinarias
+  ADD CONSTRAINT fk_consulta_diagnostico
+  FOREIGN KEY (diagnostico_id) REFERENCES diagnosticos(id)
+  ON DELETE RESTRICT;
+
 CREATE TABLE IF NOT EXISTS consulta_exames (
   consulta_id INT NOT NULL,
   tipo_exame_id INT NOT NULL,

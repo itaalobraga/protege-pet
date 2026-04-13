@@ -9,6 +9,8 @@ router.use(verificarToken);
 router.use(exigirPermissao("Gerenciar atendimentos veterinários")); 
 
 router.get("/atendimentos", AtendimentoController.listar);
+router.get("/atendimentos/:id", AtendimentoController.buscarPorId);
+router.put("/atendimentos/:id", AtendimentoController.atualizar);
 router.post("/atendimentos", AtendimentoController.criar);
 
 export default router;

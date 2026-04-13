@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Card, Container, Table, Form, InputGroup } from "react-bootstrap";
+import { Button, Card, Container, Modal, Table } from "react-bootstrap";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
@@ -8,33 +8,65 @@ import ApiService from "../../services/ApiService";
 
 function ListaDeDiagnosticos() {
   const [diagnosticos, setDiagnosticos] = useState([]);
-  const [busca, setBusca] = useState("");
-  const [loading, setLoading] = useState(true);
-
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState("success");
+  const [showModal, setShowModal] = useState(false);
+  const [idParaExcluir, setIdParaExcluir] = useState(null);
 
-  const exibirToast = useCallback((mensagem) => {
+  const exibirToast = (mensagem, variante = "success") => {
     setToastMessage(mensagem);
+    setToastVariant(variante);
     setShowToast(true);
-  }, []);
+  };
 
-  const carregarDiagnosticos = useCallback(async () => {
+  const carregarDiagnosticos = useCallback(async (termo = "") => {
     setLoading(true);
     try {
-      const response = await ApiService.get(`/diagnosticos?busca=${busca}`);
+      const endpoint = termo
+        ? `/diagnosticos?busca=${encodeURIComponent(termo)}`
+        : "/diagnosticos";
+      const response = await ApiService.get(endpoint);
       setDiagnosticos(response || []);
     } catch (error) {
-      exibirToast("Erro ao carregar a lista de diagnósticos.");
+      console.error("Erro ao carregar diagnósticos:", error);
+      exibirToast("Erro ao carregar a lista de diagnósticos.", "danger");
     } finally {
       setLoading(false);
     }
-  }, [busca, exibirToast]);
+  }, []);
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => carregarDiagnosticos(), 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [busca, carregarDiagnosticos]);
+    const timeoutId = setTimeout(() => {
+      carregarDiagnosticos(search);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [search, carregarDiagnosticos]);
+
+  const temVinculos = (diag) => Number(diag.atendimentos_vinculados || 0) > 0;
+
+  const abrirModal = (id) => {
+    setIdParaExcluir(id);
+    setShowModal(true);
+  };
+
+  const confirmarExclusao = async () => {
+    if (idParaExcluir == null) return;
+    try {
+      await ApiService.delete(`/diagnosticos/${idParaExcluir}`);
+      exibirToast("Diagnóstico excluído com sucesso!", "success");
+      carregarDiagnosticos(search);
+    } catch (error) {
+      console.error("Erro ao excluir diagnóstico:", error);
+      exibirToast(error.message || "Erro ao excluir diagnóstico.", "danger");
+    } finally {
+      setShowModal(false);
+      setIdParaExcluir(null);
+    }
+  };
 
   return (
     <>
@@ -42,60 +74,136 @@ function ListaDeDiagnosticos() {
       <main>
         <Container className="py-4">
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h3 className="fw-bold mb-0">Diagnósticos</h3>
-            <Link to="/diagnosticos/cadastro" className="btn btn-success btn-sm d-flex align-items-center gap-2">
-              <i className="bi bi-plus-lg"></i> Novo Diagnóstico
-            </Link>
+            <h5 className="mb-0 fw-semibold">Diagnósticos</h5>
+            <div className="d-flex align-items-center gap-3">
+              <input
+                type="text"
+                placeholder="Buscar..."
+                className="form-control"
+                style={{ width: "200px" }}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Buscar diagnóstico"
+              />
+              <Link
+                to="/diagnosticos/cadastro"
+                className="btn btn-success d-flex align-items-center gap-2"
+                tabIndex={0}
+                aria-label="Cadastrar novo diagnóstico"
+              >
+                <i className="bi bi-plus-lg"></i> Novo
+              </Link>
+            </div>
           </div>
 
-          <Card className="shadow-sm border-0 mb-4">
-            <Card.Body className="p-4">
-              <InputGroup className="mb-4">
-                <InputGroup.Text className="bg-white"><i className="bi bi-search"></i></InputGroup.Text>
-                <Form.Control
-                  placeholder="Buscar por nome ou descrição..."
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                />
-              </InputGroup>
-
-              <div className="table-responsive">
-                <Table hover className="align-middle">
+          <Card className="border-0 shadow-sm">
+            <Card.Body className="p-0">
+              {loading ? (
+                <div className="text-center py-5">
+                  <div className="spinner-border text-secondary" role="status">
+                    <span className="visually-hidden">Carregando...</span>
+                  </div>
+                </div>
+              ) : (
+                <Table hover responsive className="text-center mb-0">
                   <thead className="table-light">
                     <tr>
-                      <th>Nome do Diagnóstico</th>
-                      <th>Descrição</th>
+                      <th className="fw-semibold">Nome do diagnóstico</th>
+                      <th className="fw-semibold">Descrição</th>
+                      <th className="fw-semibold">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {loading ? (
-                      <tr><td colSpan="2" className="text-center py-4">Carregando...</td></tr>
-                    ) : diagnosticos.length === 0 ? (
-                      <tr><td colSpan="2" className="text-center py-4 text-muted">Nenhum diagnóstico encontrado.</td></tr>
+                    {diagnosticos.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className="py-5 text-secondary">
+                          <i className="bi bi-inbox fs-1 d-block mb-2"></i>
+                          {search
+                            ? "Nenhum resultado encontrado"
+                            : "Nenhum diagnóstico cadastrado"}
+                        </td>
+                      </tr>
                     ) : (
                       diagnosticos.map((diag) => (
                         <tr key={diag.id}>
-                          <td className="fw-semibold">{diag.nome}</td>
-                          <td>{diag.descricao || '-'}</td>
+                          <td className="align-middle fw-semibold">{diag.nome}</td>
+                          <td className="align-middle">{diag.descricao || "-"}</td>
+                          <td className="align-middle">
+                            <div className="d-flex gap-2 justify-content-center">
+                              <Link
+                                to={`/diagnosticos/cadastro/editar/${diag.id}`}
+                                className="btn btn-outline-primary btn-sm"
+                                aria-label="Editar"
+                              >
+                                <i className="bi bi-pencil"></i>
+                              </Link>
+                              <Button
+                                variant="outline-danger"
+                                size="sm"
+                                disabled={temVinculos(diag)}
+                                title={
+                                  temVinculos(diag)
+                                    ? "Não é possível excluir: há atendimentos vinculados"
+                                    : "Excluir"
+                                }
+                                onClick={() => abrirModal(diag.id)}
+                                aria-label="Excluir"
+                              >
+                                <i className="bi bi-trash"></i>
+                              </Button>
+                            </div>
+                          </td>
                         </tr>
                       ))
                     )}
                   </tbody>
                 </Table>
-              </div>
+              )}
             </Card.Body>
           </Card>
         </Container>
       </main>
 
       <ToastContainer position="bottom-center" className="mb-4">
-        <Toast show={showToast} onClose={() => setShowToast(false)} delay={4000} autohide className="border-0 shadow">
-          <Toast.Body className="d-flex align-items-center gap-2 text-danger">
-            <i className="bi bi-exclamation-circle-fill"></i>
+        <Toast
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          delay={4000}
+          autohide
+          className="border-0 shadow"
+        >
+          <Toast.Body
+            className={`d-flex align-items-center gap-2 text-${toastVariant}`}
+          >
+            <i
+              className={`bi bi-${
+                toastVariant === "success"
+                  ? "check-circle-fill"
+                  : "exclamation-circle-fill"
+              }`}
+            ></i>
             {toastMessage}
           </Toast.Body>
         </Toast>
       </ToastContainer>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Body className="text-center py-4">
+          <i className="bi bi-exclamation-triangle text-warning fs-1 mb-3 d-block"></i>
+          <h5 className="fw-semibold mb-2">Confirmar exclusão</h5>
+          <p className="text-secondary mb-4">
+            Deseja realmente excluir este diagnóstico?
+          </p>
+          <div className="d-flex justify-content-center gap-2">
+            <Button variant="outline-secondary" onClick={() => setShowModal(false)}>
+              Cancelar
+            </Button>
+            <Button variant="danger" onClick={confirmarExclusao}>
+              <i className="bi bi-trash me-1"></i> Excluir
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }

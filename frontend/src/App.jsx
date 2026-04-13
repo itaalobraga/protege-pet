@@ -44,8 +44,9 @@ import ListaDeMinistracoes from "./pages/ListaDeMinistracoes/ListaDeMinistracoes
 import CadastroDeMinistracoes from "./pages/CadastroDeMinistracoes/CadastroDeMinistracoes.jsx";
 import ListaDeDiagnosticos from "./pages/ListaDeDiagnosticos/ListaDeDiagnosticos.jsx";
 import CadastroDeDiagnosticos from "./pages/CadastroDeDiagnosticos/CadastroDeDiagnosticos.jsx";
-import ListaDeAtendimentos from './pages/ListaDeAtendimentos/ListaDeAtendimentos';
-import CadastroDeAtendimentos from './pages/CadastroDeAtendimentos/CadastroDeAtendimentos';
+import ListaDeAtendimentos from "./pages/ListaDeAtendimentos/ListaDeAtendimentos.jsx";
+import CadastroDeAtendimentos from "./pages/CadastroDeAtendimentos/CadastroDeAtendimentos.jsx";
+import DetalhesAtendimento from "./pages/DetalhesAtendimento/DetalhesAtendimento.jsx";
 import "./App.css";
 
 function App() {
@@ -237,6 +238,14 @@ function App() {
               <Route path="/atendimentos/cadastro"
               element={<CadastroDeAtendimentos />}
               />
+              <Route
+                path="/atendimentos/cadastro/editar/:id"
+                element={<CadastroDeAtendimentos />}
+              />
+              <Route
+                path="/atendimentos/:id"
+                element={<DetalhesAtendimento />}
+              />
             </Route>
 
             <Route
@@ -263,10 +272,14 @@ function App() {
                 path="/prescricoes/:prescricaoId/ministracoes/nova"
                 element={<CadastroDeMinistracoes />}
               />
-              <Route element={<RotaComPermissao permissao={PERMISSOES.DIAGNOSTICOS} />}>
+            </Route>
+            <Route element={<RotaComPermissao permissao={PERMISSOES.DIAGNOSTICOS} />}>
               <Route path="/diagnosticos" element={<ListaDeDiagnosticos />} />
               <Route path="/diagnosticos/cadastro" element={<CadastroDeDiagnosticos />} />
-            </Route>
+              <Route
+                path="/diagnosticos/cadastro/editar/:id"
+                element={<CadastroDeDiagnosticos />}
+              />
             </Route>
           </Route>
         </Routes>
