@@ -13,21 +13,14 @@ function Header() {
   const navigate = useNavigate();
   const { usuario, logout } = useAuth();
 
-  const [usuariosOpen, usuariosToggle, usuariosClose, usuariosRef] =
-    useDropdown();
-  const [produtosOpen, produtosToggle, produtosClose, produtosRef] =
-    useDropdown();
+  const [usuariosOpen, usuariosToggle, usuariosClose, usuariosRef] = useDropdown();
+  const [produtosOpen, produtosToggle, produtosClose, produtosRef] = useDropdown();
   const [animaisOpen, animaisToggle, animaisClose, animaisRef] = useDropdown();
-  const [
-    veterinariosOpen,
-    veterinariosToggle,
-    veterinariosClose,
-    veterinariosRef,
-  ] = useDropdown();
+  const [veterinariosOpen, veterinariosToggle, veterinariosClose, veterinariosRef] = useDropdown();
   const [contaOpen, contaToggle, contaClose, contaRef] = useDropdown();
   const [adocaoOpen, adocaoToggle, adocaoClose, adocaoRef] = useDropdown();
-
   const [doacoesOpen, doacoesToggle, doacoesClose, doacoesRef] = useDropdown();
+  
   const [
     atendimentosVeterinariosOpen,
     atendimentosVeterinariosToggle,
@@ -67,32 +60,26 @@ function Header() {
     path === "/categorias" ||
     path.startsWith("/movimentacoes");
   const isAnimaisActive = isActive("animais") || isActive("racas");
-  const isVeterinariosActive =
-    isActive("veterinarios") || isActive("consultas");
-
+  const isVeterinariosActive = isActive("veterinarios") || isActive("consultas");
   const isAtendimentosVeterinariosActive =
-    path.startsWith("/tipos-de-exames") || path.startsWith("/prescricoes");
+    path.startsWith("/tipos-de-exames") || 
+    path.startsWith("/prescricoes") || 
+    path.startsWith("/diagnosticos") ||
+    path.startsWith("/atendimentos"); 
 
   const isAdocaoActive = isActive("adocoes") || isActive("listar-adocoes");
-
   const isDoacoesActive = isActive("doacoes");
 
   const podeUsuarios = usuario && possuiPermissao(usuario, PERMISSOES.USUARIOS);
-  const podeVoluntarios =
-    usuario && possuiPermissao(usuario, PERMISSOES.VOLUNTARIOS);
-  const podeVeterinarios =
-    usuario && possuiPermissao(usuario, PERMISSOES.VETERINARIOS);
+  const podeVoluntarios = usuario && possuiPermissao(usuario, PERMISSOES.VOLUNTARIOS);
+  const podeVeterinarios = usuario && possuiPermissao(usuario, PERMISSOES.VETERINARIOS);
   const podeAnimais = usuario && possuiPermissao(usuario, PERMISSOES.ANIMAIS);
   const podeProdutos = usuario && possuiPermissao(usuario, PERMISSOES.PRODUTOS);
   const podeDoacoes = usuario && possuiPermissao(usuario, PERMISSOES.DOACOES);
-  const podeMedicamentos =
-    usuario && possuiPermissao(usuario, PERMISSOES.MEDICAMENTOS);
-  const podeAtendimentosVeterinarios =
-    usuario &&
-    possuiPermissao(usuario, PERMISSOES.ATENDIMENTOS_VETERINARIOS);
-  const podePrescricoesMinistracoes =
-    usuario &&
-    possuiPermissao(usuario, PERMISSOES.PRESCRICOES_MINISTRACOES);
+  const podeMedicamentos = usuario && possuiPermissao(usuario, PERMISSOES.MEDICAMENTOS);
+  const podeAtendimentosVeterinarios = usuario && possuiPermissao(usuario, PERMISSOES.ATENDIMENTOS_VETERINARIOS);
+  const podePrescricoesMinistracoes = usuario && possuiPermissao(usuario, PERMISSOES.PRESCRICOES_MINISTRACOES);
+  const podeDiagnosticos = usuario && possuiPermissao(usuario, PERMISSOES.DIAGNOSTICOS);
 
   const mostrarNav =
     usuario &&
@@ -299,12 +286,33 @@ function Header() {
                 {atendimentosVeterinariosOpen && (
                   <div className="dropdown-menu-custom">
                     {podeAtendimentosVeterinarios && (
+                      <>
+                        <Link
+                          to="/atendimentos/cadastro"
+                          className={`dropdown-item-custom ${path === "/atendimentos/cadastro" ? "active" : ""}`}
+                          onClick={atendimentosVeterinariosClose}
+                        >
+                          <i className="bi bi-clipboard2-plus me-2"></i>
+                          Novo Atendimento
+                        </Link>
+                        <Link
+                          to="/atendimentos"
+                          className={`dropdown-item-custom ${path === "/atendimentos" ? "active" : ""}`}
+                          onClick={atendimentosVeterinariosClose}
+                        >
+                          <i className="bi bi-card-list me-2"></i>
+                          Histórico de Atendimentos
+                        </Link>
+                      </>
+                    )}
+                    
+                    {podeAtendimentosVeterinarios && (
                       <Link
                         to="/tipos-de-exames"
                         className={`dropdown-item-custom ${path.startsWith("/tipos-de-exames") ? "active" : ""}`}
                         onClick={atendimentosVeterinariosClose}
                       >
-                        <i className="bi bi-clipboard2-pulse me-2"></i>
+                        <i className="bi bi-heart-pulse me-2"></i>
                         Tipos de exames
                       </Link>
                     )}
@@ -316,6 +324,16 @@ function Header() {
                       >
                         <i className="bi bi-capsule-pill me-2"></i>
                         Prescrições
+                      </Link>
+                    )}
+                    {podeDiagnosticos && (
+                      <Link
+                        to="/diagnosticos"
+                        className={`dropdown-item-custom ${path.startsWith("/diagnosticos") ? "active" : ""}`}
+                        onClick={atendimentosVeterinariosClose}
+                      >
+                        <i className="bi bi-file-medical me-2"></i>
+                        Diagnósticos
                       </Link>
                     )}
                   </div>

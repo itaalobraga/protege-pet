@@ -24,6 +24,7 @@ INSERT INTO voluntarios (vlt_nome, vlt_cpf, vlt_telefone, vlt_tel_residencial, v
 ('João Pedro Almeida', '456.789.012-33', '(18) 96543-2109', '(18) 3224-7890', 'joao.almeida@gmail.com', 'Segunda a Sexta - Noite'),
 ('Mariana Lima Pereira', '567.890.123-44', '(18) 95432-1098', '(18) 3225-8901', 'mariana.lima@gmail.com', 'Finais de Semana - Integral');
 
+
 DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS funcoes_permissoes;
 DROP TABLE IF EXISTS funcoes;
@@ -48,7 +49,8 @@ INSERT INTO permissoes (nome) VALUES
 ('Gerenciar doações'),
 ('Gerenciar medicamentos'),
 ('Gerenciar atendimentos veterinários'),
-('Gerenciar prescrições e ministrações');
+('Gerenciar prescrições e ministrações'),
+('Gerenciar diagnósticos');
 
 CREATE TABLE IF NOT EXISTS funcoes (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -84,7 +86,7 @@ INSERT INTO funcoes_permissoes (funcao_id, permissao_id) VALUES
 (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10),
 (2, 2),
 (3, 3), (3, 5),
-(4, 4), (4, 5), (4, 10),
+(4, 4), (4, 5), (4, 10), (4, 11),
 (5, 5), (5, 3);
 
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -307,6 +309,8 @@ CREATE TABLE IF NOT EXISTS consultas_veterinarias (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   veterinario_id INT NOT NULL,
   animal_id INT NOT NULL,
+  diagnostico_id INT, 
+  peso DECIMAL(5,2),
   data_consulta DATETIME NOT NULL,
   observacao TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -317,6 +321,7 @@ CREATE TABLE IF NOT EXISTS consultas_veterinarias (
 
 CREATE INDEX idx_consulta_veterinario_data ON consultas_veterinarias(veterinario_id, data_consulta);
 CREATE INDEX idx_consulta_animal_data ON consultas_veterinarias(animal_id, data_consulta);
+CREATE INDEX idx_consulta_diagnostico ON consultas_veterinarias(diagnostico_id);
 
 CREATE TABLE IF NOT EXISTS movimentacoes_estoque (
   id VARCHAR(36) PRIMARY KEY,
@@ -400,7 +405,6 @@ INSERT INTO adocoes (nome, cpf, telefone, email, animal_id) VALUES
 ('Maria Santos', '234.567.890-11', '(18) 98765-4321', 'maria.santos@email.com', 2),
 ('Pedro Oliveira', '345.678.901-22', '(18) 97654-3210', 'pedro.oliveira@email.com', 4),
 ('Ana Costa', '456.789.012-33', '(18) 96543-2109', 'ana.costa@email.com', 5);
-
 
 CREATE TABLE doacoes (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -503,3 +507,23 @@ INSERT INTO tipos_exames (nome, descricao) VALUES
 ('Hemograma completo', 'Contagem de células sanguíneas e avaliação geral'),
 ('Bioquímico sérico', 'Função hepática, renal e eletrólitos'),
 ('Radiografia de tórax', 'Imagem para avaliação cardiopulmonar');
+
+CREATE TABLE diagnosticos (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  descricao TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE consultas_veterinarias
+  ADD CONSTRAINT fk_consulta_diagnostico
+  FOREIGN KEY (diagnostico_id) REFERENCES diagnosticos(id)
+  ON DELETE RESTRICT;
+
+CREATE TABLE IF NOT EXISTS consulta_exames (
+  consulta_id INT NOT NULL,
+  tipo_exame_id INT NOT NULL,
+  PRIMARY KEY (consulta_id, tipo_exame_id),
+  FOREIGN KEY (consulta_id) REFERENCES consultas_veterinarias(id) ON DELETE CASCADE,
+  FOREIGN KEY (tipo_exame_id) REFERENCES tipos_exames(id) ON DELETE RESTRICT
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
