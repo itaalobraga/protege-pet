@@ -8,10 +8,13 @@ import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../services/ApiService";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function ListaDeProdutos() {
   const [produtos, setProdutos] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [exportando, setExportando] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [idParaExcluir, setIdParaExcluir] = useState(null);
@@ -47,6 +50,42 @@ function ListaDeProdutos() {
 
     return () => clearTimeout(timeoutId);
   }, [search, carregarProdutos]);
+
+  const exportarCsv = async () => {
+    if (produtos.length === 0) {
+      exibirToast("Nenhum item de estoque para exportar.", "warning");
+      return;
+    }
+    setExportando(true);
+    try {
+      const url = `${API_URL}/produtos/relatorio.csv?busca=${encodeURIComponent(search)}`;
+      const response = await fetch(url, { credentials: "include" });
+      if (!response.ok) {
+        exibirToast(`Erro ao exportar (${response.status}).`, "danger");
+        return;
+      }
+
+      const disposition = response.headers.get("Content-Disposition") || "";
+      const match = disposition.match(/filename="?([^";]+)"?/i);
+      const fallback = `estoque_${new Date().toISOString().slice(0, 10)}.csv`;
+      const filename = match ? match[1] : fallback;
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Erro ao exportar CSV:", error);
+      exibirToast("Erro ao exportar CSV.", "danger");
+    } finally {
+      setExportando(false);
+    }
+  };
 
   const handleExcluirChange = async (id) => {
     try {
@@ -98,6 +137,16 @@ function ListaDeProdutos() {
                 onChange={(e) => setSearch(e.target.value)}
                 aria-label="Buscar produto"
               />
+              <Button
+                variant="outline-primary"
+                onClick={exportarCsv}
+                disabled={exportando}
+                className="d-flex align-items-center gap-2"
+                aria-label="Exportar CSV"
+              >
+                <i className="bi bi-download"></i>
+                {exportando ? "Exportando..." : "Exportar CSV"}
+              </Button>
               <Link
                 to="/produtos/cadastro"
                 className="btn btn-success d-flex align-items-center gap-2"

@@ -7,6 +7,12 @@ const router = express.Router();
 const validarPermissao = exigirPermissao("Gerenciar produtos");
 
 router.get("/produtos", authJwt, validarPermissao, ProdutoController.listar);
+router.get(
+  "/produtos/relatorio.csv",
+  authJwt,
+  validarPermissao,
+  ProdutoController.exportarCsv
+);
 router.get("/produtos/:id", authJwt, validarPermissao, ProdutoController.buscarPorId);
 router.post("/produtos", authJwt, validarPermissao, ProdutoController.criar);
 router.put("/produtos/:id", authJwt, validarPermissao, ProdutoController.atualizar);

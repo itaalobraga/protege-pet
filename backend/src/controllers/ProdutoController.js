@@ -1,5 +1,13 @@
 import ProdutoModel from "../models/ProdutoModel.js";
 import Categoria from "../models/CategoriaModel.js";
+import { gerarCsv } from "../utils/csv.js";
+
+function statusEstoqueParaCsv(quantidade) {
+  const qtd = Number(quantidade);
+  if (qtd <= 0) return "Indisponível";
+  if (qtd <= 3) return "Baixo estoque";
+  return "Disponível";
+}
 
 class ProdutoController {
   static async listar(req, res) {
@@ -186,6 +194,46 @@ class ProdutoController {
     } catch (error) {
       console.error("Erro ao excluir produto:", error);
       res.status(500).json({ error: "Erro ao excluir produto" });
+    }
+  }
+
+  static async exportarCsv(req, res) {
+    try {
+      const { busca } = req.query;
+      const produtos = busca
+        ? await ProdutoModel.filtrar(busca)
+        : await ProdutoModel.listarTodos();
+
+      const header = [
+        "Nome",
+        "Descrição",
+        "Código",
+        "Categoria",
+        "Quantidade",
+        "Status",
+      ];
+      const linhas = produtos.map((p) => [
+        p.nome,
+        p.descricao ?? "",
+        p.sku,
+        p.categoria || "",
+        p.quantidade,
+        statusEstoqueParaCsv(p.quantidade),
+      ]);
+
+      const corpo = "\uFEFF" + gerarCsv(header, linhas);
+      const dataIso = new Date().toISOString().slice(0, 10);
+      const filename = `estoque_${dataIso}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`
+      );
+      res.send(corpo);
+    } catch (error) {
+      console.error("Erro ao exportar CSV de estoque:", error);
+      res.status(500).json({ error: "Erro ao exportar CSV de estoque" });
     }
   }
 }
