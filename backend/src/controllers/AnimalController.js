@@ -1,4 +1,5 @@
 import AnimalModel from "../models/AnimalModel.js";
+import { gerarCsv } from "../utils/csv.js";
 
 class AnimalController {
   static async listar(req, res) {
@@ -134,6 +135,39 @@ class AnimalController {
     } catch (error) {
       console.error("Erro ao excluir animal:", error);
       res.status(500).json({ error: "Erro ao excluir animal" });
+    }
+  }
+
+  static async exportarCsv(req, res) {
+    try {
+      const { busca } = req.query;
+      const animais = busca
+        ? await AnimalModel.filtrar(busca)
+        : await AnimalModel.listarTodos();
+
+      const header = ["Nome", "Espécie", "Raça", "Sexo", "Porte", "Status"];
+      const linhas = animais.map((a) => [
+        a.nome,
+        a.especie,
+        a.nome_raca,
+        a.sexo,
+        a.porte,
+        a.status,
+      ]);
+
+      const corpo = "\uFEFF" + gerarCsv(header, linhas);
+      const dataIso = new Date().toISOString().slice(0, 10);
+      const filename = `animais_${dataIso}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`
+      );
+      res.send(corpo);
+    } catch (error) {
+      console.error("Erro ao exportar CSV de animais:", error);
+      res.status(500).json({ error: "Erro ao exportar CSV de animais" });
     }
   }
 }
