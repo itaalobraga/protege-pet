@@ -33,6 +33,7 @@ app.use(
   cors({
     origin: CORS_ORIGIN,
     credentials: true,
+    exposedHeaders: ["Content-Disposition"],
   }),
 );
 app.use(cookieParser());
