@@ -34,7 +34,7 @@ Decisões de decomposição:
 **Files:**
 - Create: `backend/src/utils/csv.js`
 
-- [ ] **Step 1: Criar o helper com a API mínima**
+- [x] **Step 1: Criar o helper com a API mínima**
 
 Criar o arquivo `backend/src/utils/csv.js` com o conteúdo exato:
 
@@ -80,7 +80,7 @@ Notas:
 - `escaparValor` cobre: null/undefined → `""`; vírgula, aspas, `\n` ou `\r` no valor → envolve em aspas e duplica aspas internas.
 - O export `__test__` permite verificar funções internas no smoke test sem mudar a API pública.
 
-- [ ] **Step 2: Smoke test manual do helper**
+- [x] **Step 2: Smoke test manual do helper**
 
 Rodar o seguinte one-liner a partir de `backend/`:
 
@@ -104,7 +104,7 @@ console.log('csv helper OK');
 
 Esperado: `csv helper OK` impresso, sem `AssertionError`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit** — `fa07ac8`
 
 ```bash
 git add backend/src/utils/csv.js
@@ -118,7 +118,7 @@ git commit -m "feat(backend): adicionar helper de geração de CSV (RF_S1)"
 **Files:**
 - Modify: `backend/src/controllers/AnimalController.js`
 
-- [ ] **Step 1: Importar o helper no topo do arquivo**
+- [x] **Step 1: Importar o helper no topo do arquivo**
 
 Logo abaixo da linha existente `import AnimalModel from "../models/AnimalModel.js";` adicionar:
 
@@ -126,7 +126,7 @@ Logo abaixo da linha existente `import AnimalModel from "../models/AnimalModel.j
 import { gerarCsv } from "../utils/csv.js";
 ```
 
-- [ ] **Step 2: Adicionar o método `exportarCsv` antes do `}` final da classe**
+- [x] **Step 2: Adicionar o método `exportarCsv` antes do `}` final da classe**
 
 Inserir o método imediatamente antes do `}` que fecha `class AnimalController` (após `excluir` e antes do `}`):
 
@@ -171,7 +171,7 @@ Notas:
 - `\uFEFF` (BOM UTF-8) é prefixado ao corpo, **não** ao header.
 - Resposta de erro continua JSON (500) — só sucesso é CSV.
 
-- [ ] **Step 3: Verificar que o arquivo está sintaticamente válido**
+- [x] **Step 3: Verificar que o arquivo está sintaticamente válido**
 
 Rodar a partir de `backend/`:
 
@@ -181,7 +181,7 @@ node --check src/controllers/AnimalController.js && echo "syntax OK"
 
 Esperado: `syntax OK` impresso, sem erro.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit** — `186b0a6`
 
 ```bash
 git add backend/src/controllers/AnimalController.js
@@ -195,7 +195,7 @@ git commit -m "feat(backend): adicionar AnimalController.exportarCsv (RF_S1)"
 **Files:**
 - Modify: `backend/src/routes/AnimalRoutes.js`
 
-- [ ] **Step 1: Inserir a rota literal antes da paramétrica**
+- [x] **Step 1: Inserir a rota literal antes da paramétrica**
 
 No arquivo `backend/src/routes/AnimalRoutes.js`, encontrar a linha:
 
@@ -214,7 +214,7 @@ router.get("/animais/:id", authJwt, validarPermissao, AnimalController.buscarPor
 
 Por que antes de `:id`: Express casa rotas por ordem; declarar a rota literal antes evita qualquer ambiguidade futura (mesmo que `relatorio.csv` não case com `:id` numérico hoje, é boa prática).
 
-- [ ] **Step 2: Verificar sintaxe**
+- [x] **Step 2: Verificar sintaxe**
 
 ```bash
 node --check backend/src/routes/AnimalRoutes.js && echo "syntax OK"
@@ -222,7 +222,7 @@ node --check backend/src/routes/AnimalRoutes.js && echo "syntax OK"
 
 Esperado: `syntax OK`.
 
-- [ ] **Step 3: Smoke test do endpoint (servidor rodando)**
+- [ ] **Step 3: Smoke test do endpoint (servidor rodando)** — _SKIPPED na execução automatizada (sem MySQL local). Coberto pela Task 5._
 
 Garantir que o backend está rodando localmente (porta padrão do projeto). Em outro terminal, com um JWT válido de um usuário com permissão `Gerenciar animais` exportado em `$TOKEN`:
 
@@ -240,7 +240,7 @@ Esperado:
 
 Se o servidor não estiver rodando, iniciá-lo com o script padrão do projeto (verificar `backend/package.json`) antes de chamar o curl.
 
-- [ ] **Step 4: Smoke test do filtro de busca**
+- [ ] **Step 4: Smoke test do filtro de busca** — _SKIPPED (sem MySQL local). Coberto pela Task 5._
 
 ```bash
 curl -s -H "Cookie: token=$TOKEN" "http://localhost:3000/animais/relatorio.csv?busca=luna" | xxd | head -5
@@ -248,7 +248,7 @@ curl -s -H "Cookie: token=$TOKEN" "http://localhost:3000/animais/relatorio.csv?b
 
 Esperado: bytes iniciais `efbb bf` (BOM) + `Nome,Espécie…`. As linhas seguintes contêm apenas animais que casam com `luna` (no nome, espécie, raça ou status).
 
-- [ ] **Step 5: Smoke test sem permissão / sem auth**
+- [ ] **Step 5: Smoke test sem permissão / sem auth** — _SKIPPED (sem MySQL local). Coberto pela Task 5._
 
 ```bash
 curl -i "http://localhost:3000/animais/relatorio.csv" | head -3
@@ -256,7 +256,7 @@ curl -i "http://localhost:3000/animais/relatorio.csv" | head -3
 
 Esperado: `401` (sem cookie) ou `403` (cookie de usuário sem `Gerenciar animais`). Em qualquer caso, **não deve** retornar 200 com CSV.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit** — `0097fc1`
 
 ```bash
 git add backend/src/routes/AnimalRoutes.js
@@ -270,7 +270,7 @@ git commit -m "feat(backend): expor rota GET /animais/relatorio.csv (RF_S1)"
 **Files:**
 - Modify: `frontend/src/pages/ListaDeAnimais/ListaDeAnimais.jsx`
 
-- [ ] **Step 1: Adicionar estado `exportando`**
+- [x] **Step 1: Adicionar estado `exportando`**
 
 No bloco de `useState` (depois de `const [toastVariant, setToastVariant] = useState("success");`), adicionar:
 
@@ -278,7 +278,7 @@ No bloco de `useState` (depois de `const [toastVariant, setToastVariant] = useSt
   const [exportando, setExportando] = useState(false);
 ```
 
-- [ ] **Step 2: Adicionar import do `API_URL` (ou ler o env diretamente)**
+- [x] **Step 2: Adicionar import do `API_URL` (ou ler o env diretamente)**
 
 `ApiService.js` já lê `import.meta.env.VITE_API_URL` mas não o exporta. Para manter o handler inline e auto-contido, ler o env direto no componente.
 
@@ -288,7 +288,7 @@ Logo abaixo dos imports existentes (após `import ApiService from "../../service
 const API_URL = import.meta.env.VITE_API_URL;
 ```
 
-- [ ] **Step 3: Adicionar o handler `exportarCsv`**
+- [x] **Step 3: Adicionar o handler `exportarCsv`**
 
 Inserir o handler **logo após** `carregarAnimais` (antes de `useEffect`):
 
@@ -330,7 +330,7 @@ Inserir o handler **logo após** `carregarAnimais` (antes de `useEffect`):
   };
 ```
 
-- [ ] **Step 4: Adicionar o botão "Exportar CSV" no header da página**
+- [x] **Step 4: Adicionar o botão "Exportar CSV" no header da página**
 
 Encontrar o bloco que contém o input de busca e o link "Novo":
 
@@ -367,7 +367,7 @@ Inserir o `<Button>` **entre** o `<input>` e o `<Link>`:
 
 `Button` já é importado de `react-bootstrap` no topo do arquivo, sem mudança em imports.
 
-- [ ] **Step 5: Verificar que o componente compila (lint do Vite)**
+- [x] **Step 5: Verificar que o componente compila (lint do Vite)**
 
 A partir de `frontend/`:
 
@@ -379,7 +379,7 @@ npm run lint
 
 Esperado: zero erros novos. Warnings pré-existentes podem permanecer.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit** — `4460962`
 
 ```bash
 git add frontend/src/pages/ListaDeAnimais/ListaDeAnimais.jsx
@@ -473,21 +473,21 @@ Para cada critério acima, anotar PASS/FAIL. Se algum FAIL, abrir uma issue ou v
 
 **Files:** nenhum (entrega).
 
-- [ ] **Step 1: Verificar histórico local**
+- [x] **Step 1: Verificar histórico local**
 
 ```bash
 git log --oneline origin/main..HEAD
 ```
 
-Esperado: 4 commits (helper csv, controller, rota, frontend) — além do commit anterior do spec já presente na branch.
+Esperado: 4 commits (helper csv, controller, rota, frontend) — além do commit anterior do spec já presente na branch. Resultado real: 6 commits (incluindo plano `8639f19` e fix CORS `1be3301`).
 
-- [ ] **Step 2: Push**
+- [x] **Step 2: Push**
 
 ```bash
 git push origin feat/rf-s1-relatorio-animais-csv
 ```
 
-- [ ] **Step 3: Abrir PR**
+- [ ] **Step 3: Abrir PR** — _PAT sem permissão de criar PR via API; abrir manualmente em https://github.com/itaalobraga/protege-pet/pull/new/feat/rf-s1-relatorio-animais-csv_
 
 Usar o template/skill do projeto (`/new-pr`) ou criar manualmente apontando `feat/rf-s1-relatorio-animais-csv` → `main`. Título sugerido:
 
