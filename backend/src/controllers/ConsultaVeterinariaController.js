@@ -2,6 +2,7 @@ import ConsultaVeterinariaModel from "../models/ConsultaVeterinariaModel.js";
 import VeterinarioModel from "../models/VeterinarioModel.js";
 import AnimalModel from "../models/AnimalModel.js";
 import EmailService from "../services/EmailService.js";
+import { gerarCsv } from "../utils/csv.js";
 import VeterinarioDisponibilidadeModel from "../models/VeterinarioDisponibilidadeModel.js";
 import { format, isValid, parse } from "date-fns";
 import fs from "fs";
@@ -31,6 +32,56 @@ class ConsultaVeterinariaController {
     } catch (error) {
       console.error("Erro ao listar consultas:", error);
       res.status(500).json({ error: "Erro ao listar consultas" });
+    }
+  }
+
+  static async exportarCsv(req, res) {
+    try {
+      const { veterinario_id, animal_id, inicio, fim, sem_atendimento } =
+        req.query;
+
+      const consultas = await ConsultaVeterinariaModel.listar({
+        veterinario_id,
+        animal_id,
+        inicio,
+        fim,
+        sem_atendimento:
+          sem_atendimento === "1" ||
+          sem_atendimento === "true" ||
+          sem_atendimento === "yes",
+      });
+
+      const header = ["Data", "Veterinário", "Animal", "Observação"];
+      const linhas = consultas.map((c) => {
+        const vetNome = [c.veterinario_nome, c.veterinario_sobrenome]
+          .filter(Boolean)
+          .join(" ")
+          .trim();
+        return [
+          ConsultaVeterinariaController.#formatarDataBrasileira(
+            c.data_consulta,
+          ),
+          vetNome,
+          c.animal_nome || "",
+          c.observacao || "",
+        ];
+      });
+
+      const corpo = "\uFEFF" + gerarCsv(header, linhas);
+      const dataIso = new Date().toISOString().slice(0, 10);
+      const filename = `consultas_agendadas_${dataIso}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`,
+      );
+      res.send(corpo);
+    } catch (error) {
+      console.error("Erro ao exportar CSV de consultas agendadas:", error);
+      res
+        .status(500)
+        .json({ error: "Erro ao exportar CSV de consultas agendadas" });
     }
   }
 

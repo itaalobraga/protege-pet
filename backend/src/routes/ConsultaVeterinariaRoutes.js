@@ -7,6 +7,12 @@ const router = express.Router();
 const validarPermissao = exigirPermissao("Gerenciar veterinários");
 
 router.get("/consultas-veterinarias", authJwt, validarPermissao, ConsultaVeterinariaController.listar);
+router.get(
+  "/consultas-veterinarias/relatorio.csv",
+  authJwt,
+  validarPermissao,
+  ConsultaVeterinariaController.exportarCsv,
+);
 router.get("/consultas-veterinarias/:id", authJwt, validarPermissao, ConsultaVeterinariaController.buscarPorId);
 router.post("/consultas-veterinarias", authJwt, validarPermissao, ConsultaVeterinariaController.criar);
 router.put("/consultas-veterinarias/:id", authJwt, validarPermissao, ConsultaVeterinariaController.atualizar);

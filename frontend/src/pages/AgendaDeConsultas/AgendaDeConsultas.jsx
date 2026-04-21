@@ -1,5 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, Container, Form, Modal, Row, Table } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Container,
+  Form,
+  Modal,
+  Row,
+  Table,
+  Toast,
+  ToastContainer,
+} from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { format, isValid, parse } from "date-fns";
 import Header from "src/components/Header/Header.jsx";
@@ -8,6 +19,8 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 function parseMysqlDateTime(mysqlDateTime) {
   const dt = parse(String(mysqlDateTime ?? ""), "yyyy-MM-dd HH:mm:ss", new Date(0));
@@ -45,7 +58,27 @@ function AgendaDeConsultas() {
     animal_id: "",
   });
 
+  const [exportando, setExportando] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState("success");
+
   const navigate = useNavigate();
+
+  const exibirToast = (mensagem, variante = "success") => {
+    setToastMessage(mensagem);
+    setToastVariant(variante);
+    setShowToast(true);
+  };
+
+  const consultasQueryString = useMemo(() => {
+    const params = new URLSearchParams();
+    if (filtros.veterinario_id) params.set("veterinario_id", filtros.veterinario_id);
+    if (filtros.animal_id) params.set("animal_id", filtros.animal_id);
+    if (filtros.inicio) params.set("inicio", `${filtros.inicio} 00:00:00`);
+    if (filtros.fim) params.set("fim", `${filtros.fim} 23:59:59`);
+    return params.toString();
+  }, [filtros]);
 
   const [showModalExcluir, setShowModalExcluir] = useState(false);
   const [detalhesExcluir, setDetalhesExcluir] = useState(null);
@@ -75,18 +108,51 @@ function AgendaDeConsultas() {
   const carregarConsultas = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (filtros.veterinario_id) params.set("veterinario_id", filtros.veterinario_id);
-      if (filtros.animal_id) params.set("animal_id", filtros.animal_id);
-      if (filtros.inicio) params.set("inicio", `${filtros.inicio} 00:00:00`);
-      if (filtros.fim) params.set("fim", `${filtros.fim} 23:59:59`);
-      const endpoint = `/consultas-veterinarias${params.toString() ? `?${params.toString()}` : ""}`;
+      const qs = consultasQueryString;
+      const endpoint = `/consultas-veterinarias${qs ? `?${qs}` : ""}`;
       const resp = await ApiService.get(endpoint);
       setConsultas(resp || []);
     } finally {
       setLoading(false);
     }
-  }, [filtros]);
+  }, [consultasQueryString]);
+
+  const exportarCsv = async () => {
+    if (consultas.length === 0) {
+      exibirToast("Nenhuma consulta para exportar.", "warning");
+      return;
+    }
+    setExportando(true);
+    try {
+      const qs = consultasQueryString;
+      const url = `${API_URL}/consultas-veterinarias/relatorio.csv${qs ? `?${qs}` : ""}`;
+      const response = await fetch(url, { credentials: "include" });
+      if (!response.ok) {
+        exibirToast(`Erro ao exportar (${response.status}).`, "danger");
+        return;
+      }
+
+      const disposition = response.headers.get("Content-Disposition") || "";
+      const match = disposition.match(/filename="?([^";]+)"?/i);
+      const fallback = `consultas_agendadas_${new Date().toISOString().slice(0, 10)}.csv`;
+      const filename = match ? match[1] : fallback;
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Erro ao exportar CSV:", error);
+      exibirToast("Erro ao exportar CSV.", "danger");
+    } finally {
+      setExportando(false);
+    }
+  };
 
   useEffect(() => {
     carregarVeterinarios();
@@ -162,7 +228,7 @@ function AgendaDeConsultas() {
               </div>
             </div>
 
-            <div className="d-flex gap-2 align-items-center">
+            <div className="d-flex gap-2 align-items-center flex-wrap justify-content-end">
               <Form.Select
                 value={modo}
                 onChange={(e) => setModo(e.target.value)}
@@ -172,6 +238,17 @@ function AgendaDeConsultas() {
                 <option value="tabela">Tabela</option>
                 <option value="calendario">Calendário</option>
               </Form.Select>
+
+              <Button
+                variant="outline-primary"
+                onClick={exportarCsv}
+                disabled={exportando}
+                className="d-flex align-items-center gap-2"
+                aria-label="Exportar CSV"
+              >
+                <i className="bi bi-download"></i>
+                {exportando ? "Exportando..." : "Exportar CSV"}
+              </Button>
 
               <Link to="/consultas/novo" className="btn btn-success">
                 <i className="bi bi-plus-lg me-1"></i> Agendar
@@ -370,6 +447,29 @@ function AgendaDeConsultas() {
               </div>
             </Modal.Body>
           </Modal>
+
+          <ToastContainer position="bottom-center" className="mb-4">
+            <Toast
+              show={showToast}
+              onClose={() => setShowToast(false)}
+              delay={4000}
+              autohide
+              className="border-0 shadow"
+            >
+              <Toast.Body
+                className={`d-flex align-items-center gap-2 text-${toastVariant}`}
+              >
+                <i
+                  className={`bi bi-${
+                    toastVariant === "success"
+                      ? "check-circle-fill"
+                      : "exclamation-circle-fill"
+                  }`}
+                ></i>
+                {toastMessage}
+              </Toast.Body>
+            </Toast>
+          </ToastContainer>
         </Container>
       </main>
     </>
