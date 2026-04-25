@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import UsuarioModel from "../models/UsuarioModel.js";
 import { randomUUID } from "crypto";
+import { gerarCsv } from "../utils/csv.js"; 
 
 function removerSenha(usuario) {
   if (!usuario) return usuario;
@@ -24,6 +25,50 @@ class UsuarioController {
     } catch (error) {
       console.error("Erro ao listar usuários:", error);
       res.status(500).json({ error: "Erro ao listar usuários" });
+    }
+  }
+
+  static async exportarCsv(req, res) {
+    try {
+      const { busca } = req.query;
+      let usuarios;
+
+      if (busca) {
+        usuarios = await UsuarioModel.filtrar(busca);
+      } else {
+        usuarios = await UsuarioModel.listarTodos();
+      }
+
+      const header = ["Nome", "Email", "Telefone", "Função", "Disponibilidade", "Data de Cadastro"];
+      
+      const linhas = usuarios.map((u) => {
+        const dataCadastro = u.created_at
+          ? new Date(u.created_at).toLocaleDateString("pt-BR")
+          : "";
+          
+        return [
+          u.nome || "",
+          u.email || "",
+          u.telefone || "",
+          u.funcao_nome || "", 
+          u.disponibilidade || "",
+          dataCadastro,
+        ];
+      });
+
+      const corpo = "\uFEFF" + gerarCsv(header, linhas); 
+      const dataIso = new Date().toISOString().slice(0, 10);
+      const filename = `relatorio_usuarios_${dataIso}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`
+      );
+      res.send(corpo);
+    } catch (error) {
+      console.error("Erro ao exportar CSV de usuários:", error);
+      res.status(500).json({ error: "Erro ao exportar relatório de usuários" });
     }
   }
 
