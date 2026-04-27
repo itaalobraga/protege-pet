@@ -7,6 +7,7 @@ const router = express.Router();
 const validarPermissao = exigirPermissao("Gerenciar usuários");
 
 router.get("/usuarios", authJwt, validarPermissao, UsuarioController.listar);
+router.get("/usuarios/relatorio.csv", authJwt, validarPermissao, UsuarioController.exportarCsv);
 router.get("/usuarios/:id", authJwt, validarPermissao, UsuarioController.buscarPorId);
 router.post("/usuarios", authJwt, validarPermissao, UsuarioController.criar);
 router.put("/usuarios/:id", authJwt, validarPermissao, UsuarioController.atualizar);
