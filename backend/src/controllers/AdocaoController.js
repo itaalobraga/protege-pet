@@ -1,10 +1,17 @@
 import AdocaoModel from "../models/AdocaoModel.js";
 import AnimalModel from "../models/AnimalModel.js";
+import EmailService from "../services/EmailService.js";
+import pool from "../config/database.js";
 import {
   aplicarMascaraCpf,
   aplicarMascaraTelefone,
   validarTelefone,
 } from "../validation/mascaras.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 class AdocaoController {
   static async listar(req, res) {
@@ -42,6 +49,9 @@ class AdocaoController {
   }
 
   static async criar(req, res) {
+    const connection = await pool.getConnection();
+    let transacaoIniciada = false;
+
     try {
       const { nome, cpf, telefone, email, animal_id } = req.body;
 
@@ -89,18 +99,73 @@ class AdocaoController {
         });
       }
 
+      await connection.beginTransaction();
+      transacaoIniciada = true;
+
       const adocao = await AdocaoModel.criar({
         nome: nome.trim(),
         cpf: aplicarMascaraCpf(cpfLimpo),
         telefone: aplicarMascaraTelefone(telefone),
         email: email.toLowerCase().trim(),
         animal_id,
-      });
+      }, connection);
+
+      const [resultadoAtualizacaoAnimal] = await connection.query(
+        `
+          UPDATE animais
+          SET status = 'Adotado'
+          WHERE id = ? AND status = 'Apto'
+        `,
+        [animal_id],
+      );
+
+      if (resultadoAtualizacaoAnimal.affectedRows === 0) {
+        throw new Error("Este animal não está disponível para adoção");
+      }
+
+      await connection.commit();
+      transacaoIniciada = false;
+
+      if (adocao.email) {
+        try {
+          const templatePath = path.join(
+            __dirname,
+            "..",
+            "templates",
+            "adocao_realizada.hbs",
+          );
+          const template = fs.readFileSync(templatePath, "utf8");
+
+          await EmailService.sendTemplate({
+            to: adocao.email,
+            subject: "Adoção realizada - Protege Pet",
+            template,
+            data: {
+              adotante_nome: adocao.nome,
+              animal_nome: animal.nome || "seu novo pet",
+              data_adocao: new Date().toLocaleDateString("pt-BR"),
+            },
+          });
+        } catch (emailError) {
+          console.error(
+            "Aviso: Falha ao enviar e-mail de confirmação da adoção:",
+            emailError,
+          );
+        }
+      }
 
       res.status(201).json(adocao);
     } catch (error) {
+      if (transacaoIniciada) {
+        await connection.rollback();
+      }
       console.error("Erro ao criar adoção:", error);
+      if (error.message === "Este animal não está disponível para adoção") {
+        return res.status(400).json({ error: error.message });
+      }
       res.status(500).json({ error: "Erro ao criar adoção" });
+    } finally {
+      connection.release();
     }
   }
 
