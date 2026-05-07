@@ -1,4 +1,5 @@
 import MedicamentoModel from "../models/MedicamentoModel.js";
+import { gerarCsv } from "../utils/csv.js";
 
 class MedicamentoController {
   static async listar(req, res) {
@@ -37,11 +38,19 @@ class MedicamentoController {
 
   static async criar(req, res) {
     try {
-      const { nome, principio_ativo, dosagem, forma_farmaceutica, fabricante, descricao } =
-        req.body;
+      const {
+        nome,
+        principio_ativo,
+        dosagem,
+        forma_farmaceutica,
+        fabricante,
+        descricao,
+      } = req.body;
 
       if (!nome) {
-        return res.status(400).json({ error: "O nome do medicamento é obrigatório" });
+        return res
+          .status(400)
+          .json({ error: "O nome do medicamento é obrigatório" });
       }
 
       const medicamento = await MedicamentoModel.criar({
@@ -63,8 +72,14 @@ class MedicamentoController {
   static async atualizar(req, res) {
     try {
       const { id } = req.params;
-      const { nome, principio_ativo, dosagem, forma_farmaceutica, fabricante, descricao } =
-        req.body;
+      const {
+        nome,
+        principio_ativo,
+        dosagem,
+        forma_farmaceutica,
+        fabricante,
+        descricao,
+      } = req.body;
 
       const existente = await MedicamentoModel.buscarPorId(id);
       if (!existente) {
@@ -72,7 +87,9 @@ class MedicamentoController {
       }
 
       if (!nome) {
-        return res.status(400).json({ error: "O nome do medicamento é obrigatório" });
+        return res
+          .status(400)
+          .json({ error: "O nome do medicamento é obrigatório" });
       }
 
       const medicamento = await MedicamentoModel.atualizar(id, {
@@ -105,6 +122,46 @@ class MedicamentoController {
     } catch (error) {
       console.error("Erro ao excluir medicamento:", error);
       res.status(500).json({ error: "Erro ao excluir medicamento" });
+    }
+  }
+
+  static async exportarCsv(req, res) {
+    try {
+      const { busca } = req.query;
+      const medicamentos = busca
+        ? await MedicamentoModel.filtrar(busca)
+        : await MedicamentoModel.listarTodos();
+
+      const header = [
+        "Nome",
+        "Princípio ativo",
+        "Dosagem",
+        "Forma farmacêutica",
+        "Fabricante",
+        "Descrição",
+      ];
+      const linhas = medicamentos.map((m) => [
+        m.nome || "",
+        m.principio_ativo || "",
+        m.dosagem || "",
+        m.forma_farmaceutica || "",
+        m.fabricante || "",
+        m.descricao || "",
+      ]);
+
+      const corpo = "\uFEFF" + gerarCsv(header, linhas);
+      const dataIso = new Date().toISOString().slice(0, 10);
+      const filename = `medicamentos_${dataIso}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`,
+      );
+      res.send(corpo);
+    } catch (error) {
+      console.error("Erro ao exportar CSV de medicamentos:", error);
+      res.status(500).json({ error: "Erro ao exportar CSV de medicamentos" });
     }
   }
 }
