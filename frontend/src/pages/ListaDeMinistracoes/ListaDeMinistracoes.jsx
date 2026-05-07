@@ -1,16 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
-import { Card, Container, Table } from "react-bootstrap";
+import { Button, Card, Container, Table } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
 import ApiService from "../../services/ApiService";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function ListaDeMinistracoes() {
   const { prescricaoId } = useParams();
   const [prescricao, setPrescricao] = useState(null);
   const [ministracoes, setMinistracoes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [exportando, setExportando] = useState(false);
 
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -53,6 +56,44 @@ function ListaDeMinistracoes() {
     });
   };
 
+  const exportarCsv = async () => {
+    if (ministracoes.length === 0) {
+      exibirToast("Nenhuma ministração para exportar.", "warning");
+      return;
+    }
+
+    setExportando(true);
+    try {
+      const url = `${API_URL}/ministracoes/relatorio.csv?prescricao_id=${encodeURIComponent(prescricaoId)}`;
+      const response = await fetch(url, { credentials: "include" });
+
+      if (!response.ok) {
+        exibirToast(`Erro ao exportar (${response.status}).`, "danger");
+        return;
+      }
+
+      const disposition = response.headers.get("Content-Disposition") || "";
+      const match = disposition.match(/filename="?([^";]+)"?/i);
+      const fallback = `ministracoes_${new Date().toISOString().slice(0, 10)}.csv`;
+      const filename = match ? match[1] : fallback;
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Erro ao exportar CSV:", error);
+      exibirToast("Erro ao exportar CSV.", "danger");
+    } finally {
+      setExportando(false);
+    }
+  };
+
   return (
     <>
       <Header />
@@ -76,6 +117,16 @@ function ListaDeMinistracoes() {
               >
                 <i className="bi bi-arrow-left"></i> Voltar
               </Link>
+              <Button
+                variant="outline-primary"
+                onClick={exportarCsv}
+                disabled={exportando}
+                className="d-flex align-items-center gap-2"
+                aria-label="Exportar CSV"
+              >
+                <i className="bi bi-download"></i>
+                {exportando ? "Exportando..." : "Exportar CSV"}
+              </Button>
               <Link
                 to={`/prescricoes/${prescricaoId}/ministracoes/nova`}
                 className="btn btn-success d-flex align-items-center gap-2"

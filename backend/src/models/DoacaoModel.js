@@ -10,10 +10,12 @@ class DoacaoModel {
         d.tipo_doacao,
         d.valor,
         d.produto_id,
+        p.nome AS produto_nome,
         d.quantidade,
         d.observacao,
         d.created_at
       FROM doacoes d
+      LEFT JOIN produtos p ON p.id = d.produto_id
     `;
 
     const params = [];
@@ -24,10 +26,11 @@ class DoacaoModel {
           d.doador_nome LIKE ?
           OR d.doador_contato LIKE ?
           OR d.tipo_doacao LIKE ?
+          OR COALESCE(p.nome, '') LIKE ?
           OR COALESCE(d.observacao, '') LIKE ?
       `;
       const like = `%${termo}%`;
-      params.push(like, like, like, like);
+      params.push(like, like, like, like, like);
     }
 
     query += ` ORDER BY d.created_at DESC`;
@@ -39,7 +42,12 @@ class DoacaoModel {
   static async buscarPorId(id) {
     const [rows] = await pool.query(
       `
-      SELECT * FROM doacoes WHERE id = ?
+      SELECT
+        d.*,
+        p.nome AS produto_nome
+      FROM doacoes d
+      LEFT JOIN produtos p ON p.id = d.produto_id
+      WHERE d.id = ?
       `,
       [id]
     );

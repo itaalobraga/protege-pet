@@ -8,6 +8,7 @@ const validarPermissao = exigirPermissao("Gerenciar prescrições e ministraçõ
 
 router.get("/ministracoes/responsaveis", authJwt, validarPermissao, MinistracaoController.listarResponsaveis);
 router.get("/ministracoes", authJwt, validarPermissao, MinistracaoController.listar);
+router.get("/ministracoes/relatorio.csv", authJwt, validarPermissao, MinistracaoController.exportarCsv);
 router.get("/ministracoes/:id", authJwt, validarPermissao, MinistracaoController.buscarPorId);
 router.post("/ministracoes", authJwt, validarPermissao, MinistracaoController.criar);
 

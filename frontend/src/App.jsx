@@ -34,6 +34,7 @@ import ListaDeAdocoes from "./pages/ListaDeAdocoes/ListaDeAdocoes.jsx";
 import CadastroDeAdocoes from "./pages/CadastroDeAdocoes/CadastroDeAdocoes.jsx";
 import CadastroDeDoacoes from "./pages/CadastroDeDoacoes/CadastroDeDoacoes.jsx";
 import ListaDeDoacoes from "./pages/ListaDeDoacoes/ListaDeDoacoes.jsx";
+import DetalhesDoacao from "./pages/DetalhesDoacao/DetalhesDoacao.jsx";
 import ListaDeMedicamentos from "./pages/ListaDeMedicamentos/ListaDeMedicamentos.jsx";
 import CadastroDeMedicamentos from "./pages/CadastroDeMedicamentos/CadastroDeMedicamentos.jsx";
 import ListaDeTiposDeExames from "./pages/ListaDeTiposDeExames/ListaDeTiposDeExames.jsx";
@@ -197,6 +198,7 @@ function App() {
             >
               <Route path="/doacoes" element={<ListaDeDoacoes />} />
               <Route path="/doacoes/cadastro" element={<CadastroDeDoacoes />} />
+              <Route path="/doacoes/:id" element={<DetalhesDoacao />} />
             </Route>
 
             <Route
