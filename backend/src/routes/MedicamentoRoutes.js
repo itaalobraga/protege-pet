@@ -7,6 +7,12 @@ const router = express.Router();
 const validarPermissao = exigirPermissao("Gerenciar medicamentos");
 
 router.get("/medicamentos", authJwt, validarPermissao, MedicamentoController.listar);
+router.get(
+  "/medicamentos/relatorio.csv",
+  authJwt,
+  validarPermissao,
+  MedicamentoController.exportarCsv,
+);
 router.get("/medicamentos/:id", authJwt, validarPermissao, MedicamentoController.buscarPorId);
 router.post("/medicamentos", authJwt, validarPermissao, MedicamentoController.criar);
 router.put("/medicamentos/:id", authJwt, validarPermissao, MedicamentoController.atualizar);

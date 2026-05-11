@@ -1,6 +1,7 @@
 import PrescricaoModel from "../models/PrescricaoModel.js";
 import MinistracaoModel from "../models/MinistracaoModel.js";
 import VeterinarioModel from "../models/VeterinarioModel.js";
+import { gerarCsv } from "../utils/csv.js";
 
 class MinistracaoController {
   static async listarResponsaveis(req, res) {
@@ -21,6 +22,43 @@ class MinistracaoController {
     } catch (error) {
       console.error("Erro ao listar ministrações:", error);
       res.status(500).json({ error: "Erro ao listar ministrações" });
+    }
+  }
+
+  static async exportarCsv(req, res) {
+    try {
+      const { prescricao_id } = req.query;
+      const ministracoes = await MinistracaoModel.listarTodos(prescricao_id || "");
+
+      const header = [
+        "Data/Hora",
+        "Prescrição",
+        "Animal",
+        "Medicamento",
+        "Quantidade aplicada",
+        "Responsável",
+        "Observação",
+      ];
+      const linhas = ministracoes.map((m) => [
+        m.data_hora ? new Date(m.data_hora).toLocaleString("pt-BR") : "",
+        m.prescricao_id || "",
+        m.animal_nome || "",
+        m.medicamento_nome || "",
+        m.quantidade_aplicada ?? 0,
+        m.responsavel_nome || "",
+        m.observacao || "",
+      ]);
+
+      const corpo = "\uFEFF" + gerarCsv(header, linhas);
+      const dataIso = new Date().toISOString().slice(0, 10);
+      const filename = `ministracoes_${dataIso}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(corpo);
+    } catch (error) {
+      console.error("Erro ao exportar CSV de ministrações:", error);
+      res.status(500).json({ error: "Erro ao exportar CSV de ministrações" });
     }
   }
 

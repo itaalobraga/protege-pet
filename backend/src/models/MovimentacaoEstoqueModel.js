@@ -65,11 +65,14 @@ class MovimentacaoEstoqueModel {
     return rows[0] || null;
   }
 
-  static async criarMovimentacao(dados) {
-    const connection = await pool.getConnection();
+  static async criarMovimentacao(dados, connectionParam = null) {
+    const connection = connectionParam || (await pool.getConnection());
+    const controlarTransacao = !connectionParam;
 
     try {
-      await connection.beginTransaction();
+      if (controlarTransacao) {
+        await connection.beginTransaction();
+      }
 
       const {
         produto_id,
@@ -151,7 +154,9 @@ class MovimentacaoEstoqueModel {
         ]
       );
 
-      await connection.commit();
+      if (controlarTransacao) {
+        await connection.commit();
+      }
 
       return {
         id,
@@ -167,10 +172,14 @@ class MovimentacaoEstoqueModel {
         quantidade_atual: novaQuantidade,
       };
     } catch (error) {
-      await connection.rollback();
+      if (controlarTransacao) {
+        await connection.rollback();
+      }
       throw error;
     } finally {
-      connection.release();
+      if (!connectionParam) {
+        connection.release();
+      }
     }
   }
 }

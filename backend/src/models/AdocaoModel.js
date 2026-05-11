@@ -28,10 +28,11 @@ class Adocao {
     return rows[0];
   }
 
-  static async criar(adocao) {
+  static async criar(adocao, connectionParam = null) {
     const { nome, cpf, telefone, email, animal_id } = adocao;
+    const connection = connectionParam || pool;
 
-    const [result] = await pool.query(
+    const [result] = await connection.query(
       `INSERT INTO adocoes (nome, cpf, telefone, email, animal_id)
        VALUES (?, ?, ?, ?, ?)`,
       [nome, cpf, telefone, email, animal_id],

@@ -1,14 +1,15 @@
-const DELIMITER = ",";
 const NEWLINE = "\r\n";
 const QUOTE = '"';
 
-function escaparValor(valor) {
+function escaparValor(valor, delimiter) {
   if (valor === null || valor === undefined) {
     return "";
   }
   const texto = String(valor);
   const precisaAspas =
-    texto.includes(DELIMITER) ||
+    texto.includes(delimiter) ||
+    texto.includes(",") ||
+    texto.includes(";") ||
     texto.includes(QUOTE) ||
     texto.includes("\n") ||
     texto.includes("\r");
@@ -18,13 +19,15 @@ function escaparValor(valor) {
   return `${QUOTE}${texto.replaceAll(QUOTE, QUOTE + QUOTE)}${QUOTE}`;
 }
 
-function montarLinha(valores) {
-  return valores.map(escaparValor).join(DELIMITER);
+function montarLinha(valores, delimiter) {
+  return valores.map((valor) => escaparValor(valor, delimiter)).join(delimiter);
 }
 
-export function gerarCsv(header, linhas) {
-  const cabecalho = montarLinha(header);
-  const corpo = linhas.map(montarLinha).join(NEWLINE);
+export function gerarCsv(header, linhas, delimiter = ",") {
+  const cabecalho = montarLinha(header, delimiter);
+  const corpo = linhas
+    .map((linha) => montarLinha(linha, delimiter))
+    .join(NEWLINE);
   if (linhas.length === 0) {
     return cabecalho + NEWLINE;
   }

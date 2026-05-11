@@ -2,11 +2,31 @@ import DoacaoModel from "../models/DoacaoModel.js";
 import MovimentacaoEstoqueModel from "../models/MovimentacaoEstoqueModel.js";
 import pool from "../config/database.js";
 import EmailService from "../services/EmailService.js";
+import { gerarCsv } from "../utils/csv.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+function formatarDetalhesDoacao(doacao) {
+  if (doacao.tipo_doacao === "DINHEIRO") {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(Number(doacao.valor || 0));
+  }
+
+  const quantidade = Number(doacao.quantidade || 0);
+  const produto = doacao.produto_nome || "Produto";
+  return `${quantidade}x ${produto}`;
+}
+
+function formatarTipoDoacao(tipo) {
+  const normalizado = String(tipo || "").trim().toLowerCase();
+  if (!normalizado) return "";
+  return normalizado.charAt(0).toUpperCase() + normalizado.slice(1);
+}
 
 class DoacaoController {
   static async listar(req, res) {
@@ -17,6 +37,41 @@ class DoacaoController {
     } catch (error) {
       console.error("Erro ao listar doações:", error);
       res.status(500).json({ error: "Erro ao listar doações" });
+    }
+  }
+
+  static async exportarCsv(req, res) {
+    try {
+      const { busca } = req.query;
+      const doacoes = await DoacaoModel.listarTodas(busca || "");
+
+      const header = [
+        "Data",
+        "Doador",
+        "Contato",
+        "Tipo",
+        "Detalhes",
+        "Observação",
+      ];
+      const linhas = doacoes.map((d) => [
+        d.created_at ? new Date(d.created_at).toLocaleDateString("pt-BR") : "",
+        d.doador_nome || "",
+        d.doador_contato || "",
+        formatarTipoDoacao(d.tipo_doacao),
+        formatarDetalhesDoacao(d),
+        d.observacao || "",
+      ]);
+
+      const corpo = "\uFEFF" + gerarCsv(header, linhas);
+      const dataIso = new Date().toISOString().slice(0, 10);
+      const filename = `doacoes_recebidas_${dataIso}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(corpo);
+    } catch (error) {
+      console.error("Erro ao exportar CSV de doações:", error);
+      res.status(500).json({ error: "Erro ao exportar CSV de doações" });
     }
   }
 
@@ -84,7 +139,7 @@ class DoacaoController {
           motivo: 'DOACAO',
           observacao: `Entrada automática via recebimento de doação #${novaDoacao.id}`,
           responsavel: req.usuario?.nome || "Sistema"
-        });
+        }, connection);
       }
 
       await connection.commit();
