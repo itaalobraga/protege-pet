@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.use(verificarToken);
 router.use(exigirPermissao("Gerenciar atendimentos veterinários")); 
-
+router.get("/atendimentos/relatorio.csv", AtendimentoController.exportarCsv);
 router.get("/atendimentos", AtendimentoController.listar);
 router.get(
   "/atendimentos/consultas-sem-atendimento",
