@@ -2,8 +2,18 @@ import AtendimentoModel from "../models/AtendimentoModel.js";
 import ConsultaVeterinariaModel from "../models/ConsultaVeterinariaModel.js";
 import ConsultaVeterinariaController from "./ConsultaVeterinariaController.js";
 import pool from "../config/database.js";
+import { gerarCsv } from "../utils/csv.js";
+import { format, isValid, parse } from "date-fns";
 
 class AtendimentoController {
+  
+  static #formatarDataBrasileira(mysqlDateTime) {
+    if (!mysqlDateTime) return "";
+    const dt = parse(String(mysqlDateTime), "yyyy-MM-dd HH:mm:ss", new Date(0));
+    if (!isValid(dt)) return mysqlDateTime;
+    return format(dt, "dd/MM/yyyy HH:mm");
+  }
+
   static async listarConsultasSemAtendimento(req, res) {
     try {
       const consultas = await ConsultaVeterinariaModel.listar({
@@ -25,6 +35,40 @@ class AtendimentoController {
       res
         .status(500)
         .json({ error: "Erro ao carregar o histórico de atendimentos" });
+    }
+  }
+
+  static async exportarCsv(req, res) {
+    try {
+      const atendimentos = await AtendimentoModel.listarTodos();
+
+      const header = ["Data do Atendimento", "Veterinário", "Animal", "Peso (kg)", "Diagnóstico", "Observações/Evolução"];
+      
+      const linhas = atendimentos.map((a) => {
+        const vetNome = [a.veterinario_nome, a.veterinario_sobrenome].filter(Boolean).join(" ").trim();
+        return [
+          AtendimentoController.#formatarDataBrasileira(a.data_consulta),
+          vetNome,
+          a.animal_nome || "",
+          a.peso ? `${a.peso}` : "-",
+          a.diagnostico_nome || "Não definido",
+          a.observacoes || ""
+        ];
+      });
+
+      const corpo = "\uFEFF" + gerarCsv(header, linhas);
+      const dataIso = new Date().toISOString().slice(0, 10);
+      const filename = `relatorio_atendimentos_${dataIso}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`
+      );
+      res.send(corpo);
+    } catch (error) {
+      console.error("Erro ao exportar CSV de atendimentos:", error);
+      res.status(500).json({ error: "Erro ao exportar CSV de atendimentos" });
     }
   }
 
