@@ -8,6 +8,8 @@ import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../services/ApiService";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function ListaDeAdocoes() {
   const [adocoes, setAdocoes] = useState([]);
 
@@ -15,11 +17,61 @@ function ListaDeAdocoes() {
   const [loading, setLoading] = useState(false);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [exportando, setExportando] = useState(false);
   const [adocaoToDelete, setAdocaoToDelete] = useState(null);
 
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVariant, setToastVariant] = useState("success");
+
+  const exportarCsv = async () => {
+    if (adocoes.length === 0) {
+      setShowToast(true);
+      setToastMessage("Nenhuma adoção para exportar.");
+      setToastVariant("warning");
+      return;
+    }
+
+    setExportando(true);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set("busca", search);
+
+      const qs = params.toString();
+      const url = `${API_URL}/adocoes/relatorio.csv${qs ? `?${qs}` : ""}`;
+
+      const response = await fetch(url, { credentials: "include" });
+
+      if (!response.ok) {
+        setShowToast(true);
+        setToastMessage(`Erro ao exportar (${response.status}).`);
+        setToastVariant("danger");
+        return;
+      }
+
+      const disposition = response.headers.get("Content-Disposition") || "";
+      const match = disposition.match(/filename="?([^";]+)"?/i);
+      const fallback = `relatorio_adocoes_${new Date().toISOString().slice(0, 10)}.csv`;
+      const filename = match ? match[1] : fallback;
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("Erro ao exportar CSV:", error);
+      setShowToast(true);
+      setToastMessage("Erro ao exportar CSV.");
+      setToastVariant("danger");
+    } finally {
+      setExportando(false);
+    }
+  };
 
   const carregarAdocoes = useCallback(async (termo = "") => {
     setLoading(true);
@@ -95,6 +147,17 @@ function ListaDeAdocoes() {
                 onChange={(e) => setSearch(e.target.value)}
                 aria-label="Buscar Adotante"
               />
+              <Button
+                variant="outline-primary"
+                onClick={exportarCsv}
+                disabled={exportando}
+                className="d-flex align-items-center gap-2"
+                aria-label="Exportar CSV"
+              >
+                <i className="bi bi-download"></i>
+                {exportando ? "Exportando..." : "Exportar CSV"}
+              </Button>
+
               <Link
                 to="/adocoes/cadastro"
                 className="btn btn-success d-flex align-items-center gap-2"

@@ -10,6 +10,7 @@ import {
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { gerarCsv } from "../utils/csv.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import ArquivoModel from "../models/ArquivoModel.js";
@@ -17,6 +18,59 @@ import ArquivoModel from "../models/ArquivoModel.js";
 
 
 class AdocaoController {
+  static async exportarCsv(req, res) {
+    try {
+      const { busca } = req.query;
+      const adocoes = busca
+        ? await AdocaoModel.filtrar(busca)
+        : await AdocaoModel.listarTodos();
+
+      const header = [
+        "Nome",
+        "CPF",
+        "Telefone",
+        "Email",
+        "Animal",
+        "Espécie",
+        "Raça",
+        "Data de Cadastro",
+        "Possui termo",
+      ];
+
+      const linhas = (adocoes || []).map((a) => {
+        const dataCadastro = a.created_at
+          ? new Date(a.created_at).toLocaleDateString("pt-BR")
+          : "";
+
+        return [
+          a.nome || "",
+          a.cpf || "",
+          a.telefone || "",
+          a.email || "",
+          a.animal_nome || "",
+          a.animal_especie || "",
+          a.raca_nome || "",
+          dataCadastro,
+          a.termo_arquivo_id ? "Sim" : "Não",
+        ];
+      });
+
+      const corpo = "\uFEFF" + gerarCsv(header, linhas);
+      const dataIso = new Date().toISOString().slice(0, 10);
+      const filename = `relatorio_adocoes_${dataIso}.csv`;
+
+      res.setHeader("Content-Type", "text/csv; charset=utf-8");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`,
+      );
+      res.send(corpo);
+    } catch (error) {
+      console.error("Erro ao exportar CSV de adoções:", error);
+      res.status(500).json({ error: "Erro ao exportar relatório de adoções" });
+    }
+  }
+
   static async listar(req, res) {
     try {
       const { busca } = req.query;
