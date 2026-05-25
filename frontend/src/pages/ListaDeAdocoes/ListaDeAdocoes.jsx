@@ -150,6 +150,19 @@ function ListaDeAdocoes() {
 
                           <td className="align-middle">
                             <div className="d-flex gap-2 justify-content-center">
+                              {adocao.termo_arquivo_id && (
+                                <a
+                                  className="btn btn-outline-secondary btn-sm"
+                                  href={`${import.meta.env.VITE_API_URL}/arquivos/${adocao.termo_arquivo_id}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  aria-label="Baixar termo"
+                                  title="Baixar termo"
+                                >
+                                  <i className="bi bi-download"></i>
+                                </a>
+                              )}
+
                               <Link
                                 to={`/adocoes/cadastro/editar/${adocao.id}`}
                                 className="btn btn-outline-primary btn-sm"

@@ -45,6 +45,15 @@ class ApiService {
     });
     return this.resolver(response);
   }
+
+  static async postForm(endpoint, formData) {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+    return this.resolver(response);
+  }
 }
 
 export default ApiService;

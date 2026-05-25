@@ -32,6 +32,7 @@ router.put(
   validarPermissao,
   AdocaoController.atualizar,
 );
+
 router.delete(
   "/adocoes/:id",
   authJwt,

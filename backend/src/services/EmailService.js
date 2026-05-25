@@ -17,7 +17,7 @@ class EmailService {
     return this.resend;
   }
 
-  async sendTemplate({ to, subject, template, data = {} }) {
+  async sendTemplate({ to, subject, template, data = {}, attachments = [] }) {
     if (!this.from) {
       throw new Error("EMAIL_FROM não configurado");
     }
@@ -41,6 +41,7 @@ class EmailService {
       to,
       subject,
       html,
+      attachments: attachments?.length ? attachments : undefined,
     });
 
     if (result.error) {

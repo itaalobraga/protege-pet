@@ -12,6 +12,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import ArquivoModel from "../models/ArquivoModel.js";
+
+
 
 class AdocaoController {
   static async listar(req, res) {
@@ -47,6 +50,8 @@ class AdocaoController {
       res.status(500).json({ error: "Erro ao buscar adoção" });
     }
   }
+
+
 
   static async criar(req, res) {
     const connection = await pool.getConnection();
@@ -102,12 +107,22 @@ class AdocaoController {
       await connection.beginTransaction();
       transacaoIniciada = true;
 
+      const termoArquivoId = req.body?.termo_arquivo_id || null;
+
+      if (termoArquivoId) {
+        const termo = await ArquivoModel.buscarPorId(termoArquivoId);
+        if (!termo) {
+          return res.status(400).json({ error: "termo_arquivo_id inválido" });
+        }
+      }
+
       const adocao = await AdocaoModel.criar({
         nome: nome.trim(),
         cpf: aplicarMascaraCpf(cpfLimpo),
         telefone: aplicarMascaraTelefone(telefone),
         email: email.toLowerCase().trim(),
         animal_id,
+        termo_arquivo_id: termoArquivoId,
       }, connection);
 
       const [resultadoAtualizacaoAnimal] = await connection.query(
@@ -126,7 +141,10 @@ class AdocaoController {
       await connection.commit();
       transacaoIniciada = false;
 
-      if (adocao.email) {
+      // Recarrega com joins (inclui info do termo)
+      const adocaoCompleta = await AdocaoModel.buscarPorId(adocao.id);
+
+      if (adocaoCompleta?.email) {
         try {
           const templatePath = path.join(
             __dirname,
@@ -136,15 +154,38 @@ class AdocaoController {
           );
           const template = fs.readFileSync(templatePath, "utf8");
 
+          const attachments = [];
+          if (adocaoCompleta.termo_arquivo_id) {
+            const termo = await ArquivoModel.buscarPorId(adocaoCompleta.termo_arquivo_id);
+            if (termo) {
+              // O attachment do e-mail continua suportado, mas agora o upload é feito via rota /arquivos.
+              // Para anexar, baixamos o conteúdo do arquivo do S3.
+              // (Isso mantém o requisito do e-mail anexado.)
+              const { baixarDoS3 } = await import("../services/ArquivoService.js");
+
+              const s3Obj = await baixarDoS3({ bucket: termo.s3_bucket, key: termo.s3_key });
+              const body = s3Obj.Body;
+              const chunks = [];
+              for await (const chunk of body) chunks.push(chunk);
+              const buf = Buffer.concat(chunks);
+
+              attachments.push({
+                filename: termo.nome_original,
+                content: buf.toString("base64"),
+              });
+            }
+          }
+
           await EmailService.sendTemplate({
-            to: adocao.email,
+            to: adocaoCompleta.email,
             subject: "Adoção realizada - Protege Pet",
             template,
             data: {
-              adotante_nome: adocao.nome,
+              adotante_nome: adocaoCompleta.nome,
               animal_nome: animal.nome || "seu novo pet",
               data_adocao: new Date().toLocaleDateString("pt-BR"),
             },
+            attachments,
           });
         } catch (emailError) {
           console.error(
@@ -154,7 +195,7 @@ class AdocaoController {
         }
       }
 
-      res.status(201).json(adocao);
+      res.status(201).json(adocaoCompleta);
     } catch (error) {
       if (transacaoIniciada) {
         await connection.rollback();
@@ -208,12 +249,35 @@ class AdocaoController {
         }
       }
 
+      const termoArquivoId = req.body?.termo_arquivo_id;
+      // Se não vier no payload, não altera. Se vier como "" ou null, remove.
+
+      // se termo_arquivo_id veio no payload, tratamos atualização/remocao
+      if (termoArquivoId !== undefined) {
+        const novoId = termoArquivoId ? String(termoArquivoId) : null;
+
+        if (novoId) {
+          const termo = await ArquivoModel.buscarPorId(novoId);
+          if (!termo) {
+            return res.status(400).json({ error: "termo_arquivo_id inválido" });
+          }
+        }
+
+        // se mudou, remove o antigo do storage e DB
+        // Não deletamos o arquivo antigo automaticamente aqui.
+        // A exclusão deve ser feita explicitamente via DELETE /api/arquivos/:id.
+        // Mantemos apenas a troca do vínculo no update abaixo.
+      }
+
       const adocao = await AdocaoModel.atualizar(id, {
         nome: nome.trim(),
         cpf: aplicarMascaraCpf(cpfLimpo),
         telefone: aplicarMascaraTelefone(telefone),
         email: email.toLowerCase().trim(),
         animal_id,
+        termo_arquivo_id: termoArquivoId !== undefined
+          ? (termoArquivoId ? String(termoArquivoId) : null)
+          : undefined,
       });
 
       res.json(adocao);
@@ -223,7 +287,12 @@ class AdocaoController {
     }
   }
 
+
+
   static async excluir(req, res) {
+    const connection = await pool.getConnection();
+    let transacaoIniciada = false;
+
     try {
       const { id } = req.params;
 
@@ -232,16 +301,28 @@ class AdocaoController {
         return res.status(404).json({ error: "Adoção não encontrada" });
       }
 
-      const sucesso = await AdocaoModel.excluir(id);
+      await connection.beginTransaction();
+      transacaoIniciada = true;
+
+      // remove a adoção. O termo (arquivo) não é removido automaticamente.
+      // Para remover um termo, use DELETE /api/arquivos/:id (FK ON DELETE SET NULL).
+
+      const sucesso = await AdocaoModel.excluir(id, connection);
 
       if (!sucesso) {
-        return res.status(500).json({ error: "Erro ao excluir adoção" });
+        throw new Error("Erro ao excluir adoção");
       }
+
+      await connection.commit();
+      transacaoIniciada = false;
 
       res.json({ message: "Adoção excluída com sucesso" });
     } catch (error) {
+      if (transacaoIniciada) await connection.rollback();
       console.error("Erro ao excluir adoção:", error);
       res.status(500).json({ error: "Erro ao excluir adoção" });
+    } finally {
+      connection.release();
     }
   }
 

@@ -198,7 +198,26 @@ CREATE TABLE IF NOT EXISTS categorias_produtos (
   descricao VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+);
+
+CREATE TABLE IF NOT EXISTS arquivos (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nome_original VARCHAR(255) NOT NULL,
+  mime_type VARCHAR(120) NOT NULL,
+  tamanho_bytes BIGINT NOT NULL,
+  s3_bucket VARCHAR(255) NOT NULL,
+  s3_key VARCHAR(1024) NOT NULL,
+  s3_etag VARCHAR(128) NULL,
+  criado_por_usuario_id VARCHAR(36) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_arquivo_usuario
+    FOREIGN KEY (criado_por_usuario_id) REFERENCES usuarios(id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+);
+
+CREATE INDEX idx_arquivos_created_at ON arquivos(created_at);
 
 CREATE INDEX idx_categoria_produto_nome ON categorias_produtos(nome);
 
@@ -384,13 +403,20 @@ CREATE TABLE IF NOT EXISTS adocoes (
   telefone VARCHAR(20) NOT NULL,
   email VARCHAR(255) NOT NULL,
   animal_id INT NOT NULL,
+  termo_arquivo_id INT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_adocao_animal
     FOREIGN KEY (animal_id) REFERENCES animais(id)
     ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT fk_adocao_termo_arquivo
+    FOREIGN KEY (termo_arquivo_id) REFERENCES arquivos(id)
+    ON DELETE SET NULL
     ON UPDATE CASCADE
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE INDEX idx_adocao_termo_arquivo_id ON adocoes(termo_arquivo_id);
 
 CREATE INDEX idx_adocao_nome ON adocoes(nome);
 CREATE INDEX idx_adocao_email ON adocoes(email);
