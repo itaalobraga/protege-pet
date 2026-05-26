@@ -32,14 +32,14 @@ describe("CadastroDeMedicamentos help integration", () => {
       path: "/medicamentos/cadastro",
     });
 
-    const button = screen.getByRole("button", { name: "Help" });
+    const button = screen.getByRole("button", { name: "Ajuda" });
     await user.click(button);
 
     expect(
       screen.getByText("Como cadastrar ou editar um medicamento"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("O nome do medicamento e obrigatorio."),
+      screen.getByText("O nome do medicamento é obrigatório."),
     ).toBeInTheDocument();
   });
 });

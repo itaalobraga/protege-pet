@@ -29,12 +29,12 @@ describe("ListaDeAdocoes help integration", () => {
 
     renderWithRouter(<ListaDeAdocoes />);
 
-    const button = await screen.findByRole("button", { name: "Help" });
+    const button = await screen.findByRole("button", { name: "Ajuda" });
     expect(button).toHaveAttribute("aria-expanded", "false");
 
     await user.click(button);
 
-    expect(screen.getByText("Como usar a lista de adocoes")).toBeInTheDocument();
+    expect(screen.getByText("Como usar a lista de adoções")).toBeInTheDocument();
     expect(
       screen.getByText("Use a busca para localizar o adotante."),
     ).toBeInTheDocument();

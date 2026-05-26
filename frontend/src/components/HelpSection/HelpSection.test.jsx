@@ -7,7 +7,7 @@ const sampleContent = {
   heading: "Como usar esta tela",
   sections: [
     {
-      title: "O que voce faz aqui",
+      title: "O que você faz aqui",
       items: ["Consulta dados operacionais."],
     },
     {
@@ -23,14 +23,14 @@ describe("HelpSection", () => {
 
     render(<HelpSection content={sampleContent} />);
 
-    const button = screen.getByRole("button", { name: "Help" });
+    const button = screen.getByRole("button", { name: "Ajuda" });
     expect(button).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByText("O que voce faz aqui")).not.toBeInTheDocument();
+    expect(screen.queryByText("O que você faz aqui")).not.toBeInTheDocument();
 
     await user.click(button);
 
     expect(button).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByText("O que voce faz aqui")).toBeInTheDocument();
+    expect(screen.getByText("O que você faz aqui")).toBeInTheDocument();
     expect(
       screen.getByText("Clique em Novo para iniciar o fluxo."),
     ).toBeInTheDocument();
@@ -41,12 +41,12 @@ describe("HelpSection", () => {
 
     render(<HelpSection content={sampleContent} />);
 
-    const button = screen.getByRole("button", { name: "Help" });
+    const button = screen.getByRole("button", { name: "Ajuda" });
     await user.click(button);
     await user.click(button);
 
     expect(button).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByText("O que voce faz aqui")).not.toBeInTheDocument();
+    expect(screen.queryByText("O que você faz aqui")).not.toBeInTheDocument();
   });
 
   it("returns null when content is missing", () => {

@@ -6,12 +6,12 @@ describe("helpContent", () => {
     const content = getHelpContent("adocoes", "lista");
 
     expect(content).not.toBeNull();
-    expect(content.heading).toBe("Como usar a lista de adocoes");
+    expect(content.heading).toBe("Como usar a lista de adoções");
     expect(content.sections.map((section) => section.title)).toEqual([
-      "O que voce faz aqui",
+      "O que você faz aqui",
       "Como executar",
-      "Atencao ao usar",
-      "Dicas rapidas",
+      "Atenção ao usar",
+      "Dicas rápidas",
     ]);
   });
 

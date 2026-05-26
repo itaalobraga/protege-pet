@@ -2,7 +2,7 @@ import { useId, useState } from "react";
 import { Button, Card } from "react-bootstrap";
 import "./helpSection.css";
 
-function HelpSection({ content, title = "Help" }) {
+function HelpSection({ content, title = "Ajuda" }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
 

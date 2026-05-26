@@ -40,14 +40,14 @@ describe("DetalhesDoacao help integration", () => {
       path: "/doacoes/:id",
     });
 
-    const button = await screen.findByRole("button", { name: "Help" });
+    const button = await screen.findByRole("button", { name: "Ajuda" });
     await user.click(button);
 
     expect(
-      screen.getByText("Como ler os detalhes da doacao"),
+      screen.getByText("Como ler os detalhes da doação"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Revise identificacao, data, doador, tipo e observacao."),
+      screen.getByText("Revise identificação, data, doador, tipo e observação."),
     ).toBeInTheDocument();
   });
 });
