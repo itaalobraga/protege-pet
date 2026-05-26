@@ -7,6 +7,7 @@ const router = express.Router();
 const validarPermissao = exigirPermissao("Gerenciar adoções");
 
 router.get("/adocoes", authJwt, validarPermissao, AdocaoController.listar);
+router.get("/adocoes/relatorio.csv", authJwt, validarPermissao, AdocaoController.exportarCsv);
 router.get(
   "/adocoes/:id",
   authJwt,
@@ -32,6 +33,7 @@ router.put(
   validarPermissao,
   AdocaoController.atualizar,
 );
+
 router.delete(
   "/adocoes/:id",
   authJwt,
