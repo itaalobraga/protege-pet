@@ -5,6 +5,8 @@ import Modal from "react-bootstrap/Modal";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../services/ApiService";
 
 function ListaDePrescricoes() {
@@ -49,14 +51,6 @@ function ListaDePrescricoes() {
 
     return () => clearTimeout(timeoutId);
   }, [search, carregarPrescricoes]);
-
-  const formatarData = (data) => {
-    if (!data) return "-";
-    return new Date(data).toLocaleString("pt-BR", {
-      dateStyle: "short",
-      timeStyle: "short",
-    });
-  };
 
   const formatarStatus = (status) => {
     if (status === "ATIVA") return "Ativa";
@@ -126,6 +120,8 @@ function ListaDePrescricoes() {
               </Link>
             </div>
           </div>
+
+          <HelpSection content={getHelpContent("prescricoes", "lista")} />
 
           <Card className="border-0 shadow-sm">
             <Card.Body className="p-0">

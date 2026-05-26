@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { Container, Card, Row, Col } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../services/ApiService";
 
 function DetalhesAtendimento() {
   const { id } = useParams();
+  const helpContent = getHelpContent("atendimentos", "detalhes");
   const [atendimento, setAtendimento] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
@@ -67,6 +70,7 @@ function DetalhesAtendimento() {
                 <i className="bi bi-arrow-left"></i> Voltar
               </Link>
             </div>
+            <HelpSection content={helpContent} />
             <Card className="border-0 shadow-sm">
               <Card.Body className="text-center py-5 text-secondary">
                 <i className="bi bi-exclamation-circle fs-1 d-block mb-2"></i>
@@ -128,6 +132,8 @@ function DetalhesAtendimento() {
               </Link>
             </div>
           </div>
+
+          <HelpSection content={helpContent} />
 
           <Card className="border-0 shadow-sm">
             <Card.Body className="p-4">

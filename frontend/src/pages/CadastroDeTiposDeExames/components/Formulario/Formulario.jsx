@@ -3,6 +3,8 @@ import { Button, Form, Card, Col, Row } from "react-bootstrap";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../../../services/ApiService";
 
 function Formulario() {
@@ -87,6 +89,8 @@ function Formulario() {
           <i className="bi bi-arrow-left"></i> Voltar
         </Link>
       </div>
+
+      <HelpSection content={getHelpContent("tiposDeExames", "cadastro")} />
 
       <Card className="border-0 shadow-sm">
         <Card.Body className="p-4">

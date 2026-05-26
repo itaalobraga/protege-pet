@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { Card, Container, Form, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import ApiService from "../../services/ApiService";
@@ -118,6 +120,8 @@ function ListaDeMovimentacoes() {
               </Link>
             </div>
           </div>
+
+          <HelpSection content={getHelpContent("movimentacoes", "lista")} />
 
           <Card className="border-0 shadow-sm">
             <Card.Body className="p-0">

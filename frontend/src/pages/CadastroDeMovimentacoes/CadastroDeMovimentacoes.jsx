@@ -4,6 +4,8 @@ import { Button, Card, Container, Form, Row, Col } from "react-bootstrap";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../services/ApiService";
 
 const MOTIVOS_ENTRADA = [
@@ -139,14 +141,18 @@ function CadastroDeMovimentacoes() {
       <Header />
       <main>
         <Container className="py-4">
+          <div className="mb-4">
+            <h3 className="fw-bold mb-2">Movimentação de Estoque</h3>
+            <p className="text-muted mb-0">
+              Registre entradas e saídas de produtos. Se for produto novo,
+              clique no botão verde para cadastrá-lo.
+            </p>
+          </div>
+
+          <HelpSection content={getHelpContent("movimentacoes", "cadastro")} />
+
           <Card className="shadow-sm border-0">
             <Card.Body className="p-4">
-              <h3 className="fw-bold mb-2">Movimentação de Estoque</h3>
-              <p className="text-muted mb-4">
-                Registre entradas e saídas de produtos. Se for produto novo,
-                clique no botão verde para cadastrá-lo.
-              </p>
-
               <Form onSubmit={handleSubmit}>
                 <Row>
                   <Col md={6}>

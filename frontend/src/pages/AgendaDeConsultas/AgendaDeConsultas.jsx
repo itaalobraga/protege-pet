@@ -14,6 +14,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { format, isValid, parse } from "date-fns";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "src/services/ApiService.js";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -255,6 +257,8 @@ function AgendaDeConsultas() {
               </Link>
             </div>
           </div>
+
+          <HelpSection content={getHelpContent("consultas", "agenda")} />
 
           {modo === "tabela" ? (
             <>

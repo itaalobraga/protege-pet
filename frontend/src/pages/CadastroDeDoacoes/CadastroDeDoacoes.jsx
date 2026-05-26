@@ -4,6 +4,8 @@ import { Button, Card, Container, Form, Row, Col } from "react-bootstrap";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../services/ApiService";
 
 function CadastroDeDoacoes() {
@@ -97,13 +99,18 @@ function CadastroDeDoacoes() {
       <Header />
       <main>
         <Container className="py-4">
+          <div className="mb-4">
+            <h3 className="fw-bold mb-2">Recebimento de Doação</h3>
+            <p className="text-muted mb-0">
+              Registre as doações recebidas. Doações de produtos atualizarão o
+              estoque automaticamente.
+            </p>
+          </div>
+
+          <HelpSection content={getHelpContent("doacoes", "cadastro")} />
+
           <Card className="shadow-sm border-0">
             <Card.Body className="p-4">
-              <h3 className="fw-bold mb-2">Recebimento de Doação</h3>
-              <p className="text-muted mb-4">
-                Registre as doações recebidas. Doações de produtos atualizarão o estoque automaticamente.
-              </p>
-
               <Form onSubmit={handleSubmit}>
                 <Row>
                   <Col md={12}>
