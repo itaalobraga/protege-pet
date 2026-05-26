@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS arquivos (
     FOREIGN KEY (criado_por_usuario_id) REFERENCES usuarios(id)
     ON DELETE SET NULL
     ON UPDATE CASCADE
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE INDEX idx_arquivos_created_at ON arquivos(created_at);
 
