@@ -108,7 +108,7 @@ export const helpContent = {
           title: "Atenção antes de salvar",
           items: [
             "Doações de produto impactam o estoque automaticamente.",
-            "Use o contato do doador quando precisar enviar recibo ou retorno.",
+            "Use o e-mail do doador quando precisar enviar recibo ou retorno.",
           ],
         },
       ],
@@ -228,7 +228,7 @@ export const helpContent = {
           items: [
             "Alterne entre tabela e calendário conforme o tipo de visualização desejado.",
             "Use os filtros por período, veterinário e animal para restringir os resultados.",
-            "Clique em Novo agendamento ou em uma data do calendário para abrir o formulário.",
+            "Clique em Agendar ou em uma data do calendário para abrir o formulário.",
           ],
         },
         {
@@ -347,7 +347,7 @@ export const helpContent = {
       sections: [
         {
           title: "O que você faz aqui",
-          items: ["Consulta, edita e encerra o ciclo de prescrições veterinárias."],
+          items: ["Consulta, edita e gerencia prescrições veterinárias."],
         },
         {
           title: "Como executar",
