@@ -3,6 +3,8 @@ import { format, isValid, parse } from "date-fns";
 import { Button, Card, Col, Container, Form, Row, Toast, ToastContainer } from "react-bootstrap";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "src/services/ApiService.js";
 
 function toMysqlDateTimeFromDatetimeLocal(datetimeLocal) {
@@ -147,6 +149,8 @@ function CadastroDeMinistracoes() {
               <i className="bi bi-arrow-left"></i> Voltar
             </Link>
           </div>
+
+          <HelpSection content={getHelpContent("ministracoes", "cadastro")} />
 
           <Card className="border-0 shadow-sm">
             <Card.Body className="p-4">

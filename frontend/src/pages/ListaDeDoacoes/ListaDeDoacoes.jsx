@@ -4,6 +4,8 @@ import { Card, Container, Table, Form, Row, Col, Button } from "react-bootstrap"
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../services/ApiService";
 import { format } from "date-fns";
 
@@ -130,6 +132,8 @@ function ListaDeDoacoes() {
               </Link>
             </div>
           </div>
+
+          <HelpSection content={getHelpContent("doacoes", "lista")} />
 
           <Card className="shadow-sm border-0 mb-4">
             <Card.Body className="p-4">

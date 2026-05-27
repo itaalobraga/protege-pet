@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Container, Card, Form, Button, Stack } from "react-bootstrap";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Toast from "react-bootstrap/Toast";
@@ -11,6 +11,7 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { checkAuth } = useAuth();
+  const sessionExpired = Boolean(location.state?.sessionExpired);
   const [formData, setFormData] = useState({ email: "", senha: "" });
   const [errors, setErrors] = useState({});
   const [showToast, setShowToast] = useState(false);
@@ -41,11 +42,11 @@ function Login() {
   };
 
   useEffect(() => {
-    if (location.state?.sessionExpired) {
+    if (sessionExpired) {
       exibirToast("Sua sessão expirou. Faça login novamente.", "danger");
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state?.sessionExpired]);
+  }, [sessionExpired, location.pathname, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

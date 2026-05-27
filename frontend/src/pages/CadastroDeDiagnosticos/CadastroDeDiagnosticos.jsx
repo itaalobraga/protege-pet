@@ -4,6 +4,8 @@ import { Button, Card, Container, Form, Row, Col } from "react-bootstrap";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../services/ApiService";
 
 function CadastroDeDiagnosticos() {
@@ -81,17 +83,21 @@ function CadastroDeDiagnosticos() {
       <Header />
       <main>
         <Container className="py-4">
+          <div className="mb-4">
+            <h3 className="fw-bold mb-2">
+              {isEdit ? "Editar diagnóstico" : "Novo diagnóstico"}
+            </h3>
+            <p className="text-muted mb-0">
+              {isEdit
+                ? "Altere os dados do diagnóstico selecionado."
+                : "Cadastre as patologias e diagnósticos padrões do sistema."}
+            </p>
+          </div>
+
+          <HelpSection content={getHelpContent("diagnosticos", "cadastro")} />
+
           <Card className="shadow-sm border-0">
             <Card.Body className="p-4">
-              <h3 className="fw-bold mb-2">
-                {isEdit ? "Editar diagnóstico" : "Novo diagnóstico"}
-              </h3>
-              <p className="text-muted mb-4">
-                {isEdit
-                  ? "Altere os dados do diagnóstico selecionado."
-                  : "Cadastre as patologias e diagnósticos padrões do sistema."}
-              </p>
-
               {carregandoDados ? (
                 <div className="text-center py-5">
                   <div className="spinner-border text-secondary" role="status">

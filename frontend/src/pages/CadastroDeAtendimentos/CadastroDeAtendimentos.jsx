@@ -5,6 +5,8 @@ import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import { format, isValid, parse } from "date-fns";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../services/ApiService";
 
 function formatarDataParaDatetimeLocal(valor) {
@@ -258,17 +260,21 @@ function CadastroDeAtendimentos() {
       <Header />
       <main>
         <Container className="py-4">
+          <div className="mb-4">
+            <h3 className="fw-bold mb-2">
+              {isEdit ? "Editar atendimento" : "Realizar atendimento clínico"}
+            </h3>
+            <p className="text-muted mb-0">
+              {isEdit
+                ? "Altere data da consulta na agenda, peso, diagnóstico e exames. As observações abaixo são do prontuário clínico."
+                : "Vincule o atendimento a uma consulta já agendada ou crie o agendamento aqui (sem enviar e-mail ao veterinário). Em seguida registre peso, diagnóstico e exames."}
+            </p>
+          </div>
+
+          <HelpSection content={getHelpContent("atendimentos", "cadastro")} />
+
           <Card className="shadow-sm border-0">
             <Card.Body className="p-4">
-              <h3 className="fw-bold mb-2">
-                {isEdit ? "Editar atendimento" : "Realizar atendimento clínico"}
-              </h3>
-              <p className="text-muted mb-4">
-                {isEdit
-                  ? "Altere data da consulta na agenda, peso, diagnóstico e exames. As observações abaixo são do prontuário clínico."
-                  : "Vincule o atendimento a uma consulta já agendada ou crie o agendamento aqui (sem enviar e-mail ao veterinário). Em seguida registre peso, diagnóstico e exames."}
-              </p>
-
               <Form onSubmit={handleSubmit}>
                 {!isEdit && (
                   <Row className="mb-4">

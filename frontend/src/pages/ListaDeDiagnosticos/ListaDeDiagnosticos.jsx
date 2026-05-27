@@ -4,6 +4,8 @@ import { Button, Card, Container, Modal, Table } from "react-bootstrap";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../services/ApiService";
 
 function ListaDeDiagnosticos() {
@@ -95,6 +97,8 @@ function ListaDeDiagnosticos() {
               </Link>
             </div>
           </div>
+
+          <HelpSection content={getHelpContent("diagnosticos", "lista")} />
 
           <Card className="border-0 shadow-sm">
             <Card.Body className="p-0">

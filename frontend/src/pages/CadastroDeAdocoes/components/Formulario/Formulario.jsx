@@ -4,6 +4,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { withMask } from "use-mask-input";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../../../services/ApiService";
 
 function FormAdocao() {
@@ -215,6 +217,8 @@ function FormAdocao() {
           <i className="bi bi-arrow-left"></i> Voltar
         </Link>
       </div>
+
+      <HelpSection content={getHelpContent("adocoes", "cadastro")} />
 
       <Card className="border-0 shadow-sm">
         <Card.Body className="p-4">

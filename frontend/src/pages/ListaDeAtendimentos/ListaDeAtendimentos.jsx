@@ -4,6 +4,8 @@ import { Card, Container, Table, Button } from "react-bootstrap";
 import Toast from "react-bootstrap/Toast";
 import ToastContainer from "react-bootstrap/ToastContainer";
 import Header from "src/components/Header/Header.jsx";
+import HelpSection from "src/components/HelpSection/HelpSection.jsx";
+import { getHelpContent } from "src/content/help/helpContent.js";
 import ApiService from "../../services/ApiService";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -141,6 +143,8 @@ function ListaDeAtendimentos() {
               </Link>
             </div>
           </div>
+
+          <HelpSection content={getHelpContent("atendimentos", "lista")} />
 
           <Card className="border-0 shadow-sm">
             <Card.Body className="p-0">
