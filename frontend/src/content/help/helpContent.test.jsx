@@ -20,6 +20,16 @@ describe("helpContent", () => {
     expect(getHelpContent("adocoes", "agenda")).toBeNull();
   });
 
+  it("keeps the movimentacoes help focused on using the screen", () => {
+    const content = getHelpContent("movimentacoes", "lista");
+
+    expect(content).not.toBeNull();
+    expect(content.sections[2].title).toBe("Atenção ao usar");
+    expect(content.sections[2].items).toContain(
+      "Entradas e saídas aparecem no mesmo histórico; use o filtro de tipo para localizar o que você precisa.",
+    );
+  });
+
   it("keeps all sections as arrays of strings", () => {
     Object.values(helpContent).forEach((variants) => {
       Object.values(variants).forEach((entry) => {

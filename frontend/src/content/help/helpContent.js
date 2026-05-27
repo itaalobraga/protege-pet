@@ -155,7 +155,7 @@ export const helpContent = {
         {
           title: "Atenção ao usar",
           items: [
-            "A tela cobre tanto RF_F3 quanto RF_F5, porque entradas e saídas vivem no mesmo fluxo.",
+            "Entradas e saídas aparecem no mesmo histórico; use o filtro de tipo para localizar o que você precisa.",
           ],
         },
         {
